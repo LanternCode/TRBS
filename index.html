@@ -8,7 +8,7 @@
     <body>
         <h1>Witaj w symulatorze walk</h1>
         <h2>Walka: <span id="battleStatus">Nierozpoczęta</span></h2>
-        <h2>Tura: 1</h2>
+        <h2>Tura: <span id="globalTurn">1</span></h2>
         <article>
             <section id="participant-0" class="playerSection">
                 <h3>Miles</h3>
@@ -79,12 +79,6 @@
             </select>
             <h3>Cel:</h3>
             <select id="targetsList">
-                <option value="target-1">Przeciwnik 1</option>
-                <option value="target-2">Przeciwnik 2</option>
-                <option value="target-3">Przeciwnik 3</option>
-                <option value="target-4">Miles</option>
-                <option value="target-5">Churchie</option>
-                <option value="target-6">Crownsnek</option>
             </select>
             <button onclick="act()" class="battleButton">Wykonaj</button>
         </article>

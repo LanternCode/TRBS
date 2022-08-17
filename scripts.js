@@ -5,21 +5,24 @@ let players = [
         health: 100,
         speed: 81,
         atk: 20,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     },
     {
         name: 'Churchie',
         health: 90,
         speed: 82,
         atk: 15,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     },
     {
         name: 'Crownsnek',
         health: 80,
         speed: 17,
         atk: 10,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     }];
 
 //pre-defined enemies array
@@ -29,21 +32,24 @@ let enemies = [
         health: 100,
         speed: 88,
         atk: 20,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     },
     {
         name: 'Przeciwnik 2',
         health: 100,
         speed: 12,
         atk: 20,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     },
     {
         name: 'Przeciwnik 3',
         health: 100,
         speed: 36,
         atk: 20,
-        uuid: 0
+        uuid: 0,
+        isDodging: 0
     }];
 
 //pre-defined, empty participants array
@@ -73,12 +79,13 @@ function startBattle()
     document.getElementById("nowActsDesc").innerText = participants[0].name;
 
     //Prepare the targets list
+    let targetSlot = document.getElementById("targetsList");
     for(let i = 0; i < participants.length; ++i)
     {
-        participants[i].uuid = i;
-        let targetSlot = document.getElementById("targetsList").children[i];
-        targetSlot.innerText = participants[i].name;
-        targetSlot.value = i;
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = participants[i].name;
+        targetSlot.appendChild(opt);
     }
 
     refreshBattleSlots();
@@ -114,11 +121,17 @@ function act()
         case "attack":
         {
             let attack = participants[localTurn].atk;
-            participants[target].health -= attack;
+            if(participants[target].isDodging)
+            {
+                //target is dodging - in phase 1 avoid all damage
+                break;
+            }
+            else participants[target].health -= attack;
             break;
         }
         case "dodge":
         {
+            participants[localTurn].isDodging = 1;
             break;
         }
         default:
@@ -128,3 +141,6 @@ function act()
     }
     refreshBattleSlots();
 }
+
+//removes all children
+//myNode.innerHTML = '';
