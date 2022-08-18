@@ -142,5 +142,25 @@ function act()
     refreshBattleSlots();
 }
 
+function nextTurn()
+{
+    //update the local turn counter
+    localTurn++;
+
+    //check if this was the last local turn of the global turn
+    if(localTurn === participants.length)
+    {
+        localTurn = 0;
+        globalTurn++;
+        document.getElementById("globalTurn").innerText = globalTurn;
+    }
+
+    //if the member was dodging, disable their dodge once their turn starts again
+    participants[localTurn].isDodging = 0;
+
+    //Update the "acts now" label
+    document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
+}
+
 //removes all children
 //myNode.innerHTML = '';
