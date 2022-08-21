@@ -6,7 +6,8 @@ let players = [
         speed: 81,
         atk: 20,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "player"
     },
     {
         name: 'Churchie',
@@ -14,7 +15,8 @@ let players = [
         speed: 82,
         atk: 15,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "player"
     },
     {
         name: 'Crownsnek',
@@ -22,7 +24,8 @@ let players = [
         speed: 17,
         atk: 10,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "player"
     }];
 
 //pre-defined enemies array
@@ -33,7 +36,8 @@ let enemies = [
         speed: 88,
         atk: 20,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "enemy"
     },
     {
         name: 'Przeciwnik 2',
@@ -41,7 +45,8 @@ let enemies = [
         speed: 12,
         atk: 20,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "enemy"
     },
     {
         name: 'Przeciwnik 3',
@@ -49,14 +54,15 @@ let enemies = [
         speed: 36,
         atk: 20,
         uuid: 0,
-        isDodging: 0
+        isDodging: 0,
+        type: "enemy"
     }];
 
 //pre-defined, empty participants array
 let participants = [];
 
 //pre-defined counters
-let globalTurn = 0;
+let globalTurn = 1;
 let localTurn = 0;
 
 function startBattle()
@@ -66,7 +72,6 @@ function startBattle()
 
     //sort the array by speed to establish turn order
     participants.sort((a, b) => b.speed - a.speed);
-    console.log(participants);
 
     //Update the battle state description
     document.getElementById("battleStatus").innerText = "W trakcie!";
@@ -93,22 +98,30 @@ function startBattle()
 
 function refreshBattleSlots()
 {
-    //Prepare the player battle slots
-    for(let i = 0; i < players.length; ++i)
-    {
-        let battleSlot = document.getElementById("participant-"+i);
-        battleSlot.children[2].innerText = players[i].health;
-        battleSlot.children[4].innerText = players[i].speed;
-        battleSlot.children[6].innerText = players[i].atk;
-    }
+    let playersUpdated = 0;
+    const playersCount = players.length;
+    let enemiesUpdated = 0;
 
-    //Prepare the enemy battle slots
-    for(let i = 0; i < enemies.length; ++i)
+    //Prepare the battle slots
+    for(let i = 0; i < participants.length; ++i)
     {
-        let battleSlot = document.getElementById("participant-"+(i+3));
-        battleSlot.children[2].innerText = enemies[i].health;
-        battleSlot.children[4].innerText = enemies[i].speed;
-        battleSlot.children[6].innerText = enemies[i].atk;
+        let battleSlot = "";
+        //find the correct battle slot
+        if(participants[i].type === "player")
+        {
+            battleSlot = document.getElementById("participant-"+playersUpdated);
+            playersUpdated++;
+        }
+        else if(participants[i].type === "enemy")
+        {
+            battleSlot = document.getElementById("participant-"+(playersCount+enemiesUpdated));
+            enemiesUpdated++;
+        }
+        //update the display properties
+        battleSlot.children[0].innerText = participants[i].name;
+        battleSlot.children[2].innerText = participants[i].health;
+        battleSlot.children[4].innerText = participants[i].speed;
+        battleSlot.children[6].innerText = participants[i].atk;
     }
 }
 
@@ -126,7 +139,13 @@ function act()
                 //target is dodging - in phase 1 avoid all damage
                 break;
             }
-            else participants[target].health -= attack;
+            else
+            {
+                let targetHealth = participants[target].health;
+                if(targetHealth - attack > 0)
+                    participants[target].health -= attack;
+                else participants[target].health = 0;
+            }
             break;
         }
         case "dodge":
@@ -160,6 +179,9 @@ function nextTurn()
 
     //Update the "acts now" label
     document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
+
+    //Check if the participant is alive, if not, start next turn
+    if(participants[localTurn].health === 0) nextTurn();
 }
 
 //removes all children
