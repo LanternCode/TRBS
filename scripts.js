@@ -161,6 +161,28 @@ function act()
     refreshBattleSlots();
 }
 
+function endBattle(identifier)
+{
+    //Update the "acts now" label
+    document.getElementById("nowActsDesc").innerText = "-";
+
+    //Update the battle state description
+    document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (identifier === "e" ? "Graczy!" : "Przeciwników!");
+
+    //change the next turn button into reset battle
+    document.getElementById("nextTurnButton").style.display = "none";
+}
+
+function isBattleOver()
+{
+    //check if all enemies or all players are down
+    let playersDown = participants.filter(participant => participant.type === "player").every(p => p.health === 0);
+    let enemiesDown = participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
+
+    if(playersDown) endBattle("p");
+    else if(enemiesDown) endBattle("e");
+}
+
 function nextTurn()
 {
     //update the local turn counter
@@ -179,6 +201,9 @@ function nextTurn()
 
     //Update the "acts now" label
     document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
+
+    //check if the battle is over
+    isBattleOver();
 
     //Check if the participant is alive, if not, start next turn
     if(participants[localTurn].health === 0) nextTurn();
