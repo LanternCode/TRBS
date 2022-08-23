@@ -1,5 +1,5 @@
 //pre-defined players array
-let players = [
+const players = [
     {
         name: 'Miles',
         health: 100,
@@ -29,7 +29,7 @@ let players = [
     }];
 
 //pre-defined enemies array
-let enemies = [
+const enemies = [
     {
         name: 'Przeciwnik 1',
         health: 100,
@@ -65,10 +65,15 @@ let participants = [];
 let globalTurn = 1;
 let localTurn = 0;
 
+//pre-defined flags
+let priorityTwo = true;
+let priorityThree = true;
+
 function startBattle()
 {
     //update the array with details of players and enemies so the originals are not modified
-    participants = [...players, ...enemies];
+    participants = structuredClone(players);
+    participants = participants.concat(structuredClone(enemies));
 
     //sort the array by speed to establish turn order
     participants.sort((a, b) => b.speed - a.speed);
@@ -133,24 +138,39 @@ function act()
     {
         case "attack":
         {
-            let attack = participants[localTurn].atk;
-            if(participants[target].isDodging)
+            if(priorityTwo === true)
             {
-                //target is dodging - in phase 1 avoid all damage
-                break;
+                let attack = participants[localTurn].atk;
+                if(participants[target].isDodging)
+                {
+                    //target is dodging - in phase 1 avoid all damage
+                }
+                else
+                {
+                    let targetHealth = participants[target].health;
+                    if(targetHealth - attack > 0)
+                        participants[target].health -= attack;
+                    else participants[target].health = 0;
+                }
+                priorityTwo = false;
             }
             else
             {
-                let targetHealth = participants[target].health;
-                if(targetHealth - attack > 0)
-                    participants[target].health -= attack;
-                else participants[target].health = 0;
+                //no actions left
             }
             break;
         }
         case "dodge":
         {
-            participants[localTurn].isDodging = 1;
+            if(priorityTwo === true)
+            {
+                participants[localTurn].isDodging = 1;
+                priorityTwo = false;
+            }
+            else
+            {
+                //no actions left
+            }
             break;
         }
         default:
@@ -171,6 +191,7 @@ function endBattle(identifier)
 
     //change the next turn button into reset battle
     document.getElementById("nextTurnButton").style.display = "none";
+    document.getElementById("startBattleButton").style.display = "block";
 }
 
 function isBattleOver()
@@ -185,6 +206,10 @@ function isBattleOver()
 
 function nextTurn()
 {
+    //reset the available action flags
+    priorityTwo = true;
+    priorityThree = true;
+
     //update the local turn counter
     localTurn++;
 
