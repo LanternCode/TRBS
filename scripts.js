@@ -134,6 +134,8 @@ function act()
 {
     let action = document.getElementById("action").value;
     let target = document.getElementById("targetsList").value;
+    let priorityTwoActions = document.getElementsByClassName("priorityTwoAction");
+
     switch(action)
     {
         case "attack":
@@ -178,6 +180,16 @@ function act()
             break;
         }
     }
+
+    // mark unavailable actions
+    if(priorityTwo === false)
+    {
+        for (var priorityTwoAction of priorityTwoActions)
+        {
+            priorityTwoAction.classList.add("disabled");
+        }
+    }
+
     refreshBattleSlots();
 }
 
@@ -209,6 +221,12 @@ function nextTurn()
     //reset the available action flags
     priorityTwo = true;
     priorityThree = true;
+
+    let priorityTwoActions = document.getElementsByClassName("priorityTwoAction");
+    for (var priorityTwoAction of priorityTwoActions)
+    {
+        priorityTwoAction.classList.remove("disabled");
+    }
 
     //update the local turn counter
     localTurn++;

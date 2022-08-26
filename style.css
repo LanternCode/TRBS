@@ -31,3 +31,7 @@
 .battleButton {
     display: block;
 }
+
+.priorityTwoAction.disabled::after {
+    content: " - niedostępna"
+}
