@@ -32,6 +32,6 @@
     display: block;
 }
 
-.priorityTwoAction.disabled::after {
+.priorityActionFlag.disabled::after {
     content: " - niedostępna"
 }
