@@ -7,7 +7,14 @@ const players = [
         atk: 20,
         uuid: 0,
         isDodging: 0,
-        type: "player"
+        type: "player",
+        itemsOwned: {
+            'life_flask': 1,
+            'small_life_potion': 0,
+            'life_potion': 1,
+            'large_life_potion': 0,
+            'regeneration_flask': 0
+        }
     },
     {
         name: 'Churchie',
@@ -16,7 +23,14 @@ const players = [
         atk: 15,
         uuid: 0,
         isDodging: 0,
-        type: "player"
+        type: "player",
+        itemsOwned: {
+            'life_flask': 0,
+            'small_life_potion': 1,
+            'life_potion': 0,
+            'large_life_potion': 1,
+            'regeneration_flask': 0
+        }
     },
     {
         name: 'Crownsnek',
@@ -25,7 +39,14 @@ const players = [
         atk: 10,
         uuid: 0,
         isDodging: 0,
-        type: "player"
+        type: "player",
+        itemsOwned: {
+            'life_flask': 0,
+            'small_life_potion': 0,
+            'life_potion': 0,
+            'large_life_potion': 0,
+            'regeneration_flask': 1
+        }
     }];
 
 //pre-defined enemies array
@@ -58,6 +79,44 @@ const enemies = [
         type: "enemy"
     }];
 
+//pre-defined item definition array
+const items = [
+    {
+        name: "life_flask",
+        displayName: "Flakon Życia",
+        type: "healing",
+        valueType: "flat",
+        value: 10
+    },
+    {
+        name: "small_life_potion",
+        displayName: "Mała Mikstura Życia",
+        type: "healing",
+        valueType: "flat",
+        value: 15
+    },
+    {
+        name: "life_potion",
+        displayName: "Mikstura Życia",
+        type: "healing",
+        valueType: "flat",
+        value: 22
+    },
+    {
+        name: "large_life_potion",
+        displayName: "Większa Mikstura Życia",
+        type: "healing",
+        valueType: "flat",
+        value: 30
+    },
+    {
+        name: "regeneration_flask",
+        displayName: "Flakon Regeneracji",
+        type: "healing",
+        valueType: "parcentage",
+        value: 1.50
+    }
+];
 //pre-defined, empty participants array
 let participants = [];
 
@@ -134,6 +193,7 @@ function act()
 {
     let action = document.getElementById("action").value;
     let target = document.getElementById("targetsList").value;
+    let item_key = document.getElementById("itemsList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
@@ -175,6 +235,25 @@ function act()
                 //no actions left
             }
             break;
+        }
+        case "item":
+        {
+            if(priorityThree === true)
+            {
+                //find the item in the item list
+                let item = items.find(i => i.name === item_key);
+                //use the item
+                if(item.valueType === "flat")
+                    participants[target].health += item.value;
+                else participants[target].health += (participants[target].health * item.value);
+                //reduce player's item count
+                participants[localTurn].itemsOwned[item_key] -= 1;
+                priorityThree = false;
+            }
+            else
+            {
+                //no actions left
+            }
         }
         default:
         {
@@ -218,6 +297,34 @@ function isBattleOver()
     else if(enemiesDown) endBattle("e");
 }
 
+function updateItemList()
+{
+    //remove all children
+    let itemSlots = document.getElementById("itemsList");
+    itemSlots.innerHTML = '';
+    //insert new elements
+    if(participants[localTurn].itemsOwned === null || typeof participants[localTurn].itemsOwned === 'undefined')
+    {
+        //items are not defined/available
+    }
+    else
+    {
+        for (let itanz of Object.entries(participants[localTurn].itemsOwned))
+        {
+            let item_name = itanz[0];
+            let item_count = itanz[1];
+            //find the item in the item list to get its name
+            let item = items.find(i => i.name === item_name);
+            if(item_count > 0) {
+                let opt = document.createElement('option');
+                opt.value = item_name;
+                opt.innerText = item.displayName + ": " + item_count;
+                itemSlots.appendChild(opt);
+            }
+        }
+    }
+}
+
 function nextTurn()
 {
     //reset the available action flags
@@ -250,7 +357,7 @@ function nextTurn()
 
     //Check if the participant is alive, if not, start next turn
     if(participants[localTurn].health === 0) nextTurn();
-}
 
-//removes all children
-//myNode.innerHTML = '';
+    //update the available items list
+    updateItemList();
+}
