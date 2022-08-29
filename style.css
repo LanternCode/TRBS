@@ -33,5 +33,5 @@
 }
 
 .priorityActionFlag.disabled::after {
-    content: " - niedostępna"
+    content: " - niedostępny"
 }
