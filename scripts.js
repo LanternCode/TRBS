@@ -5,6 +5,7 @@ const players = [
         health: 100,
         speed: 81,
         atk: 20,
+        dodge: 11,
         uuid: 0,
         isDodging: 0,
         type: "player"
@@ -14,6 +15,7 @@ const players = [
         health: 90,
         speed: 82,
         atk: 15,
+        dodge: 9,
         uuid: 0,
         isDodging: 0,
         type: "player"
@@ -23,6 +25,7 @@ const players = [
         health: 80,
         speed: 17,
         atk: 10,
+        dodge: 6,
         uuid: 0,
         isDodging: 0,
         type: "player"
@@ -35,6 +38,7 @@ const enemies = [
         health: 100,
         speed: 88,
         atk: 20,
+        dodge: 9,
         uuid: 0,
         isDodging: 0,
         type: "enemy"
@@ -44,6 +48,7 @@ const enemies = [
         health: 100,
         speed: 12,
         atk: 20,
+        dodge: 6,
         uuid: 0,
         isDodging: 0,
         type: "enemy"
@@ -53,6 +58,7 @@ const enemies = [
         health: 100,
         speed: 36,
         atk: 20,
+        dodge: 7,
         uuid: 0,
         isDodging: 0,
         type: "enemy"
@@ -127,6 +133,7 @@ function refreshBattleSlots()
         battleSlot.children[2].innerText = participants[i].health;
         battleSlot.children[4].innerText = participants[i].speed;
         battleSlot.children[6].innerText = participants[i].atk;
+        battleSlot.children[8].innerText = participants[i].dodge;
     }
 }
 
@@ -150,6 +157,25 @@ function act()
                 }
                 else
                 {
+                    // phase 2:
+                    let dodgingCheck = Math.floor(Math.random() * 20) + 1;
+                    document.getElementById("systemThrow").innerText = "unik - " + dodgingCheck;
+
+                    if(dodgingCheck < participants[target].dodge)
+                    {
+                        //target is dodging
+                        attack = 0;
+                    }
+                    else if(dodgingCheck === participants[target].dodge)
+                    {
+                        //target is taking half of the damage
+                        attack = floor(attack / 2);
+                    }
+                    else
+                    {
+                        //target is taking the whole damage
+                    }
+
                     let targetHealth = participants[target].health;
                     if(targetHealth - attack > 0)
                         participants[target].health -= attack;
