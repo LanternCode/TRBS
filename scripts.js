@@ -213,36 +213,36 @@ function act()
                 let attack = participants[localTurn].atk;
                 if(participants[target].isDodging)
                 {
-                    //target is dodging - in phase 1 avoid all damage
+                    //target is dodging - in phase 2 avoid half the damage
+                    attack = Math.floor(attack / 2);
+                }
+
+                // phase 2:
+                let dodgingCheck = Math.floor(Math.random() * 20) + 1;
+
+                if(dodgingCheck < participants[target].dodge)
+                {
+                    //target is dodging
+                    attack = 0;
+                    document.getElementById("systemThrow").innerText = dodgingCheck + " (unik)";
+                }
+                else if(dodgingCheck === participants[target].dodge)
+                {
+                    //target is taking half of the damage
+                    attack = Math.floor(attack / 2);
+                    document.getElementById("systemThrow").innerText = dodgingCheck + " (połowiczny unik)";
                 }
                 else
                 {
-                    // phase 2:
-                    let dodgingCheck = Math.floor(Math.random() * 20) + 1;
-
-                    if(dodgingCheck < participants[target].dodge)
-                    {
-                        //target is dodging
-                        attack = 0;
-                        document.getElementById("systemThrow").innerText = dodgingCheck + " (unik)";
-                    }
-                    else if(dodgingCheck === participants[target].dodge)
-                    {
-                        //target is taking half of the damage
-                        attack = floor(attack / 2);
-                        document.getElementById("systemThrow").innerText = dodgingCheck + " (połowiczny unik)";
-                    }
-                    else
-                    {
-                        //target is taking the whole damage
-                        document.getElementById("systemThrow").innerText = dodgingCheck + " (trafienie)";
-                    }
-
-                    let targetHealth = participants[target].health;
-                    if(targetHealth - attack > 0)
-                        participants[target].health -= attack;
-                    else participants[target].health = 0;
+                    //target is taking the whole damage
+                    document.getElementById("systemThrow").innerText = dodgingCheck + " (trafienie)";
                 }
+
+                let targetHealth = participants[target].health;
+                if(targetHealth - attack > 0)
+                    participants[target].health -= attack;
+                else participants[target].health = 0;
+
                 priorityTwo = false;
             }
             else
