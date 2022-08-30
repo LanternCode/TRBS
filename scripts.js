@@ -219,21 +219,23 @@ function act()
                 {
                     // phase 2:
                     let dodgingCheck = Math.floor(Math.random() * 20) + 1;
-                    document.getElementById("systemThrow").innerText = "unik - " + dodgingCheck;
 
                     if(dodgingCheck < participants[target].dodge)
                     {
                         //target is dodging
                         attack = 0;
+                        document.getElementById("systemThrow").innerText = dodgingCheck + " (unik)";
                     }
                     else if(dodgingCheck === participants[target].dodge)
                     {
                         //target is taking half of the damage
                         attack = floor(attack / 2);
+                        document.getElementById("systemThrow").innerText = dodgingCheck + " (połowiczny unik)";
                     }
                     else
                     {
                         //target is taking the whole damage
+                        document.getElementById("systemThrow").innerText = dodgingCheck + " (trafienie)";
                     }
 
                     let targetHealth = participants[target].health;
@@ -360,6 +362,9 @@ function nextTurn()
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
     priorityTwoActionFlag.classList.remove("disabled");
     priorityThreeActionFlag.classList.remove("disabled");
+
+    // reset system throw display
+    document.getElementById("systemThrow").innerText = "";
 
     //update the local turn counter
     localTurn++;
