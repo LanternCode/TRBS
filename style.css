@@ -28,8 +28,12 @@
     text-align: center;
 }
 
-.battleButton {
-    display: block;
+.AddCardButton {
+    display: inline-block;
+}
+
+.hidden {
+    display: none;
 }
 
 .priorityActionFlag.disabled::after {

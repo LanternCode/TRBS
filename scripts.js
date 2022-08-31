@@ -1,10 +1,10 @@
 //pre-defined players array
 const players = [
     {
-        name: 'Miles',
+        name: 'Karim',
         health: 100,
         speed: 81,
-        atk: 20,
+        atk: 200,
         dodge: 11,
         uuid: 0,
         isDodging: 0,
@@ -18,8 +18,8 @@ const players = [
         }
     },
     {
-        name: 'Churchie',
-        health: 90,
+        name: 'Antonio',
+        health: 80,
         speed: 82,
         atk: 15,
         dodge: 9,
@@ -35,8 +35,8 @@ const players = [
         }
     },
     {
-        name: 'Crownsnek',
-        health: 80,
+        name: 'Dion',
+        health: 90,
         speed: 17,
         atk: 10,
         dodge: 6,
@@ -50,6 +50,23 @@ const players = [
             'large_life_potion': 0,
             'regeneration_flask': 1
         }
+    },
+    {
+        name: 'Astrid',
+        health: 80,
+        speed: 17,
+        atk: 10,
+        dodge: 6,
+        uuid: 0,
+        isDodging: 0,
+        type: "player",
+        itemsOwned: {
+            'life_flask': 0,
+            'small_life_potion': 0,
+            'life_potion': 0,
+            'large_life_potion': 0,
+            'regeneration_flask': 10
+        }
     }];
 
 //pre-defined enemies array
@@ -58,7 +75,7 @@ const enemies = [
         name: 'Przeciwnik 1',
         health: 100,
         speed: 88,
-        atk: 20,
+        atk: 200,
         dodge: 9,
         uuid: 0,
         isDodging: 0,
@@ -76,6 +93,66 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 3',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 4',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 5',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 6',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 7',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 8',
+        health: 100,
+        speed: 36,
+        atk: 20,
+        dodge: 7,
+        uuid: 0,
+        isDodging: 0,
+        type: "enemy"
+    },
+    {
+        name: 'Przeciwnik 9',
         health: 100,
         speed: 36,
         atk: 20,
@@ -125,6 +202,8 @@ const items = [
 ];
 //pre-defined, empty participants array
 let participants = [];
+let playerCount = 0;
+let enemyCount = 0;
 
 //pre-defined counters
 let globalTurn = 1;
@@ -134,42 +213,114 @@ let localTurn = 0;
 let priorityTwo = true;
 let priorityThree = true;
 
-function startBattle()
+function addCard(type)
 {
-    //update the array with details of players and enemies so the originals are not modified
-    participants = structuredClone(players);
-    participants = participants.concat(structuredClone(enemies));
-
-    //sort the array by speed to establish turn order
-    participants.sort((a, b) => b.speed - a.speed);
-
-    //Update the battle state description
-    document.getElementById("battleStatus").innerText = "W trakcie!";
-
-    //Hide the start battle button and show the next turn button
-    document.getElementById("startBattleButton").style.display = "none";
-    document.getElementById("nextTurnButton").style.display = "block";
-
-    //Update the "acts now" label
-    document.getElementById("nowActsDesc").innerText = participants[0].name;
-
-    //Prepare the targets list
-    let targetSlot = document.getElementById("targetsList");
-    for(let i = 0; i < participants.length; ++i)
-    {
-        let opt = document.createElement('option');
-        opt.value = i;
-        opt.innerText = participants[i].name;
-        targetSlot.appendChild(opt);
+    //add a new participant into the array
+    if(type === "player"){
+        if(playerCount === 4) return;
+        participants = participants.concat(structuredClone(players[playerCount]));
+        playerCount++;
+    }else if(type === "enemy"){
+        if(enemyCount === 9) return;
+        participants = participants.concat(structuredClone(enemies[enemyCount]));
+        enemyCount++;
     }
 
-    refreshBattleSlots();
+    //Construct the card
+    let card = document.createElement("section");
+    let participantName = document.createElement("h3");
+    let healthLabel = document.createElement("label");
+    let healthValue = document.createElement("h4");
+    let speedLabel = document.createElement("label");
+    let speedValue = document.createElement("h4");
+    let attackLabel = document.createElement("label");
+    let attackValue = document.createElement("h4");
+    let dodgeLabel = document.createElement("label");
+    let dodgeValue = document.createElement("h4");
+
+    //add the attributes to the card
+    card.id = "participant-" + (participants.length-1);
+    card.className = type === "player" ? "playerSection" : "enemySection";
+    participantName.innerText = participants[participants.length-1].name;
+    healthLabel.innerText = "HP:";
+    healthValue.innerText = participants[participants.length-1].health;
+    speedLabel.innerText = "Szybkość:";
+    speedValue.innerText = participants[participants.length-1].speed;
+    attackLabel.innerText = "Atak:";
+    attackValue.innerText = participants[participants.length-1].atk;
+    dodgeLabel.innerText = "Unik:";
+    dodgeValue.innerText = participants[participants.length-1].dodge;
+
+    //append all elements in the right order
+    card.appendChild(participantName);
+    card.appendChild(healthLabel);
+    card.appendChild(healthValue);
+    card.appendChild(speedLabel);
+    card.appendChild(speedValue);
+    card.appendChild(attackLabel);
+    card.appendChild(attackValue);
+    card.appendChild(dodgeLabel);
+    card.appendChild(dodgeValue);
+
+    //append the card to the right side of the board
+    if(type === "player"){
+        document.getElementById("playerSlots").appendChild(card);
+    }else if(type === "enemy"){
+        document.getElementById("enemySlots").appendChild(card);
+    }
+}
+
+function startBattle()
+{
+    //Check if there is enough players and enemies to start the battle
+    let participantsOK = playerCount > 0 && enemyCount > 0;
+
+    if(participantsOK)
+    {
+        //reset the turn counters
+        localTurn = 0;
+        globalTurn = 1;
+
+        //disable the buttons that add new participants
+        for (let elem of document.getElementsByClassName("AddCardButton"))
+            elem.classList.toggle("hidden");
+
+        //enable the act button
+        document.getElementById("actButton").classList.toggle("hidden");
+
+        //sort the array by speed to establish turn order
+        participants.sort((a, b) => b.speed - a.speed);
+
+        //Update the battle state description
+        document.getElementById("battleStatus").innerText = "W trakcie!";
+
+        //Hide the start battle button and show the next turn button
+        document.getElementById("startBattleButton").classList.toggle("hidden");
+        document.getElementById("nextTurnButton").classList.toggle("hidden");
+
+        //Update the "acts now" label
+        document.getElementById("nowActsDesc").innerText = participants[0].name;
+
+        //Prepare the targets list
+        let targetSlot = document.getElementById("targetsList");
+        for(let i = 0; i < participants.length; ++i)
+        {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerText = participants[i].name;
+            targetSlot.appendChild(opt);
+        }
+
+        refreshBattleSlots();
+    }
+    else {
+        //show a message on screen saying you need to add more fighters
+    }
 }
 
 function refreshBattleSlots()
 {
     let playersUpdated = 0;
-    const playersCount = players.length;
     let enemiesUpdated = 0;
 
     //Prepare the battle slots
@@ -179,12 +330,12 @@ function refreshBattleSlots()
         //find the correct battle slot
         if(participants[i].type === "player")
         {
-            battleSlot = document.getElementById("participant-"+playersUpdated);
+            battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
             playersUpdated++;
         }
         else if(participants[i].type === "enemy")
         {
-            battleSlot = document.getElementById("participant-"+(playersCount+enemiesUpdated));
+            battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
             enemiesUpdated++;
         }
         //update the display properties
@@ -311,8 +462,15 @@ function endBattle(identifier)
     document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (identifier === "e" ? "Graczy!" : "Przeciwników!");
 
     //change the next turn button into reset battle
-    document.getElementById("nextTurnButton").style.display = "none";
-    document.getElementById("startBattleButton").style.display = "block";
+    document.getElementById("nextTurnButton").classList.toggle("hidden");
+    document.getElementById("startBattleButton").classList.toggle("hidden");
+
+    //hide the act button
+    document.getElementById("actButton").classList.toggle("hidden");
+
+    //enable the buttons that add new participants
+    for (let elem of document.getElementsByClassName("AddCardButton"))
+        elem.classList.toggle("hidden");
 }
 
 function isBattleOver()

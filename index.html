@@ -10,79 +10,17 @@
         <h2>Walka: <span id="battleStatus">Nierozpoczęta</span></h2>
         <h2>Tura: <span id="globalTurn">1</span></h2>
         <h2>Rzut systemu: <span id="systemThrow"></span></h2>
-        <article>
-            <section id="participant-0" class="playerSection">
-                <h3>Miles</h3>
-                <label>HP:</label>
-                <h4>100</h4>
-                <label>Szybkość:</label>
-                <h4>81</h4>
-                <label>Atak:</label>
-                <h4>20</h4>
-                <label>Unik:</label>
-                <h4>11</h4>
-            </section>
-            <section id="participant-1" class="playerSection">
-                <h3>Kościelny</h3>
-                <label>HP:</label>
-                <h4>90</h4>
-                <label>Szybkość:</label>
-                <h4>82</h4>
-                <label>Atak:</label>
-                <h4>15</h4>
-                <label>Unik:</label>
-                <h4>9</h4>
-            </section>
-            <section id="participant-2" class="playerSection">
-                <h3>Janek</h3>
-                <label>HP:</label>
-                <h4>80</h4>
-                <label>Szybkość:</label>
-                <h4>17</h4>
-                <label>Atak:</label>
-                <h4>10</h4>
-                <label>Unik:</label>
-                <h4>6</h4>
+        <article id="enemySlots">
+            <section class="">
+                <button onclick="addCard('enemy')" class="enemySection AddCardButton">+</button>
             </section>
         </article>
-        <article>
-            <section id="participant-3" class="enemySection">
-                <h3>Przeciwnik 1</h3>
-                <label>HP:</label>
-                <h4>100</h4>
-                <label>Szybkość:</label>
-                <h4>88</h4>
-                <label>Atak:</label>
-                <h4>20</h4>
-                <label>Unik:</label>
-                <h4>9</h4>
-            </section>
-            <section id="participant-4" class="enemySection">
-                <h3>Przeciwnik 2</h3>
-                <label>HP:</label>
-                <h4>100</h4>
-                <label>Szybkość:</label>
-                <h4>12</h4>
-                <label>Atak:</label>
-                <h4>20</h4>
-                <label>Unik:</label>
-                <h4>6</h4>
-            </section>
-            <section id="participant-5" class="enemySection">
-                <h3>Przeciwnik 3</h3>
-                <label>HP:</label>
-                <h4>100</h4>
-                <label>Szybkość:</label>
-                <h4>36</h4>
-                <label>Atak:</label>
-                <h4>20</h4>
-                <label>Unik:</label>
-                <h4>7</h4>
+        <article id="playerSlots">
+            <section class="">
+                <button onclick="addCard('player')" class="playerSection AddCardButton">+</button>
             </section>
         </article>
         <article class="sideSection">
-            <button onclick="startBattle()" id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
-            <button onclick="nextTurn()" id="nextTurnButton" style="display: none" class="battleButton">Następna tura</button>
             <label>Teraz walczy:</label>
             <h2 id="nowActsDesc">-</h2>
             <h3>Dostępne priorytety:</h3>
@@ -101,8 +39,10 @@
             </select>
             <h3>Cel:</h3>
             <select id="targetsList">
-            </select>
-            <button onclick="act()" class="battleButton">Wykonaj</button>
+            </select><br>
+            <button onclick="act()" id="actButton" class="battleButton hidden">Wykonaj</button><br>
+            <button onclick="startBattle()" id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
+            <button onclick="nextTurn()" id="nextTurnButton" class="battleButton hidden">Następna tura</button>
         </article>
     </body>
     <script src="scripts.js"></script>
