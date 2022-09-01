@@ -237,6 +237,9 @@ function addCard(type)
     let attackValue = document.createElement("h4");
     let dodgeLabel = document.createElement("label");
     let dodgeValue = document.createElement("h4");
+    let editButton = document.createElement("button");
+    let saveButton = document.createElement("button");
+    let cancelButton = document.createElement("button");
 
     //add the attributes to the card
     card.id = "participant-" + (participants.length-1);
@@ -250,6 +253,20 @@ function addCard(type)
     attackValue.innerText = participants[participants.length-1].atk;
     dodgeLabel.innerText = "Unik:";
     dodgeValue.innerText = participants[participants.length-1].dodge;
+    editButton.innerText = "Edytuj";
+    editButton.onclick = function(){
+        editCard(this);
+    };
+    saveButton.innerText = "Zapisz";
+    saveButton.classList = "hidden";
+    saveButton.onclick = function(){
+        saveCard(this);
+    };
+    cancelButton.innerText = "Cofnij";
+    cancelButton.classList = "hidden";
+    cancelButton.onclick = function(){
+        cancelEdit(this);
+    };
 
     //append all elements in the right order
     card.appendChild(participantName);
@@ -261,6 +278,9 @@ function addCard(type)
     card.appendChild(attackValue);
     card.appendChild(dodgeLabel);
     card.appendChild(dodgeValue);
+    card.appendChild(editButton);
+    card.appendChild(saveButton);
+    card.appendChild(cancelButton);
 
     //append the card to the right side of the board
     if(type === "player"){
@@ -289,6 +309,101 @@ function delCard(type)
         participants.splice(participants.indexOf(participants.filter(p => p.type === "enemy").pop()), 1);
         enemyCount--;
     }
+}
+
+function editCard(e)
+{
+    //get the card element
+    let card = e.parentNode;
+    //construct editable elements
+    let healthInput = document.createElement("input");
+    healthInput.type = "text";
+    healthInput.value = card.children[2].innerText;
+    healthInput.dataset.originalValue = card.children[2].innerText;
+    let speedInput = document.createElement("input");
+    speedInput.type = "text";
+    speedInput.value = card.children[4].innerText;
+    speedInput.dataset.originalValue = card.children[4].innerText;
+    let attackInput = document.createElement("input");
+    attackInput.type = "text";
+    attackInput.value = card.children[6].innerText;
+    attackInput.dataset.originalValue = card.children[6].innerText;
+    let dodgeInput = document.createElement("input");
+    dodgeInput.type = "text";
+    dodgeInput.value = card.children[8].innerText;
+    dodgeInput.dataset.originalValue = card.children[8].innerText;
+    //replace the text elements with text forms to allow editing
+    card.replaceChild(healthInput, card.children[2]);
+    card.replaceChild(speedInput, card.children[4]);
+    card.replaceChild(attackInput, card.children[6]);
+    card.replaceChild(dodgeInput, card.children[8]);
+    //hide the edit button
+    card.children[9].classList.toggle("hidden");
+    //enable the save and cancel buttons
+    card.children[10].classList.toggle("hidden");
+    card.children[11].classList.toggle("hidden");
+}
+
+function saveCard(e)
+{
+    //get the card element
+    let card = e.parentNode;
+    //get the new values
+    let newHealth = card.children[2].value;
+    let newSpeed = card.children[4].value;
+    let newAttack = card.children[6].value;
+    let newDodge = card.children[8].value;
+    //construct text elements
+    let healthText = document.createElement("h4");
+    healthText.innerText = newHealth;
+    let speedText = document.createElement("h4");
+    speedText.innerText = newSpeed;
+    let attackText = document.createElement("h4");
+    attackText.innerText = newAttack;
+    let dodgeText = document.createElement("h4");
+    dodgeText.innerText = newDodge;
+    //replace the form elements with text
+    card.replaceChild(healthText, card.children[2]);
+    card.replaceChild(speedText, card.children[4]);
+    card.replaceChild(attackText, card.children[6]);
+    card.replaceChild(dodgeText, card.children[8]);
+    //get the participant id
+    let pId = card.id.split('-')[1];
+    //update the details in the participants array
+    participants[pId].health = newHealth;
+    participants[pId].speed = newSpeed;
+    participants[pId].atk = newAttack;
+    participants[pId].dodge = newDodge;
+    //show the edit button
+    card.children[9].classList.toggle("hidden");
+    //hide the save and cancel buttons
+    card.children[10].classList.toggle("hidden");
+    card.children[11].classList.toggle("hidden");
+}
+
+function cancelEdit(e)
+{
+    //get the card element
+    let card = e.parentNode;
+    //construct text elements
+    let healthText = document.createElement("h4");
+    healthText.innerText = card.children[2].dataset.originalValue;
+    let speedText = document.createElement("h4");
+    speedText.innerText = card.children[4].dataset.originalValue;
+    let attackText = document.createElement("h4");
+    attackText.innerText = card.children[6].dataset.originalValue;
+    let dodgeText = document.createElement("h4");
+    dodgeText.innerText = card.children[8].dataset.originalValue;
+    //replace the form elements with text
+    card.replaceChild(healthText, card.children[2]);
+    card.replaceChild(speedText, card.children[4]);
+    card.replaceChild(attackText, card.children[6]);
+    card.replaceChild(dodgeText, card.children[8]);
+    //show the edit button
+    card.children[9].classList.toggle("hidden");
+    //hide the save and cancel buttons
+    card.children[10].classList.toggle("hidden");
+    card.children[11].classList.toggle("hidden");
 }
 
 function startBattle()
@@ -471,7 +586,11 @@ function act()
         priorityThreeActionFlag.classList.add("disabled");
     }
 
+    //refresh cards to reflect the action
     refreshBattleSlots();
+
+    //check if the battle is over
+    isBattleOver();
 }
 
 function endBattle(identifier)
