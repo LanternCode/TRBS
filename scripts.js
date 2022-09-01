@@ -270,6 +270,27 @@ function addCard(type)
     }
 }
 
+function delCard(type)
+{
+    if(type === "player"){
+        if(playerCount === 1) return;
+        //remove the participant card
+        let section = document.getElementById("playerSlots");
+        section.removeChild(section.lastChild);
+        //remove the participant from the array
+        participants.splice(participants.indexOf(participants.filter(p => p.type === "player").pop()), 1);
+        playerCount--;
+    }else if(type === "enemy"){
+        if(enemyCount === 1) return;
+        //remove the participant card
+        let section = document.getElementById("enemySlots");
+        section.removeChild(section.lastChild);
+        //remove the participant from the array
+        participants.splice(participants.indexOf(participants.filter(p => p.type === "enemy").pop()), 1);
+        enemyCount--;
+    }
+}
+
 function startBattle()
 {
     //Check if there is enough players and enemies to start the battle

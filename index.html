@@ -11,13 +11,19 @@
         <h2>Tura: <span id="globalTurn">1</span></h2>
         <h2>Rzut systemu: <span id="systemThrow"></span></h2>
         <article id="enemySlots">
-            <section class="">
-                <button onclick="addCard('enemy')" class="enemySection AddCardButton">+</button>
+            <section class="enemySection">
+                <h3>Dodaj:</h3>
+                <button onclick="addCard('enemy')" class="AddCardButton">+</button><br>
+                <Label>Usuń:</Label><br>
+                <button onclick="delCard('enemy')" class="AddCardButton">-</button>
             </section>
         </article>
         <article id="playerSlots">
-            <section class="">
-                <button onclick="addCard('player')" class="playerSection AddCardButton">+</button>
+            <section class="playerSection">
+                <h3>Dodaj:</h3>
+                <button onclick="addCard('player')" class="AddCardButton">+</button><br>
+                <Label>Usuń:</Label><br>
+                <button onclick="delCard('player')" class="AddCardButton">-</button>
             </section>
         </article>
         <article class="sideSection">
