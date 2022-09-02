@@ -2,6 +2,7 @@
 const players = [
     {
         name: 'Karim',
+        maxHealth: 100,
         health: 100,
         speed: 81,
         atk: 200,
@@ -19,6 +20,7 @@ const players = [
     },
     {
         name: 'Antonio',
+        maxHealth: 80,
         health: 80,
         speed: 82,
         atk: 15,
@@ -36,6 +38,7 @@ const players = [
     },
     {
         name: 'Dion',
+        maxHealth: 90,
         health: 90,
         speed: 17,
         atk: 10,
@@ -53,6 +56,7 @@ const players = [
     },
     {
         name: 'Astrid',
+        maxHealth: 80,
         health: 80,
         speed: 17,
         atk: 10,
@@ -73,6 +77,7 @@ const players = [
 const enemies = [
     {
         name: 'Przeciwnik 1',
+        maxHealth: 100,
         health: 100,
         speed: 88,
         atk: 200,
@@ -83,6 +88,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 2',
+        maxHealth: 100,
         health: 100,
         speed: 12,
         atk: 20,
@@ -93,6 +99,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 3',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -103,6 +110,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 4',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -113,6 +121,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 5',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -123,6 +132,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 6',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -133,6 +143,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 7',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -143,6 +154,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 8',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -153,6 +165,7 @@ const enemies = [
     },
     {
         name: 'Przeciwnik 9',
+        maxHealth: 100,
         health: 100,
         speed: 36,
         atk: 20,
@@ -197,9 +210,10 @@ const items = [
         displayName: "Flakon Regeneracji",
         type: "healing",
         valueType: "parcentage",
-        value: 1.50
+        value: 0.50
     }
 ];
+
 //pre-defined, empty participants array
 let participants = [];
 let playerCount = 0;
@@ -417,7 +431,7 @@ function startBattle()
         localTurn = 0;
         globalTurn = 1;
 
-        //disable the buttons that add new participants
+        //disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("AddCardButton"))
             elem.classList.toggle("hidden");
 
@@ -558,9 +572,16 @@ function act()
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
                 //use the item
-                if(item.valueType === "flat")
-                    participants[target].health += item.value;
-                else participants[target].health += (participants[target].health * item.value);
+                if(item.valueType === "flat"){
+                    if(participants[target].health + item.value > participants[target].maxHealth)
+                        participants[target].health = participants[target].maxHealth;
+                    else participants[target].health += item.value;
+                }
+                else{
+                    if(participants[target].health + (participants[target].maxHealth * item.value) > participants[target].maxHealth)
+                        participants[target].health = participants[target].maxHealth;
+                    else participants[target].health += (participants[target].maxHealth * item.value);
+                }
                 //reduce player's item count
                 participants[localTurn].itemsOwned[item_key] -= 1;
                 priorityThree = false;
