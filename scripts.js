@@ -364,7 +364,7 @@ function startBattle()
         globalTurn = 1;
 
         //disable the buttons that add or remove participants
-        for (let elem of document.getElementsByClassName("AddCardButton"))
+        for (let elem of document.getElementsByClassName("addCardButton"))
             elem.classList.toggle("hidden");
 
         //enable the act button
@@ -565,7 +565,7 @@ function endBattle(identifier)
     document.getElementById("actButton").classList.toggle("hidden");
 
     //enable the buttons that add new participants
-    for (let elem of document.getElementsByClassName("AddCardButton"))
+    for (let elem of document.getElementsByClassName("addCardButton"))
         elem.classList.toggle("hidden");
 }
 
