@@ -7,7 +7,6 @@ const players = [
         speed: 81,
         atk: 200,
         dodge: 11,
-        uuid: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -25,7 +24,6 @@ const players = [
         speed: 82,
         atk: 15,
         dodge: 9,
-        uuid: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -43,7 +41,6 @@ const players = [
         speed: 17,
         atk: 10,
         dodge: 6,
-        uuid: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -61,7 +58,6 @@ const players = [
         speed: 17,
         atk: 10,
         dodge: 6,
-        uuid: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -73,107 +69,24 @@ const players = [
         }
     }];
 
-//pre-defined enemies array
-const enemies = [
-    {
-        name: 'Przeciwnik 1',
-        maxHealth: 100,
-        health: 100,
-        speed: 88,
-        atk: 200,
-        dodge: 9,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
+const enemyStatLimits = {
+    health: {
+        min: 50,
+        max: 100
     },
-    {
-        name: 'Przeciwnik 2',
-        maxHealth: 100,
-        health: 100,
-        speed: 12,
-        atk: 20,
-        dodge: 6,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
+    speed: {
+        min: 1,
+        max: 100
     },
-    {
-        name: 'Przeciwnik 3',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
+    atk: {
+        min: 9,
+        max: 22
     },
-    {
-        name: 'Przeciwnik 4',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    },
-    {
-        name: 'Przeciwnik 5',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    },
-    {
-        name: 'Przeciwnik 6',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    },
-    {
-        name: 'Przeciwnik 7',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    },
-    {
-        name: 'Przeciwnik 8',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    },
-    {
-        name: 'Przeciwnik 9',
-        maxHealth: 100,
-        health: 100,
-        speed: 36,
-        atk: 20,
-        dodge: 7,
-        uuid: 0,
-        isDodging: 0,
-        type: "enemy"
-    }];
+    dodge: {
+        min: 6,
+        max: 11
+    }
+}
 
 //pre-defined item definition array
 const items = [
@@ -227,6 +140,26 @@ let localTurn = 0;
 let priorityTwo = true;
 let priorityThree = true;
 
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
+}
+
+function generateNewEnemy(){
+    enemyCount++;
+    var enemy = {
+        name: "Przeciwnik " + enemyCount,
+        maxHealth: 100,
+        isDodging: 0,
+        type: "enemy"
+    };
+
+    for (var enemyStat of Object.keys(enemyStatLimits)) {
+        enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
+    }
+
+    return enemy;
+}
+
 function addCard(type)
 {
     //add a new participant into the array
@@ -236,8 +169,7 @@ function addCard(type)
         playerCount++;
     }else if(type === "enemy"){
         if(enemyCount === 9) return;
-        participants = participants.concat(structuredClone(enemies[enemyCount]));
-        enemyCount++;
+        participants = participants.concat(generateNewEnemy());
     }
 
     //Construct the card
@@ -574,8 +506,6 @@ function act()
             {
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
-                //check if the target is dead - if so, do not use the item
-                if(participants[target].health === 0) return;
                 //use the item
                 if(item.valueType === "flat"){
                     if(participants[target].health + item.value > participants[target].maxHealth)
