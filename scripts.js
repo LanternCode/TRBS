@@ -385,6 +385,8 @@ function startBattle()
 
         //Prepare the targets list
         let targetSlot = document.getElementById("targetsList");
+        //Reset the list if the battle resets
+        targetSlot.innerHTML = '';
         for(let i = 0; i < participants.length; ++i)
         {
             //construct the option and insert it into the list
