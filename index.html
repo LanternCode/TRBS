@@ -11,19 +11,11 @@
         <h2>Tura: <span id="globalTurn">1</span></h2>
         <h2>Rzut systemu: <span id="systemThrow"></span></h2>
         <article id="enemySlots">
-            <section class="enemySection">
-                <h3>Dodaj:</h3>
-                <button onclick="addCard('enemy')" class="AddCardButton">+</button><br>
-                <Label>Usuń:</Label><br>
-                <button onclick="delCard('enemy')" class="AddCardButton">-</button>
-            </section>
-        </article>
-        <article id="playerSlots">
-            <section class="playerSection">
-                <h3>Dodaj:</h3>
-                <button onclick="addCard('player')" class="AddCardButton">+</button><br>
-                <Label>Usuń:</Label><br>
-                <button onclick="delCard('player')" class="AddCardButton">-</button>
+            <section class="enemySection" id = "enemyAddSection">
+                <h3>Dodaj:</h3><br>
+                <button onclick="addCard('enemy')" class="addCardButton">+</button><br>
+                <h3><Label>Usuń:</Label></h3><br>
+                <button onclick="delCard('enemy')" class="addCardButton">-</button>
             </section>
         </article>
         <article class="sideSection">
@@ -50,6 +42,15 @@
             <button onclick="startBattle()" id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
             <button onclick="nextTurn()" id="nextTurnButton" class="battleButton hidden">Następna tura</button>
         </article>
+        <article id="playerSlots">
+            <section class="playerSection" id = "playerAddSection">
+                <h3>Dodaj:</h3><br>
+                <button onclick="addCard('player')" class="addCardButton">+</button><br>
+                <h3><Label>Usuń:</Label></h3><br>
+                <button onclick="delCard('player')" class="addCardButton">-</button>
+            </section>
+        </article>
+
     </body>
     <script src="scripts.js"></script>
 </html>
