@@ -316,7 +316,7 @@ function saveCard(e)
     //get the participant id
     let pId = card.id.split('-')[1];
     //update the details in the participants array
-    participants[pId].health = newHealth;
+    participants[pId].maxHealth = newHealth;
     participants[pId].speed = newSpeed;
     participants[pId].atk = newAttack;
     participants[pId].dodge = newDodge;
