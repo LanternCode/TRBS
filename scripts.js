@@ -504,7 +504,10 @@ function startBattle()
     //Check if there is enough players and enemies to start the battle
     let participantsOK = playerCount > 0 && enemyCount > 0;
 
-    if(participantsOK)
+    //Check if there are not any cards being edited
+    let cardsOK = document.getElementsByTagName("input").length === 0;
+
+    if(participantsOK && cardsOK)
     {
         //reset the turn counters
         localTurn = 0;
