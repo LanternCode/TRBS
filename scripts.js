@@ -391,9 +391,12 @@ function startBattle()
         //disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("addCardButton"))
             elem.classList.toggle("hidden");
+            document.getElementById("enemyAddSection").classList.toggle("hidden");
+            document.getElementById("playerAddSection").classList.toggle("hidden");
 
         //enable the act button
         document.getElementById("actButton").classList.toggle("hidden");
+
 
         //hide experience
         for (let elem of document.getElementsByClassName("experienceValue"))
@@ -601,6 +604,8 @@ function endBattle(identifier)
     //enable the buttons that add new participants
     for (let elem of document.getElementsByClassName("addCardButton"))
         elem.classList.toggle("hidden");
+        document.getElementById("enemyAddSection").classList.toggle("hidden");
+        document.getElementById("playerAddSection").classList.toggle("hidden");
 
     if(identifier === "e"){
         for (let player of participants.filter(participant => participant.type === "player")) {
