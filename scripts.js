@@ -146,14 +146,14 @@ function getRndInteger(min, max) {
 
 function generateNewEnemy(){
     enemyCount++;
-    var enemy = {
+    let enemy = {
         name: "Przeciwnik " + enemyCount,
         maxHealth: 100,
         isDodging: 0,
         type: "enemy"
     };
 
-    for (var enemyStat of Object.keys(enemyStatLimits)) {
+    for (let enemyStat of Object.keys(enemyStatLimits)) {
         enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
     }
 
