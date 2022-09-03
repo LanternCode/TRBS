@@ -403,11 +403,13 @@ function editCard(e)
     card.replaceChild(speedInput, card.children[4]);
     card.replaceChild(attackInput, card.children[6]);
     card.replaceChild(dodgeInput, card.children[8]);
+    //players and enemies have different button placement
+    let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
     //hide the edit button
-    card.children[11].classList.toggle("hidden");
+    card.children[buttonsStartHere].classList.toggle("hidden");
     //enable the save and cancel buttons
-    card.children[12].classList.toggle("hidden");
-    card.children[13].classList.toggle("hidden");
+    card.children[buttonsStartHere+1].classList.toggle("hidden");
+    card.children[buttonsStartHere+2].classList.toggle("hidden");
 }
 
 /**
@@ -419,6 +421,7 @@ function editCard(e)
  */
 function saveCard(e)
 {
+    console.log(e.parentNode);
     //get the card element
     let card = e.parentNode;
     //get the new values
@@ -447,11 +450,13 @@ function saveCard(e)
     participants[pId].speed = newSpeed;
     participants[pId].atk = newAttack;
     participants[pId].dodge = newDodge;
-    //show the edit button
-    card.children[11].classList.toggle("hidden");
-    //hide the save and cancel buttons
-    card.children[12].classList.toggle("hidden");
-    card.children[13].classList.toggle("hidden");
+    //players and enemies have different button placement
+    let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
+    //hide the edit button
+    card.children[buttonsStartHere].classList.toggle("hidden");
+    //enable the save and cancel buttons
+    card.children[buttonsStartHere+1].classList.toggle("hidden");
+    card.children[buttonsStartHere+2].classList.toggle("hidden");
 }
 
 /**
@@ -479,11 +484,13 @@ function cancelEdit(e)
     card.replaceChild(speedText, card.children[4]);
     card.replaceChild(attackText, card.children[6]);
     card.replaceChild(dodgeText, card.children[8]);
-    //show the edit button
-    card.children[11].classList.toggle("hidden");
-    //hide the save and cancel buttons
-    card.children[12].classList.toggle("hidden");
-    card.children[13].classList.toggle("hidden");
+    //players and enemies have different button placement
+    let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
+    //hide the edit button
+    card.children[buttonsStartHere].classList.toggle("hidden");
+    //enable the save and cancel buttons
+    card.children[buttonsStartHere+1].classList.toggle("hidden");
+    card.children[buttonsStartHere+2].classList.toggle("hidden");
 }
 
 /**
@@ -749,7 +756,7 @@ function endBattle(identifier)
     document.getElementById("playerAddSection").classList.toggle("hidden");
     for (let elem of document.getElementsByClassName("addCardButton"))
         elem.classList.toggle("hidden");
-    
+
     //show the edit participant button
     for (let elem of document.getElementsByClassName("editButton"))
         elem.classList.toggle("hidden");
