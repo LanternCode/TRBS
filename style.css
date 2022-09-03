@@ -71,7 +71,7 @@ input {
 }
 
 .priorityActionFlag.disabled::after {
-    content: " - niedostępny"
+    content: " - niedostępny";
 }
 
 .sideSection {

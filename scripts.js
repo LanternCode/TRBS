@@ -7,6 +7,7 @@ const players = [
         speed: 81,
         atk: 200,
         dodge: 11,
+        experience: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -24,6 +25,7 @@ const players = [
         speed: 82,
         atk: 15,
         dodge: 9,
+        experience: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -41,6 +43,7 @@ const players = [
         speed: 17,
         atk: 10,
         dodge: 6,
+        experience: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -58,6 +61,7 @@ const players = [
         speed: 17,
         atk: 10,
         dodge: 6,
+        experience: 0,
         isDodging: 0,
         type: "player",
         itemsOwned: {
@@ -224,6 +228,21 @@ function addCard(type)
     card.appendChild(attackValue);
     card.appendChild(dodgeLabel);
     card.appendChild(dodgeValue);
+
+    // set experience labels
+    if(type === "player"){
+        let experienceLabel = document.createElement("label");
+        let experienceValue = document.createElement("h4");
+
+        experienceLabel.classList.add("experienceLabel");
+        experienceValue.classList.add("experienceValue");
+
+        experienceLabel.innerText = "Doświadczenie:";
+        experienceValue.innerText = participants[participants.length-1].experience;
+        card.appendChild(experienceLabel);
+        card.appendChild(experienceValue);
+    }
+
     card.appendChild(editButton);
     card.appendChild(saveButton);
     card.appendChild(cancelButton);
@@ -284,10 +303,10 @@ function editCard(e)
     card.replaceChild(attackInput, card.children[6]);
     card.replaceChild(dodgeInput, card.children[8]);
     //hide the edit button
-    card.children[9].classList.toggle("hidden");
-    //enable the save and cancel buttons
-    card.children[10].classList.toggle("hidden");
     card.children[11].classList.toggle("hidden");
+    //enable the save and cancel buttons
+    card.children[12].classList.toggle("hidden");
+    card.children[13].classList.toggle("hidden");
 }
 
 function saveCard(e)
@@ -316,15 +335,15 @@ function saveCard(e)
     //get the participant id
     let pId = card.id.split('-')[1];
     //update the details in the participants array
-    participants[pId].health = newHealth;
+    participants[pId].maxHealth = newHealth;
     participants[pId].speed = newSpeed;
     participants[pId].atk = newAttack;
     participants[pId].dodge = newDodge;
     //show the edit button
-    card.children[9].classList.toggle("hidden");
-    //hide the save and cancel buttons
-    card.children[10].classList.toggle("hidden");
     card.children[11].classList.toggle("hidden");
+    //hide the save and cancel buttons
+    card.children[12].classList.toggle("hidden");
+    card.children[13].classList.toggle("hidden");
 }
 
 function cancelEdit(e)
@@ -346,10 +365,10 @@ function cancelEdit(e)
     card.replaceChild(attackText, card.children[6]);
     card.replaceChild(dodgeText, card.children[8]);
     //show the edit button
-    card.children[9].classList.toggle("hidden");
-    //hide the save and cancel buttons
-    card.children[10].classList.toggle("hidden");
     card.children[11].classList.toggle("hidden");
+    //hide the save and cancel buttons
+    card.children[12].classList.toggle("hidden");
+    card.children[13].classList.toggle("hidden");
 }
 
 function startBattle()
@@ -363,12 +382,24 @@ function startBattle()
         localTurn = 0;
         globalTurn = 1;
 
+        //reset priority
+        priorityTwo = true;
+        priorityTwoActionFlag.classList.remove("disabled");
+        priorityThree = true;
+        priorityThreeActionFlag.classList.remove("disabled");
+
         //disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("addCardButton"))
             elem.classList.toggle("hidden");
 
         //enable the act button
         document.getElementById("actButton").classList.toggle("hidden");
+
+        //hide experience
+        for (let elem of document.getElementsByClassName("experienceValue"))
+            elem.classList.toggle("hidden");
+        for (let elem of document.getElementsByClassName("experienceLabel"))
+            elem.classList.toggle("hidden");
 
         //sort the array by speed to establish turn order
         participants.sort((a, b) => b.speed - a.speed);
@@ -385,6 +416,8 @@ function startBattle()
 
         //Prepare the targets list
         let targetSlot = document.getElementById("targetsList");
+        //Reset the list if the battle resets
+        targetSlot.innerHTML = '';
         for(let i = 0; i < participants.length; ++i)
         {
             //construct the option and insert it into the list
@@ -429,6 +462,7 @@ function refreshBattleSlots()
         battleSlot.children[4].innerText = participants[i].speed;
         battleSlot.children[6].innerText = participants[i].atk;
         battleSlot.children[8].innerText = participants[i].dodge;
+        battleSlot.children[10].innerText = participants[i].experience;
     }
 }
 
@@ -542,11 +576,11 @@ function act()
         priorityThreeActionFlag.classList.add("disabled");
     }
 
-    //refresh cards to reflect the action
-    refreshBattleSlots();
-
     //check if the battle is over
     isBattleOver();
+
+    //refresh cards to reflect the action
+    refreshBattleSlots();
 }
 
 function endBattle(identifier)
@@ -566,6 +600,20 @@ function endBattle(identifier)
 
     //enable the buttons that add new participants
     for (let elem of document.getElementsByClassName("addCardButton"))
+        elem.classList.toggle("hidden");
+
+    if(identifier === "e"){
+        for (let player of participants.filter(participant => participant.type === "player")) {
+            if(player.health > 0){
+                player.experience++;
+            }
+        }
+    }
+
+    //display experience labels
+    for (let elem of document.getElementsByClassName("experienceValue"))
+        elem.classList.toggle("hidden");
+    for (let elem of document.getElementsByClassName("experienceLabel"))
         elem.classList.toggle("hidden");
 }
 
