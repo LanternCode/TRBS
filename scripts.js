@@ -571,6 +571,8 @@ function act()
             {
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
+                //check if the target is dead - if so, do not use the item
+                if(participants[target].health === 0) return;
                 //use the item
                 if(item.valueType === "flat"){
                     if(participants[target].health + item.value > participants[target].maxHealth)
