@@ -1,4 +1,7 @@
-//pre-defined players array
+/**
+ * pre-defined players array
+ *
+ * @type {[{isDodging: number, dodge: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}*/
 const players = [
     {
         name: 'Karim',
@@ -73,6 +76,36 @@ const players = [
         }
     }];
 
+/**
+ * A Participant
+ * @typedef {Object} Participant
+ * @property {string} name - Participant's name
+ * @property {number} maxHealth - Participant's endurance
+ * @property {number} health - Participant's current hp (for use in battles)
+ * @property {number} speed - Participant's speed
+ * @property {number} atk - Participant's attack
+ * @property {number} dodge - Participant's dodge
+ * @property {boolean} isDodging - Participant dodge action on or off
+ * @property {string} type - Participant type (enemy/player)
+ * @property {number} [experience] - Participant's xp count, only for players
+ * @property {Object} [itemsOwned] - Participant's items, only for players
+ */
+
+/**
+ * An Item
+ * @typedef {Object} Item
+ * @property {string} name - Item id
+ * @property {string} displayName - Item display name
+ * @property {string} type - Item type (for now only healing)
+ * @property {string} valueType - Item value type (flat or percentage)
+ * @property {number} value - Item value (flat number or decimal percentage)
+ */
+
+/**
+ * An object of objects with min and max values for participant generation
+ *
+ * @type {{dodge: {min: number, max: number}, health: {min: number, max: number}, atk: {min: number, max: number}, speed: {min: number, max: number}}}
+ */
 const enemyStatLimits = {
     health: {
         min: 50,
@@ -92,7 +125,11 @@ const enemyStatLimits = {
     }
 }
 
-//pre-defined item definition array
+/**
+ * pre-defined item definition array
+ *
+ * @type {[{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number}]}
+ */
 const items = [
     {
         name: "life_flask",
@@ -131,23 +168,65 @@ const items = [
     }
 ];
 
-//pre-defined, empty participants array
+/**
+ * Pre-defined, empty participants array
+ * @type {*[]}
+ */
 let participants = [];
+
+/**
+ * Pre-defined player counter
+ * @type {number}
+ */
 let playerCount = 0;
+/**
+ * Pre-defined enemy counter
+ * @type {number}
+ */
 let enemyCount = 0;
 
-//pre-defined counters
+/**
+ * Pre-defined global turn counter
+ * @type {number}
+ */
 let globalTurn = 1;
+/**
+ * Pre-defined local turn counter
+ * @type {number}
+ */
 let localTurn = 0;
 
-//pre-defined flags
+/**
+ * Pre-defined priority 2 flag
+ * @type {boolean}
+ */
 let priorityTwo = true;
+/**
+ * Pre-defined priority 3 flag
+ * @type {boolean}
+ */
 let priorityThree = true;
 
+/**
+ * This function generates a random integer in the given range, inclusive.
+ *
+ * @generator
+ * @function getRndInteger
+ * @param {number} min - The beginning of the range
+ * @param {number} max - The end of the range
+ * @return {number} The number generated
+ */
 function getRndInteger(min, max) {
-  return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
+  return Math.floor(Math.random() * (++max-min)) + min; // + 1 for max to be included
 }
 
+/**
+ * This function generates an enemy to be inserted into the list
+ *
+ * @generator
+ * @function generateNewEnemy
+ * @yields {Participant} The {@link Participant} generated
+ */
 function generateNewEnemy(){
     enemyCount++;
     let enemy = {
@@ -164,6 +243,13 @@ function generateNewEnemy(){
     return enemy;
 }
 
+/**
+ * This function constructs a participant card and adds it into the document
+ *
+ * @generator
+ * @function addCard
+ * @yields {Element} a valid participant card <section> element
+ */
 function addCard(type)
 {
     //add a new participant into the array
@@ -255,6 +341,13 @@ function addCard(type)
     }
 }
 
+/**
+ * This function deleted an existing participant's card
+ *
+ * @function delCard
+ * @param {string} type - The type of participant (player/enemy)
+ * @return {void}
+ */
 function delCard(type)
 {
     if(type === "player"){
@@ -276,6 +369,13 @@ function delCard(type)
     }
 }
 
+/**
+ * This function edits an existing participant's card
+ *
+ * @function editCard
+ * @param {Element} e - a valid participant card <section> element
+ * @return {void}
+ */
 function editCard(e)
 {
     //get the card element
@@ -309,6 +409,13 @@ function editCard(e)
     card.children[13].classList.toggle("hidden");
 }
 
+/**
+ * This function saves an updated participant's card
+ *
+ * @function saveCard
+ * @param {Element} e - a valid participant card <section> element
+ * @return {void}
+ */
 function saveCard(e)
 {
     //get the card element
@@ -346,6 +453,13 @@ function saveCard(e)
     card.children[13].classList.toggle("hidden");
 }
 
+/**
+ * This function cancels editing a participant's card
+ *
+ * @function cancelEdit
+ * @param {Element} e - a valid participant card <section> element
+ * @return {void}
+ */
 function cancelEdit(e)
 {
     //get the card element
@@ -371,6 +485,12 @@ function cancelEdit(e)
     card.children[13].classList.toggle("hidden");
 }
 
+/**
+ * This function starts or resets a battle
+ *
+ * @function startBattle
+ * @return {void}
+ */
 function startBattle()
 {
     //Check if there is enough players and enemies to start the battle
@@ -436,6 +556,12 @@ function startBattle()
     }
 }
 
+/**
+ * This function refreshes cards on screen to reflect changes
+ *
+ * @function refreshBattleSlots
+ * @return {void}
+ */
 function refreshBattleSlots()
 {
     let playersUpdated = 0;
@@ -466,6 +592,12 @@ function refreshBattleSlots()
     }
 }
 
+/**
+ * This function handles user actions
+ *
+ * @function act
+ * @return {void}
+ */
 function act()
 {
     let action = document.getElementById("action").value;
@@ -583,6 +715,13 @@ function act()
     refreshBattleSlots();
 }
 
+/**
+ * This function ends the battle
+ *
+ * @function endBattle
+ * @param {string} identifier - a char "p" or "e" that identifies who lost the battle
+ * @return {void}
+ */
 function endBattle(identifier)
 {
     //Update the "acts now" label
@@ -617,6 +756,12 @@ function endBattle(identifier)
         elem.classList.toggle("hidden");
 }
 
+/**
+ * This function checks if the battle has ended or not
+ *
+ * @function isBattleOver
+ * @return {void} calls {@link endBattle} if the condition is met
+ */
 function isBattleOver()
 {
     //check if all enemies or all players are down
@@ -627,6 +772,12 @@ function isBattleOver()
     else if(enemiesDown) endBattle("e");
 }
 
+/**
+ * This function updates the item list to these owned by a participant at the start of their turn
+ *
+ * @function updateItemList
+ * @return {void}
+ */
 function updateItemList()
 {
     //remove all children
@@ -655,6 +806,12 @@ function updateItemList()
     }
 }
 
+/**
+ * This function ends the current local/global turn
+ *
+ * @function nextTurn
+ * @return {void}
+ */
 function nextTurn()
 {
     //reset the available action flags
