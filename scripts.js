@@ -455,10 +455,13 @@ function startBattle()
         let targetSlot = document.getElementById("targetsList");
         for(let i = 0; i < participants.length; ++i)
         {
+            //construct the option and insert it into the list
             let opt = document.createElement('option');
             opt.value = i;
             opt.innerText = participants[i].name;
             targetSlot.appendChild(opt);
+            //reset participant's hp to its max value (for battle resets)
+            participants[i].health = participants[i].maxHealth;
         }
 
         refreshBattleSlots();
