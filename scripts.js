@@ -290,6 +290,7 @@ function addCard(type)
     dodgeLabel.innerText = "Unik:";
     dodgeValue.innerText = participants[participants.length-1].dodge;
     editButton.innerText = "Edytuj";
+    editButton.className = "editButton";
     editButton.onclick = function(){
         editCard(this);
     };
@@ -523,6 +524,10 @@ function startBattle()
         for (let elem of document.getElementsByClassName("experienceLabel"))
             elem.classList.toggle("hidden");
 
+        //hide the edit participant button
+        for (let elem of document.getElementsByClassName("editButton"))
+            elem.classList.toggle("hidden");
+
         //sort the array by speed to establish turn order
         participants.sort((a, b) => b.speed - a.speed);
 
@@ -740,11 +745,16 @@ function endBattle(identifier)
     document.getElementById("actButton").classList.toggle("hidden");
 
     //enable the buttons that add new participants
+    document.getElementById("enemyAddSection").classList.toggle("hidden");
+    document.getElementById("playerAddSection").classList.toggle("hidden");
     for (let elem of document.getElementsByClassName("addCardButton"))
         elem.classList.toggle("hidden");
-        document.getElementById("enemyAddSection").classList.toggle("hidden");
-        document.getElementById("playerAddSection").classList.toggle("hidden");
+    
+    //show the edit participant button
+    for (let elem of document.getElementsByClassName("editButton"))
+        elem.classList.toggle("hidden");
 
+    //give players xp after the battle
     if(identifier === "e"){
         for (let player of participants.filter(participant => participant.type === "player")) {
             if(player.health > 0){
