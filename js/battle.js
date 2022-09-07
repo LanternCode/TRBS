@@ -1,3 +1,5 @@
+import {updateItemList} from "./action.js";
+
 /**
  * This function starts or resets a battle
  *
@@ -70,6 +72,9 @@ function startBattle()
             //reset participant's hp to its max value (for battle resets)
             participants[i].health = participants[i].maxHealth;
         }
+
+        //prepare item slots
+        updateItemList();
 
         refreshBattleSlots();
     }
