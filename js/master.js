@@ -29,7 +29,8 @@ window.players = [
             'life_potion': 1,
             'large_life_potion': 0,
             'regeneration_flask': 0
-        }
+        },
+        level: 1
     },
     {
         name: 'Antonio',
@@ -47,7 +48,8 @@ window.players = [
             'life_potion': 0,
             'large_life_potion': 1,
             'regeneration_flask': 0
-        }
+        },
+        level: 1
     },
     {
         name: 'Dion',
@@ -65,7 +67,8 @@ window.players = [
             'life_potion': 0,
             'large_life_potion': 0,
             'regeneration_flask': 1
-        }
+        },
+        level: 1
     },
     {
         name: 'Astrid',
@@ -83,7 +86,8 @@ window.players = [
             'life_potion': 0,
             'large_life_potion': 0,
             'regeneration_flask': 10
-        }
+        },
+        level: 1
     }];
 
 /**
@@ -99,6 +103,7 @@ window.players = [
  * @property {string} type - Participant type (enemy/player)
  * @property {number} [experience] - Participant's xp count, only for players
  * @property {Object} [itemsOwned] - Participant's items, only for players
+ * @property {number} [level] - Participant's level, only for players
  */
 
 /**

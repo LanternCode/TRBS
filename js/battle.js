@@ -1,4 +1,5 @@
 import {updateItemList, newSystemCall} from "./action.js";
+import {expRequired, levelUp} from "./level.js";
 
 /**
  * This function starts or resets a battle
@@ -161,6 +162,10 @@ function endBattle(identifier)
         for (let player of participants.filter(participant => participant.type === "player")) {
             if(player.health > 0){
                 player.experience++;
+                if(player.experience >= expRequired(player.level))
+                {
+                    levelUp(player);
+                }
             }
         }
     }
