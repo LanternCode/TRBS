@@ -1,4 +1,4 @@
-import {updateItemList} from "./action.js";
+import {updateItemList, newSystemCall} from "./action.js";
 
 /**
  * This function starts or resets a battle
@@ -79,7 +79,12 @@ function startBattle()
         refreshBattleSlots();
     }
     else {
-        //show a message on screen saying you need to add more fighters
+        //show a message on screen saying why you cannot start the battle now
+        let call = "Nie udało się rozpocząć walki ponieważ";
+        if(!participantsOK) call += " w walce musi brać udział minimum 1 gracz i przeciwnik";
+        if(!participantsOK && !cardsOK) call += " |oraz|";
+        if(!cardsOK) call += " obecnie trwa edytowanie karty gracza lub przeciwnika";
+        newSystemCall(call);
     }
 }
 

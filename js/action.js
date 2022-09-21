@@ -203,4 +203,17 @@ function updateItemList()
     }
 }
 
-export {nextTurn, act, updateItemList};
+/**
+ * This function updates the message sent to the user after a system call
+ *
+ * @function newSystemCall
+ * @param {string} call - The new message to show to the user
+ * @return {void}
+ */
+function newSystemCall(call)
+{
+    document.getElementById("systemCall").innerText = call;
+}
+
+
+export {nextTurn, act, updateItemList, newSystemCall};

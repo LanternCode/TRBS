@@ -1,3 +1,4 @@
+import {newSystemCall} from "./action.js";
 /**
  * This function generates an enemy to be inserted into the list
  *
@@ -31,11 +32,17 @@ function generateNewEnemy(){
  {
      //add a new participant into the array
      if(type === "player"){
-         if(playerCount === 4) return;
+         if(playerCount === 4) {
+            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4");
+            return;
+         }
          participants = participants.concat(structuredClone(players[playerCount]));
          playerCount++;
      }else if(type === "enemy"){
-         if(enemyCount === 9) return;
+         if(enemyCount === 9) {
+             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9");
+             return;
+         }
          participants = participants.concat(generateNewEnemy());
      }
 
@@ -129,7 +136,10 @@ function generateNewEnemy(){
  function delCard(type)
  {
      if(type === "player"){
-         if(playerCount === 1) return;
+         if(playerCount === 1) {
+             newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1");
+             return;
+         }
          //remove the participant card
          let section = document.getElementById("playerSlots");
          section.removeChild(section.lastChild);
@@ -137,7 +147,10 @@ function generateNewEnemy(){
          participants.splice(participants.indexOf(participants.filter(p => p.type === "player").pop()), 1);
          playerCount--;
      }else if(type === "enemy"){
-         if(enemyCount === 1) return;
+         if(enemyCount === 1) {
+             newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1");
+             return;
+         }
          //remove the participant card
          let section = document.getElementById("enemySlots");
          section.removeChild(section.lastChild);
