@@ -73,26 +73,30 @@ function act()
                     attack = Math.floor(attack / 2);
                 }
 
-                // phase 2:
-                let dodgingCheck = Math.floor(Math.random() * 20) + 1;
+                let hitCheck = Math.floor(Math.random() * 20) + 1;
 
-                if(dodgingCheck < participants[target].dodge)
+                if(hitCheck < participants[target].dodge)
                 {
-                    //target is dodging
+                    //target avoids being hit
                     attack = 0;
-                    document.getElementById("systemThrow").innerText = dodgingCheck + " (unik)";
+                    document.getElementById("systemThrow").innerText = hitCheck + " (unik)";
                 }
-                else if(dodgingCheck === participants[target].dodge)
+                else if(hitCheck === participants[target].dodge)
                 {
                     //target is taking half of the damage
                     attack = Math.floor(attack / 2);
-                    document.getElementById("systemThrow").innerText = dodgingCheck + " (połowiczny unik)";
+                    document.getElementById("systemThrow").innerText = hitCheck + " (atak połowiczny)";
                 }
                 else
                 {
                     //target is taking the whole damage
-                    document.getElementById("systemThrow").innerText = dodgingCheck + " (trafienie)";
+                    document.getElementById("systemThrow").innerText = hitCheck + " (trafienie)";
                 }
+
+                //reduce the attack by target's armor rating
+                if(attack - participants[target].armor >= 0)
+                    attack -= participants[target].armor;
+                else attack = 0;
 
                 let targetHealth = participants[target].health;
                 if(targetHealth - attack > 0)
@@ -103,7 +107,7 @@ function act()
             }
             else
             {
-                //no actions left
+                newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
             }
             break;
         }
@@ -116,7 +120,7 @@ function act()
             }
             else
             {
-                //no actions left
+                newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
             }
             break;
         }
@@ -143,7 +147,7 @@ function act()
             }
             else
             {
-                //no actions left
+                newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
             }
         }
         default:

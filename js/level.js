@@ -34,7 +34,7 @@ function levelUp(player)
     player.speed += 5;
     player.maxHealth += 10;
     player.dodge += 1;
-    //player.armor += 1;
+    player.armor += 1;
     player.experience = 0;
     player.level += 1;
 }

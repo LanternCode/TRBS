@@ -9,9 +9,9 @@ window.startBattle = startBattle;
 window.nextTurn = nextTurn;
 
 /**
- * pre-defined players array
  *
- * @type {[{isDodging: number, dodge: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}*/
+ * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
+ */
 window.players = [
     {
         name: 'Karim',
@@ -30,7 +30,8 @@ window.players = [
             'large_life_potion': 0,
             'regeneration_flask': 0
         },
-        level: 1
+        level: 1,
+        armor: 0
     },
     {
         name: 'Antonio',
@@ -49,7 +50,8 @@ window.players = [
             'large_life_potion': 1,
             'regeneration_flask': 0
         },
-        level: 1
+        level: 1,
+        armor: 0
     },
     {
         name: 'Dion',
@@ -68,7 +70,8 @@ window.players = [
             'large_life_potion': 0,
             'regeneration_flask': 1
         },
-        level: 1
+        level: 1,
+        armor: 0
     },
     {
         name: 'Astrid',
@@ -87,7 +90,8 @@ window.players = [
             'large_life_potion': 0,
             'regeneration_flask': 10
         },
-        level: 1
+        level: 1,
+        armor: 0
     }];
 
 /**
@@ -104,6 +108,7 @@ window.players = [
  * @property {number} [experience] - Participant's xp count, only for players
  * @property {Object} [itemsOwned] - Participant's items, only for players
  * @property {number} [level] - Participant's level, only for players
+ * @property {number} armor - Participant's armor rating
  */
 
 /**
