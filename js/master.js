@@ -109,6 +109,7 @@ window.players = [
  * @property {Object} [itemsOwned] - Participant's items, only for players
  * @property {number} [level] - Participant's level, only for players
  * @property {number} armor - Participant's armor rating
+ * @property {number} [zone] - Participant's zone, only for enemies
  */
 
 /**
@@ -143,6 +144,14 @@ window.enemyStatLimits = {
     dodge: {
         min: 6,
         max: 11
+    },
+    zone: {
+        min: 1,
+        max: 10
+    },
+    armor: {
+        min: 0,
+        max: 9
     }
 };
 

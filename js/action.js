@@ -66,6 +66,7 @@ function act()
         {
             if(priorityTwo === true)
             {
+                let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
                 if(participants[target].isDodging)
                 {
@@ -73,7 +74,15 @@ function act()
                     attack = Math.floor(attack / 2);
                 }
 
-                let hitCheck = Math.floor(Math.random() * 20) + 1;
+                //players roll from 1-20, enemies from 1-100
+                let maxRoll = participantType === "enemy" ? 100 : 20;
+                let hitCheck = Math.floor(Math.random() * maxRoll) + 1;
+
+                //critical attacks double or increase the damage, check if they happened
+                let criticalWeakPoint = hitCheck === 100;
+                let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
+                if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
+                else if (criticalHit) attack += participants[localTurn].zone;
 
                 if(hitCheck < participants[target].dodge)
                 {
@@ -85,12 +94,15 @@ function act()
                 {
                     //target is taking half of the damage
                     attack = Math.floor(attack / 2);
-                    document.getElementById("systemThrow").innerText = hitCheck + " (atak połowiczny)";
+                    if(criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Atak Krytyczny, Połowiczny)";
+                    else document.getElementById("systemThrow").innerText = hitCheck + " (Atak Połowiczny)";
                 }
                 else
                 {
                     //target is taking the whole damage
-                    document.getElementById("systemThrow").innerText = hitCheck + " (trafienie)";
+                    if(criticalWeakPoint) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Słaby Punkt)";
+                    else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
+                    else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
                 }
 
                 //reduce the attack by target's armor rating
@@ -98,6 +110,7 @@ function act()
                     attack -= participants[target].armor;
                 else attack = 0;
 
+                //deal damage
                 let targetHealth = participants[target].health;
                 if(targetHealth - attack > 0)
                     participants[target].health -= attack;
