@@ -1,12 +1,16 @@
 import {nextTurn, act} from "./action.js";
 import {startBattle} from "./battle.js";
 import {addCard, delCard} from "./card.js";
+import {adjustOptions} from "./list.js";
 
 window.addCard = addCard;
 window.delCard = delCard;
 window.act = act;
 window.startBattle = startBattle;
 window.nextTurn = nextTurn;
+
+const actionsList = document.getElementById("action");
+actionsList.addEventListener("change", adjustOptions, false);
 
 /**
  *
