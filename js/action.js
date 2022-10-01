@@ -141,22 +141,24 @@ function act()
         {
             if(priorityThree === true)
             {
+                let itemUsed = true;
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
-                //use the item
-                if(item.valueType === "flat"){
-                    if(participants[target].health + item.value > participants[target].maxHealth)
-                        participants[target].health = participants[target].maxHealth;
-                    else participants[target].health += item.value;
+                //see if the target is dead or alive
+                let targetAlive = participants[target].health > 0;
+                //use the healing item
+                if(targetAlive && item.subtype === "restore") restoreHp(item, participants[target]);
+                else if (!targetAlive && item.subtype === "revive") restoreHp(item, participants[target]);
+                else {
+                    newSystemCall("Nie możesz użyć tego przedmiotu na wskazanym celu.");
+                    itemUsed = false;
                 }
-                else{
-                    if(participants[target].health + (participants[target].maxHealth * item.value) > participants[target].maxHealth)
-                        participants[target].health = participants[target].maxHealth;
-                    else participants[target].health += (participants[target].maxHealth * item.value);
-                }
+
                 //reduce player's item count
-                participants[localTurn].itemsOwned[item_key] -= 1;
-                priorityThree = false;
+                if(itemUsed){
+                    participants[localTurn].itemsOwned[item_key] -= 1;
+                    priorityThree = false;
+                }
             }
             else
             {
@@ -184,6 +186,20 @@ function act()
 
     //refresh cards to reflect the action
     refreshBattleSlots();
+}
+
+function restoreHp(item, target)
+{
+    if(item.valueType === "flat"){
+        if(target.health + item.value > target.maxHealth)
+            target.health = target.maxHealth;
+        else target.health += item.value;
+    }
+    else {
+        if(target.health + (target.maxHealth * item.value) > target.maxHealth)
+            target.health = target.maxHealth;
+        else target.health += (target.maxHealth * item.value);
+    }
 }
 
 /**

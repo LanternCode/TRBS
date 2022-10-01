@@ -157,14 +157,14 @@ window.enemyStatLimits = {
 
 /**
  * pre-defined item definition array
- *
- * @type {[{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number},{displayName: string, valueType: string, name: string, type: string, value: number}]}
+ * @type {[{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number}]}
  */
 window.items = [
     {
         name: "life_flask",
         displayName: "Flakon Życia",
         type: "healing",
+        subtype: "restore",
         valueType: "flat",
         value: 10
     },
@@ -172,6 +172,7 @@ window.items = [
         name: "small_life_potion",
         displayName: "Mała Mikstura Życia",
         type: "healing",
+        subtype: "restore",
         valueType: "flat",
         value: 15
     },
@@ -179,6 +180,7 @@ window.items = [
         name: "life_potion",
         displayName: "Mikstura Życia",
         type: "healing",
+        subtype: "restore",
         valueType: "flat",
         value: 22
     },
@@ -186,6 +188,7 @@ window.items = [
         name: "large_life_potion",
         displayName: "Większa Mikstura Życia",
         type: "healing",
+        subtype: "restore",
         valueType: "flat",
         value: 30
     },
@@ -193,6 +196,7 @@ window.items = [
         name: "regeneration_flask",
         displayName: "Flakon Regeneracji",
         type: "healing",
+        subtype: "revive",
         valueType: "parcentage",
         value: 0.50
     }
