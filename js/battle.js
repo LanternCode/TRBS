@@ -1,5 +1,6 @@
 import {updateItemList, newSystemCall} from "./action.js";
 import {expRequired, levelUp} from "./level.js";
+import {adjustOptions} from "./list.js";
 
 /**
  * This function starts or resets a battle
@@ -77,6 +78,10 @@ function startBattle()
         //prepare item slots
         updateItemList();
 
+        //hide all sections at start
+        adjustOptions(true);
+
+        //prepare cards
         refreshBattleSlots();
     }
     else {

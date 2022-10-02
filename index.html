@@ -29,17 +29,26 @@
             </section>
             <h3>Wybierz akcję:</h3>
             <select id="action">
-                <option value="">Wybierz</option>
+                <option value="none">Wybierz</option>
                 <option value="attack">Zwykły Atak</option>
                 <option value="dodge">Unikanie</option>
                 <option value="item">Użycie Przedmiotu</option>
             </select>
-            <h3>Wybierz przedmiot:</h3>
-            <select id="itemsList">
-            </select>
-            <h3>Cel:</h3>
-            <select id="targetsList">
-            </select><br>
+            <section id="sectionSkill">
+                <h3>Wybierz umiejętność:</h3>
+                <select id="skillsList">
+                </select>
+            </section>
+            <section id="sectionItem">
+                <h3>Wybierz przedmiot:</h3>
+                <select id="itemsList">
+                </select>
+            </section>
+            <section id="sectionTarget">
+                <h3>Cel:</h3>
+                <select id="targetsList">
+                </select>
+            </section><br>
             <button onclick="act()" id="actButton" class="battleButton hidden">Wykonaj</button><br>
             <button onclick="startBattle()" id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
             <button onclick="nextTurn()" id="nextTurnButton" class="battleButton hidden">Następna tura</button>

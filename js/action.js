@@ -1,4 +1,5 @@
 import {startBattle, refreshBattleSlots, endBattle, isBattleOver} from "./battle.js";
+import {adjustOptions} from "./list.js";
 
 /**
  * This function ends the current local/global turn
@@ -44,6 +45,10 @@ function nextTurn()
 
     //update the available items list
     updateItemList();
+
+    //reset the action list
+    action.value = "none";
+    adjustOptions(true);
 }
 
 /**
@@ -220,6 +225,12 @@ function updateItemList()
     }
     else
     {
+        //Insert the first entry that prompts to select an item
+        let opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "Wybierz";
+        itemSlots.appendChild(opt);
+        //Then insert all owned items
         for (let itanz of Object.entries(participants[localTurn].itemsOwned))
         {
             let item_name = itanz[0];

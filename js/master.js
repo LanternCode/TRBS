@@ -1,7 +1,7 @@
 import {nextTurn, act} from "./action.js";
 import {startBattle} from "./battle.js";
 import {addCard, delCard} from "./card.js";
-import {adjustOptions} from "./list.js";
+import {adjustOptions, adjustItems, adjustSkills} from "./list.js";
 
 window.addCard = addCard;
 window.delCard = delCard;
@@ -11,6 +11,12 @@ window.nextTurn = nextTurn;
 
 const actionsList = document.getElementById("action");
 actionsList.addEventListener("change", adjustOptions, false);
+
+const itemsList = document.getElementById("itemsList");
+itemsList.addEventListener("change", () => { adjustOptions(false, true) }, false);
+
+const skillsList = document.getElementById("skillsList");
+skillsList.addEventListener("change", () => { adjustOptions(false, false, true) }, false);
 
 /**
  *
@@ -122,16 +128,15 @@ window.players = [
  * @property {string} name - Item id
  * @property {string} displayName - Item display name
  * @property {string} type - Item type (for now only healing)
+ * @property {string} subtype - item subtype (for healing items - restore/revive)
  * @property {string} valueType - Item value type (flat or percentage)
  * @property {number} value - Item value (flat number or decimal percentage)
  */
 
 /**
  * An object of objects with min and max values for participant generation
- *
- * @type {{dodge: {min: number, max: number}, health: {min: number, max: number}, atk: {min: number, max: number}, speed: {min: number, max: number}}}
+ * @type {{dodge: {min: number, max: number}, armor: {min: number, max: number}, zone: {min: number, max: number}, health: {min: number, max: number}, atk: {min: number, max: number}, speed: {min: number, max: number}}}
  */
-
 window.enemyStatLimits = {
     health: {
         min: 50,
