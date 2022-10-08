@@ -126,7 +126,7 @@ function refreshBattleSlots()
         battleSlot.children[4].innerText = participants[i].speed;
         battleSlot.children[6].innerText = participants[i].atk;
         battleSlot.children[8].innerText = participants[i].dodge;
-        battleSlot.children[10].innerText = participants[i].experience;
+        battleSlot.children[10].innerText = participants[i].experience + " / " + expRequired(participants[i].level);
     }
 }
 

@@ -177,13 +177,19 @@ function prepareTargetSection(targetList)
     //Reset the list
     targetListSection.innerHTML = '';
     //Generate the list
-    for(let i = 0; i < targetList.length; ++i)
+    for(let i = 0; i < participants.length; ++i)
     {
-        //construct the option and insert it into the list
-        let opt = document.createElement('option');
-        opt.value = i;
-        opt.innerText = targetList[i].name;
-        targetListSection.appendChild(opt);
+        for(let j = 0; j < targetList.length; ++j)
+        {
+            if(participants[i] === targetList[j])
+            {
+                //construct the option and insert it into the list
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = targetList[j].name;
+                targetListSection.appendChild(opt);
+            }
+        }
     }
 }
 

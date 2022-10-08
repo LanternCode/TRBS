@@ -1,4 +1,5 @@
 import {newSystemCall} from "./action.js";
+import {expRequired} from "./level.js";
 /**
  * This function generates an enemy to be inserted into the list
  *
@@ -79,12 +80,12 @@ function generateNewEnemy(){
          editCard(this);
      };
      saveButton.innerText = "Zapisz";
-     saveButton.classList = "hidden";
+     saveButton.className = "hidden";
      saveButton.onclick = function(){
          saveCard(this);
      };
      cancelButton.innerText = "Cofnij";
-     cancelButton.classList = "hidden";
+     cancelButton.className = "hidden";
      cancelButton.onclick = function(){
          cancelEdit(this);
      };
@@ -109,7 +110,7 @@ function generateNewEnemy(){
          experienceValue.classList.add("experienceValue");
 
          experienceLabel.innerText = "Doświadczenie:";
-         experienceValue.innerText = participants[participants.length-1].experience;
+         experienceValue.innerText = participants[participants.length-1].experience + " / " + expRequired(participants[participants.length-1].level);
          card.appendChild(experienceLabel);
          card.appendChild(experienceValue);
      }
@@ -171,6 +172,7 @@ function generateNewEnemy(){
  {
      //get the card element
      let card = e.parentNode;
+     console.log(card);
      //construct editable elements
      let healthInput = document.createElement("input");
      healthInput.type = "text";

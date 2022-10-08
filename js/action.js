@@ -73,6 +73,9 @@ function act()
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
+                //console.log("Cel: " + target);
+                //console.log(participants[target]);
+                //console.log("Pełen atak: " + attack);
                 if(participants[target].isDodging)
                 {
                     //target is dodging - in phase 2 avoid half the damage
@@ -93,7 +96,7 @@ function act()
                 {
                     //target avoids being hit
                     attack = 0;
-                    document.getElementById("systemThrow").innerText = hitCheck + " (unik)";
+                    document.getElementById("systemThrow").innerText = hitCheck + " (Unik)";
                 }
                 else if(hitCheck === participants[target].dodge)
                 {
@@ -109,17 +112,23 @@ function act()
                     else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
                     else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
                 }
+                //console.log("Atak po modyfikatorze: " + attack);
 
                 //reduce the attack by target's armor rating
                 if(attack - participants[target].armor >= 0)
                     attack -= participants[target].armor;
                 else attack = 0;
 
+                //console.log("Atak po pancerzu: " + attack);
+
                 //deal damage
                 let targetHealth = participants[target].health;
                 if(targetHealth - attack > 0)
                     participants[target].health -= attack;
                 else participants[target].health = 0;
+
+                //console.log("HP przed atakiem: " + targetHealth);
+                //console.log("HP po ataku: " + participants[target].health);
 
                 priorityTwo = false;
             }
