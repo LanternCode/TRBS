@@ -1,4 +1,4 @@
-import {startBattle, refreshBattleSlots, endBattle, isBattleOver} from "./battle.js";
+import {startBattle, refreshBattleSlots, endBattle, isBattleOver, refreshDefinitions} from "./battle.js";
 import {adjustOptions} from "./list.js";
 
 /**
@@ -37,18 +37,18 @@ function nextTurn()
     //Update the "acts now" label
     document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
 
-    //check if the battle is over
-    isBattleOver();
+    //check if the battle is over, else continue
+    if(!isBattleOver()){
+        //Check if the participant is alive, if not, start next turn
+        if(participants[localTurn].health === 0) nextTurn();
 
-    //Check if the participant is alive, if not, start next turn
-    if(participants[localTurn].health === 0) nextTurn();
+        //update the available items list
+        updateItemList();
 
-    //update the available items list
-    updateItemList();
-
-    //reset the action list
-    action.value = "none";
-    adjustOptions(true);
+        //reset the action list
+        action.value = "none";
+        adjustOptions(true);
+    }
 }
 
 /**
@@ -196,10 +196,7 @@ function act()
     }
 
     //check if the battle is over
-    isBattleOver();
-
-    //refresh cards to reflect the action
-    refreshBattleSlots();
+    if(!isBattleOver()) refreshBattleSlots();
 }
 
 function restoreHp(item, target)

@@ -37,6 +37,9 @@ function startBattle()
         //enable the act button
         document.getElementById("actButton").classList.toggle("hidden");
 
+        //reset the current action
+        action.value = "none";
+
         //hide experience
         for (let elem of document.getElementsByClassName("experienceValue"))
             elem.classList.toggle("hidden");
@@ -114,13 +117,47 @@ function refreshBattleSlots()
             battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
             enemiesUpdated++;
         }
-        //update the display properties
+        //hide the edit button
         battleSlot.children[0].innerText = participants[i].name;
         battleSlot.children[2].innerText = participants[i].health;
         battleSlot.children[4].innerText = participants[i].speed;
         battleSlot.children[6].innerText = participants[i].atk;
         battleSlot.children[8].innerText = participants[i].dodge;
-        battleSlot.children[10].innerText = participants[i].experience + " / " + expRequired(participants[i].level);
+        if(participants[i].type === "player"){
+            battleSlot.children[10].innerText = participants[i].experience + " / " + expRequired(participants[i].level);
+        }
+    }
+}
+
+function refreshDefinitions()
+{
+    let playersUpdated = 0;
+    let enemiesUpdated = 0;
+
+    //Prepare the battle slots
+    for(let i = 0; i < participantsDefinition.length; ++i)
+    {
+        let battleSlot = "";
+        //find the correct battle slot
+        if(participantsDefinition[i].type === "player")
+        {
+            battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
+            playersUpdated++;
+        }
+        else if(participantsDefinition[i].type === "enemy")
+        {
+            battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
+            enemiesUpdated++;
+        }
+        //update the display properties
+        battleSlot.children[0].innerText = participantsDefinition[i].name;
+        battleSlot.children[2].innerText = participantsDefinition[i].health;
+        battleSlot.children[4].innerText = participantsDefinition[i].speed;
+        battleSlot.children[6].innerText = participantsDefinition[i].atk;
+        battleSlot.children[8].innerText = participantsDefinition[i].dodge;
+        if(participantsDefinition[i].type === "player"){
+            battleSlot.children[10].innerText = participantsDefinition[i].experience + " / " + expRequired(participantsDefinition[i].level);
+        }
     }
 }
 
@@ -180,15 +217,15 @@ function endBattle(identifier)
     for (let elem of document.getElementsByClassName("experienceLabel"))
         elem.classList.toggle("hidden");
 
-    //refresh the updated cards after battle
-    refreshBattleSlots();
+    //refresh cards to definitions
+    refreshDefinitions();
 }
 
 /**
  * This function checks if the battle has ended or not
  *
  * @function isBattleOver
- * @return {void} calls {@link endBattle} if the condition is met
+ * @return {boolean} calls {@link endBattle} if the condition is met and a confirmation
  */
 function isBattleOver()
 {
@@ -196,8 +233,15 @@ function isBattleOver()
     let playersDown = participants.filter(participant => participant.type === "player").every(p => p.health === 0);
     let enemiesDown = participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
 
-    if(playersDown) endBattle("p");
-    else if(enemiesDown) endBattle("e");
+    if(playersDown) {
+        endBattle("p");
+        return true;
+    }
+    else if(enemiesDown) {
+        endBattle("e");
+        return true;
+    }
+    else return false;
 }
 
-export {startBattle, refreshBattleSlots, endBattle, isBattleOver};
+export {startBattle, refreshBattleSlots, endBattle, isBattleOver, refreshDefinitions};
