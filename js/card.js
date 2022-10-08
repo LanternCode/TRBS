@@ -37,14 +37,14 @@ function generateNewEnemy(){
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4");
             return;
          }
-         participants = participants.concat(structuredClone(players[playerCount]));
+         participantsDefinition = participantsDefinition.concat(structuredClone(players[playerCount]));
          playerCount++;
      }else if(type === "enemy"){
          if(enemyCount === 9) {
              newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9");
              return;
          }
-         participants = participants.concat(generateNewEnemy());
+         participantsDefinition = participantsDefinition.concat(generateNewEnemy());
      }
 
      //Construct the card
@@ -63,17 +63,17 @@ function generateNewEnemy(){
      let cancelButton = document.createElement("button");
 
      //add the attributes to the card
-     card.id = "participant-" + (participants.length-1);
+     card.id = "participant-" + (participantsDefinition.length-1);
      card.className = type === "player" ? "playerSection" : "enemySection";
-     participantName.innerText = participants[participants.length-1].name;
+     participantName.innerText = participantsDefinition[participantsDefinition.length-1].name;
      healthLabel.innerText = "HP:";
-     healthValue.innerText = participants[participants.length-1].health;
+     healthValue.innerText = participantsDefinition[participantsDefinition.length-1].health;
      speedLabel.innerText = "Szybkość:";
-     speedValue.innerText = participants[participants.length-1].speed;
+     speedValue.innerText = participantsDefinition[participantsDefinition.length-1].speed;
      attackLabel.innerText = "Atak:";
-     attackValue.innerText = participants[participants.length-1].atk;
+     attackValue.innerText = participantsDefinition[participantsDefinition.length-1].atk;
      dodgeLabel.innerText = "Unik:";
-     dodgeValue.innerText = participants[participants.length-1].dodge;
+     dodgeValue.innerText = participantsDefinition[participantsDefinition.length-1].dodge;
      editButton.innerText = "Edytuj";
      editButton.className = "editButton";
      editButton.onclick = function(){
@@ -110,7 +110,7 @@ function generateNewEnemy(){
          experienceValue.classList.add("experienceValue");
 
          experienceLabel.innerText = "Doświadczenie:";
-         experienceValue.innerText = participants[participants.length-1].experience + " / " + expRequired(participants[participants.length-1].level);
+         experienceValue.innerText = participantsDefinition[participantsDefinition.length-1].experience + " / " + expRequired(participantsDefinition[participantsDefinition.length-1].level);
          card.appendChild(experienceLabel);
          card.appendChild(experienceValue);
      }
@@ -145,7 +145,7 @@ function generateNewEnemy(){
          let section = document.getElementById("playerSlots");
          section.removeChild(section.lastChild);
          //remove the participant from the array
-         participants.splice(participants.indexOf(participants.filter(p => p.type === "player").pop()), 1);
+         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1);
          playerCount--;
      }else if(type === "enemy"){
          if(enemyCount === 1) {
@@ -156,7 +156,7 @@ function generateNewEnemy(){
          let section = document.getElementById("enemySlots");
          section.removeChild(section.lastChild);
          //remove the participant from the array
-         participants.splice(participants.indexOf(participants.filter(p => p.type === "enemy").pop()), 1);
+         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "enemy").pop()), 1);
          enemyCount--;
      }
  }
@@ -238,10 +238,10 @@ function generateNewEnemy(){
      //get the participant id
      let pId = card.id.split('-')[1];
      //update the details in the participants array
-     participants[pId].maxHealth = newHealth;
-     participants[pId].speed = newSpeed;
-     participants[pId].atk = newAttack;
-     participants[pId].dodge = newDodge;
+     participantsDefinition[pId].maxHealth = newHealth;
+     participantsDefinition[pId].speed = newSpeed;
+     participantsDefinition[pId].atk = newAttack;
+     participantsDefinition[pId].dodge = newDodge;
      //players and enemies have different button placement
      let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
      //hide the edit button

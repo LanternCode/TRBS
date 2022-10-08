@@ -212,7 +212,12 @@ window.items = [
 ];
 
 /**
- * Pre-defined, empty participants array
+ * Pre-defined, empty participants array used outside the battle
+ * @type {*[]}
+ */
+window.participantsDefinition = [];
+/**
+ * Pre-defined, empty participants array used during the battle
  * @type {*[]}
  */
 window.participants = [];

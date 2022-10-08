@@ -47,6 +47,9 @@ function startBattle()
         for (let elem of document.getElementsByClassName("editButton"))
             elem.classList.toggle("hidden");
 
+        //generate the local participants array to be used during the battle
+        participants = structuredClone(participantsDefinition);
+
         //sort the array by speed to establish turn order
         participants.sort((a, b) => b.speed - a.speed);
 
@@ -60,25 +63,16 @@ function startBattle()
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = participants[0].name;
 
-        //Prepare the targets list
+        //Reset the targets list
         let targetSlot = document.getElementById("targetsList");
-        //Reset the list if the battle resets
         targetSlot.innerHTML = '';
+        //Reset participant's hp to its max value (for battle resets)
         for(let i = 0; i < participants.length; ++i)
         {
-            //construct the option and insert it into the list
-            let opt = document.createElement('option');
-            opt.value = i;
-            opt.innerText = participants[i].name;
-            targetSlot.appendChild(opt);
-            //reset participant's hp to its max value (for battle resets)
             participants[i].health = participants[i].maxHealth;
         }
 
-        //prepare item slots
-        updateItemList();
-
-        //hide all sections at start
+        //hide all sections at the start
         adjustOptions(true);
 
         //prepare cards
@@ -166,10 +160,15 @@ function endBattle(identifier)
     if(identifier === "e"){
         for (let player of participants.filter(participant => participant.type === "player")) {
             if(player.health > 0){
-                player.experience++;
-                if(player.experience >= expRequired(player.level))
-                {
-                    levelUp(player);
+                //match the battle participant to their external definition
+                for(let playerDefinition of participantsDefinition.filter(p => p.type === "player")) {
+                    if(player.name === playerDefinition.name) {
+                        playerDefinition.experience++;
+                        if(playerDefinition.experience >= expRequired(playerDefinition.level))
+                        {
+                            levelUp(playerDefinition);
+                        }
+                    }
                 }
             }
         }
@@ -180,6 +179,9 @@ function endBattle(identifier)
         elem.classList.toggle("hidden");
     for (let elem of document.getElementsByClassName("experienceLabel"))
         elem.classList.toggle("hidden");
+
+    //refresh the updated cards after battle
+    refreshBattleSlots();
 }
 
 /**
