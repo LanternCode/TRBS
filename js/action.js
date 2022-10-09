@@ -1,5 +1,6 @@
-import {refreshBattleSlots, isBattleOver} from "./battle.js";
+import {isBattleOver} from "./battle.js";
 import {adjustOptions} from "./list.js";
+import {refreshCardsInBattle} from "./card.js";
 
 /**
  * This function ends the current local/global turn
@@ -195,7 +196,7 @@ function act()
     }
 
     //check if the battle is over
-    if(!isBattleOver()) refreshBattleSlots();
+    if(!isBattleOver()) refreshCardsInBattle();
 }
 
 function restoreHp(item, target)

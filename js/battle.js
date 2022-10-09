@@ -1,6 +1,7 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
+import {refreshCardsInBattle} from "./card.js";
 
 /**
  * This function starts or resets a battle
@@ -79,7 +80,7 @@ function startBattle()
         adjustOptions(true);
 
         //prepare cards
-        refreshBattleSlots();
+        refreshCardsInBattle();
     }
     else {
         //show a message on screen saying why you cannot start the battle now
@@ -88,82 +89,6 @@ function startBattle()
         if(!participantsOK && !cardsOK) call += " |oraz|";
         if(!cardsOK) call += " obecnie trwa edytowanie karty gracza lub przeciwnika";
         newSystemCall(call);
-    }
-}
-
-/**
- * This function refreshes cards on screen to reflect changes
- *
- * @function refreshBattleSlots
- * @return {void}
- */
-function refreshBattleSlots()
-{
-    let playersUpdated = 0;
-    let enemiesUpdated = 0;
-
-    //Prepare the battle slots
-    for(let i = 0; i < participants.length; ++i)
-    {
-        let battleSlot = "";
-        //find the correct battle slot
-        if(participants[i].type === "player")
-        {
-            battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
-            playersUpdated++;
-        }
-        else if(participants[i].type === "enemy")
-        {
-            battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
-            enemiesUpdated++;
-        }
-        //hide the edit button
-        battleSlot.children[0].innerText = participants[i].name + " [" + participants[i].dodge + "]";
-        battleSlot.children[2].innerText = participants[i].health;
-        battleSlot.children[4].innerText = participants[i].speed;
-        battleSlot.children[6].innerText = participants[i].atk;
-        battleSlot.children[8].innerText = participants[i].dodge;
-        if(participants[i].type === "player"){
-            battleSlot.children[10].innerText = participants[i].experience + " / " + expRequired(participants[i].level);
-        }
-    }
-}
-
-/**
- * This function refreshes cards on screen back with their definitions on battle end
- *
- * @function refreshDefinitions
- * @return {void}
- */
-function refreshDefinitions()
-{
-    let playersUpdated = 0;
-    let enemiesUpdated = 0;
-
-    //Prepare the battle slots
-    for(let i = 0; i < participantsDefinition.length; ++i)
-    {
-        let battleSlot = "";
-        //find the correct battle slot
-        if(participantsDefinition[i].type === "player")
-        {
-            battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
-            playersUpdated++;
-        }
-        else if(participantsDefinition[i].type === "enemy")
-        {
-            battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
-            enemiesUpdated++;
-        }
-        //update the display properties
-        battleSlot.children[0].innerText = participantsDefinition[i].name;
-        battleSlot.children[2].innerText = participantsDefinition[i].health;
-        battleSlot.children[4].innerText = participantsDefinition[i].speed;
-        battleSlot.children[6].innerText = participantsDefinition[i].atk;
-        battleSlot.children[8].innerText = participantsDefinition[i].dodge;
-        if(participantsDefinition[i].type === "player"){
-            battleSlot.children[10].innerText = participantsDefinition[i].experience + " / " + expRequired(participantsDefinition[i].level);
-        }
     }
 }
 
@@ -224,7 +149,7 @@ function endBattle(identifier)
         elem.classList.toggle("hidden");
 
     //refresh cards to definitions
-    refreshDefinitions();
+    refreshCardsInBattle(true);
 }
 
 /**
@@ -250,4 +175,4 @@ function isBattleOver()
     else return false;
 }
 
-export {startBattle, refreshBattleSlots, endBattle, isBattleOver, refreshDefinitions};
+export {startBattle, endBattle, isBattleOver};

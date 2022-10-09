@@ -47,7 +47,7 @@ function generateNewEnemy(){
          participantsDefinition = participantsDefinition.concat(generateNewEnemy());
      }
 
-     //Construct the card
+     //Create elements used by both players and enemies
      let card = document.createElement("section");
      let participantName = document.createElement("h3");
      let healthLabel = document.createElement("label");
@@ -58,6 +58,8 @@ function generateNewEnemy(){
      let attackValue = document.createElement("h4");
      let dodgeLabel = document.createElement("label");
      let dodgeValue = document.createElement("h4");
+     let armorLabel = document.createElement("label");
+     let armorValue = document.createElement("h4");
      let editButton = document.createElement("button");
      let saveButton = document.createElement("button");
      let cancelButton = document.createElement("button");
@@ -75,6 +77,10 @@ function generateNewEnemy(){
      attackValue.innerText = participantsDefinition[participantsDefinition.length-1].atk;
      dodgeLabel.innerText = "Unik:";
      dodgeValue.innerText = participantsDefinition[participantsDefinition.length-1].dodge;
+     dodgeLabel.classList.add("experienceLabel");
+     dodgeValue.classList.add("experienceLabel");
+     armorLabel.innerText = "Pancerz:";
+     armorValue.innerText = participantsDefinition[participantsDefinition.length-1].armor;;
      editButton.innerText = "Edytuj";
      editButton.className = "editButton";
      editButton.onclick = function(){
@@ -101,21 +107,46 @@ function generateNewEnemy(){
      card.appendChild(attackValue);
      card.appendChild(dodgeLabel);
      card.appendChild(dodgeValue);
+     card.appendChild(armorLabel);
+     card.appendChild(armorValue);
 
-     // set experience labels
+     //add player-only elements (lvl and exp)
      if(type === "player"){
+         let lvlLabel = document.createElement("label");
+         let lvlValue = document.createElement("h4");
          let experienceLabel = document.createElement("label");
          let experienceValue = document.createElement("h4");
 
+         lvlLabel.classList.add("experienceLabel");
+         lvlValue.classList.add("experienceValue");
          experienceLabel.classList.add("experienceLabel");
          experienceValue.classList.add("experienceValue");
 
+         lvlLabel.innerText = "Level:";
+         lvlValue.innerText = participantsDefinition[participantsDefinition.length-1].level;
          experienceLabel.innerText = "Doświadczenie:";
          experienceValue.innerText = participantsDefinition[participantsDefinition.length-1].experience + " / " + expRequired(participantsDefinition[participantsDefinition.length-1].level);
+
+         card.appendChild(lvlLabel);
+         card.appendChild(lvlValue);
          card.appendChild(experienceLabel);
          card.appendChild(experienceValue);
+     }else if(type === "enemy"){
+         //add enemy-only elements (zone)
+         let zoneLabel = document.createElement("label");
+         let zoneValue = document.createElement("h4");
+
+         zoneLabel.classList.add("experienceLabel");
+         zoneValue.classList.add("experienceValue");
+
+         zoneLabel.innerText = "Strefa:";
+         zoneValue.innerText = participantsDefinition[participantsDefinition.length-1].zone;
+
+         card.appendChild(zoneLabel);
+         card.appendChild(zoneValue);
      }
 
+     //append the edition buttons at the end
      card.appendChild(editButton);
      card.appendChild(saveButton);
      card.appendChild(cancelButton);
@@ -173,6 +204,8 @@ function generateNewEnemy(){
  {
      //get the card element
      let card = e.parentNode;
+     //get the card type
+     let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //construct editable elements
      let healthInput = document.createElement("input");
      healthInput.type = "text";
@@ -190,13 +223,26 @@ function generateNewEnemy(){
      dodgeInput.type = "text";
      dodgeInput.value = card.children[8].innerText;
      dodgeInput.dataset.originalValue = card.children[8].innerText;
+     let armorInput = document.createElement("input");
+     armorInput.type = "text";
+     armorInput.value = card.children[10].innerText;
+     armorInput.dataset.originalValue = card.children[10].innerText;
      //replace the text elements with text forms to allow editing
      card.replaceChild(healthInput, card.children[2]);
      card.replaceChild(speedInput, card.children[4]);
      card.replaceChild(attackInput, card.children[6]);
      card.replaceChild(dodgeInput, card.children[8]);
+     card.replaceChild(armorInput, card.children[10]);
+     //players and enemies may have dedicated elements only they can access
+     if(cType === "enemy"){
+         let zoneInput = document.createElement("input");
+         zoneInput.type = "text";
+         zoneInput.value = card.children[12].innerText;
+         zoneInput.dataset.originalValue = card.children[12].innerText;
+         card.replaceChild(zoneInput, card.children[12]);
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
+     let buttonsStartHere = cType === "enemy" ? 13 : 15;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -215,12 +261,15 @@ function generateNewEnemy(){
  {
      //get the card element
      let card = e.parentNode;
+     //get the card type
+     let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //get the new values
      let newName = card.children[0].innerText.split("[")[0] + "[" + card.children[8].value + "]";
      let newHealth = card.children[2].value;
      let newSpeed = card.children[4].value;
      let newAttack = card.children[6].value;
      let newDodge = card.children[8].value;
+     let newArmor = card.children[10].value;
      //construct text elements
      let nameText = document.createElement("h3");
      nameText.innerText = newName;
@@ -232,12 +281,15 @@ function generateNewEnemy(){
      attackText.innerText = newAttack;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = newDodge;
+     let armorText = document.createElement("h4");
+     armorText.innerText = newArmor;
      //replace the form elements with text
      card.replaceChild(nameText, card.children[0]);
      card.replaceChild(healthText, card.children[2]);
      card.replaceChild(speedText, card.children[4]);
      card.replaceChild(attackText, card.children[6]);
      card.replaceChild(dodgeText, card.children[8]);
+     card.replaceChild(armorText, card.children[10]);
      //get the participant id
      let pId = card.id.split('-')[1];
      //update the details in the participants array
@@ -245,8 +297,17 @@ function generateNewEnemy(){
      participantsDefinition[pId].speed = newSpeed;
      participantsDefinition[pId].atk = newAttack;
      participantsDefinition[pId].dodge = newDodge;
+     participantsDefinition[pId].armor = newArmor;
+     //players and enemies may have dedicated elements only they can access
+     if(cType === "enemy"){
+         let newZone = card.children[12].value;
+         let zoneText = document.createElement("h4");
+         zoneText.innerText = newZone;
+         card.replaceChild(zoneText, card.children[12]);
+         participantsDefinition[pId].zone = newZone;
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
+     let buttonsStartHere = cType === "enemy" ? 13 : 15;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -265,6 +326,8 @@ function generateNewEnemy(){
  {
      //get the card element
      let card = e.parentNode;
+     //get the card type
+     let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //construct text elements
      let healthText = document.createElement("h4");
      healthText.innerText = card.children[2].dataset.originalValue;
@@ -274,13 +337,22 @@ function generateNewEnemy(){
      attackText.innerText = card.children[6].dataset.originalValue;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = card.children[8].dataset.originalValue;
+     let armorText = document.createElement("h4");
+     armorText.innerText = card.children[10].dataset.originalValue;
      //replace the form elements with text
      card.replaceChild(healthText, card.children[2]);
      card.replaceChild(speedText, card.children[4]);
      card.replaceChild(attackText, card.children[6]);
      card.replaceChild(dodgeText, card.children[8]);
+     card.replaceChild(armorText, card.children[10]);
+     //players and enemies may have dedicated elements only they can access
+     if(cType === "enemy"){
+         let zoneText = document.createElement("h4");
+         zoneText.innerText = card.children[12].dataset.originalValue;
+         card.replaceChild(zoneText, card.children[12]);
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = card.classList.contains("enemySection") ? 9 : 11;
+     let buttonsStartHere = cType === "enemy" ? 13 : 15;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -288,4 +360,49 @@ function generateNewEnemy(){
      card.children[buttonsStartHere+2].classList.toggle("hidden");
  }
 
-export {addCard, delCard, editCard, saveCard, cancelEdit};
+/**
+ * This function refreshes cards on screen to reflect changes
+ *
+ * @function refreshCardsInBattle
+ * @param {boolean} [refreshDefs] whether to refresh from local array or the definitions array
+ * @return {void}
+ */
+function refreshCardsInBattle(refreshDefs = false)
+{
+    //count updates so that slots do not repeat
+    let playersUpdated = 0;
+    let enemiesUpdated = 0;
+
+    //choose the array to use for refreshing cards
+    let arrOfChoice = refreshDefs ? participantsDefinition : participants;
+
+    //find the correct battle slot
+    for(let i = 0; i < arrOfChoice.length; ++i)
+    {
+        let battleSlot = "";
+        if(arrOfChoice[i].type === "player")
+        {
+            battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
+            playersUpdated++;
+        }
+        else if(arrOfChoice[i].type === "enemy")
+        {
+            battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
+            enemiesUpdated++;
+        }
+        //update values in battle
+        battleSlot.children[0].innerText = arrOfChoice[i].name + " [" + arrOfChoice[i].dodge + "]";
+        battleSlot.children[2].innerText = arrOfChoice[i].health;
+        battleSlot.children[4].innerText = arrOfChoice[i].speed;
+        battleSlot.children[6].innerText = arrOfChoice[i].atk;
+        battleSlot.children[8].innerText = arrOfChoice[i].dodge;
+        battleSlot.children[10].innerText = arrOfChoice[i].armor;
+        if(arrOfChoice[i].type === "player" && refreshDefs){
+            //xp is updated in the definition so it has to be fetched from the definition too
+            battleSlot.children[12].innerText = arrOfChoice[i].level;
+            battleSlot.children[14].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
+        }
+    }
+}
+
+export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle};
