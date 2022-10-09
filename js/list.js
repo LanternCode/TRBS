@@ -32,6 +32,7 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         }
         case "item":
         {
+            updateItemList();
             showSection(itemSection);
             hideSection(skillSection);
             hideSection(targetSection);
@@ -97,6 +98,8 @@ function adjustItems()
 {
     //get the items list
     let itemsList = document.getElementById("itemsList");
+    //check if the selection was removed, if so, return an empty array
+    if (itemsList.value === '') return [];
     //find the item in the item list to get its name
     let item = items.find(i => i.name === itemsList.value);
     //declare a list to store available targets
@@ -193,4 +196,43 @@ function prepareTargetSection(targetList)
     }
 }
 
-export {adjustOptions, adjustItems, adjustSkills};
+/**
+ * This function updates the item list to these owned by a participant at the start of their turn
+ *
+ * @function updateItemList
+ * @return {void}
+ */
+function updateItemList()
+{
+    //remove all children
+    let itemSlots = document.getElementById("itemsList");
+    itemSlots.innerHTML = '';
+    //Insert the first entry that prompts to select an item
+    let opt = document.createElement('option');
+    opt.value = "";
+    opt.innerText = "Wybierz";
+    itemSlots.appendChild(opt);
+    if(participants[localTurn].itemsOwned === null || typeof participants[localTurn].itemsOwned === 'undefined')
+    {
+        //items are not defined/available
+    }
+    else
+    {
+        //Then insert all owned items
+        for (let itanz of Object.entries(participants[localTurn].itemsOwned))
+        {
+            let item_name = itanz[0];
+            let item_count = itanz[1];
+            //find the item in the item list to get its name
+            let item = items.find(i => i.name === item_name);
+            if(item_count > 0) {
+                let opt = document.createElement('option');
+                opt.value = item_name;
+                opt.innerText = item.displayName + ": " + item_count;
+                itemSlots.appendChild(opt);
+            }
+        }
+    }
+}
+
+export {adjustOptions, adjustItems, updateItemList, adjustSkills};

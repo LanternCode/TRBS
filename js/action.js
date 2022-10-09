@@ -1,4 +1,4 @@
-import {startBattle, refreshBattleSlots, endBattle, isBattleOver, refreshDefinitions} from "./battle.js";
+import {refreshBattleSlots, isBattleOver} from "./battle.js";
 import {adjustOptions} from "./list.js";
 
 /**
@@ -9,45 +9,46 @@ import {adjustOptions} from "./list.js";
  */
 function nextTurn()
 {
-    //reset the available action flags
-    priorityTwo = true;
-    priorityThree = true;
-    let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
-    let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
-    priorityTwoActionFlag.classList.remove("disabled");
-    priorityThreeActionFlag.classList.remove("disabled");
-
-    // reset system throw display
-    document.getElementById("systemThrow").innerText = "";
-
-    //update the local turn counter
-    localTurn++;
-
-    //check if this was the last local turn of the global turn
-    if(localTurn === participants.length)
-    {
-        localTurn = 0;
-        globalTurn++;
-        document.getElementById("globalTurn").innerText = globalTurn;
-    }
-
-    //if the member was dodging, disable their dodge once their turn starts again
-    participants[localTurn].isDodging = 0;
-
-    //Update the "acts now" label
-    document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
-
-    //check if the battle is over, else continue
+    //check if the battle is over and end it if so, else continue
     if(!isBattleOver()){
+        //update the local turn counter
+        localTurn++;
+
+        //check if this was the last local turn of the global turn
+        if(localTurn === participants.length)
+        {
+            localTurn = 0;
+            globalTurn++;
+            document.getElementById("globalTurn").innerText = globalTurn;
+        }
+
+        //if the member was dodging, disable their dodge once their turn starts again
+        //this has to be disabled now in case a defeated member was revived
+        participants[localTurn].isDodging = 0;
+
         //Check if the participant is alive, if not, start next turn
         if(participants[localTurn].health === 0) nextTurn();
-
-        //update the available items list
-        updateItemList();
 
         //reset the action list
         action.value = "none";
         adjustOptions(true);
+
+        //reset the available action flags
+        let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
+        let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
+        priorityTwoActionFlag.classList.remove("disabled");
+        priorityThreeActionFlag.classList.remove("disabled");
+        priorityTwo = true;
+        priorityThree = true;
+
+        //reset system throw display
+        document.getElementById("systemThrow").innerText = "";
+
+        //reset system call display
+        newSystemCall("");
+
+        //Update the "acts now" label
+        document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
     }
 }
 
@@ -73,9 +74,6 @@ function act()
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
-                //console.log("Cel: " + target);
-                //console.log(participants[target]);
-                //console.log("Pełen atak: " + attack);
                 if(participants[target].isDodging)
                 {
                     //target is dodging - in phase 2 avoid half the damage
@@ -112,23 +110,17 @@ function act()
                     else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
                     else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
                 }
-                //console.log("Atak po modyfikatorze: " + attack);
 
                 //reduce the attack by target's armor rating
                 if(attack - participants[target].armor >= 0)
                     attack -= participants[target].armor;
                 else attack = 0;
 
-                //console.log("Atak po pancerzu: " + attack);
-
                 //deal damage
                 let targetHealth = participants[target].health;
                 if(targetHealth - attack > 0)
                     participants[target].health -= attack;
                 else participants[target].health = 0;
-
-                //console.log("HP przed atakiem: " + targetHealth);
-                //console.log("HP po ataku: " + participants[target].health);
 
                 priorityTwo = false;
             }
@@ -153,7 +145,7 @@ function act()
         }
         case "item":
         {
-            if(priorityThree === true)
+            if(priorityThree === true && item_key.length > 0)
             {
                 let itemUsed = true;
                 //find the item in the item list
@@ -174,14 +166,19 @@ function act()
                     priorityThree = false;
                 }
             }
+            else if(item_key.length === 0)
+            {
+                newSystemCall("Nie wybrano żadnego przedmiotu.");
+            }
             else
             {
                 newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
             }
+            break;
         }
         default:
         {
-            break;
+            newSystemCall("Nie wybrano żadnej akcji.");
         }
     }
 
@@ -214,46 +211,6 @@ function restoreHp(item, target)
 }
 
 /**
- * This function updates the item list to these owned by a participant at the start of their turn
- *
- * @function updateItemList
- * @return {void}
- */
-function updateItemList()
-{
-    //remove all children
-    let itemSlots = document.getElementById("itemsList");
-    itemSlots.innerHTML = '';
-    //insert new elements
-    if(participants[localTurn].itemsOwned === null || typeof participants[localTurn].itemsOwned === 'undefined')
-    {
-        //items are not defined/available
-    }
-    else
-    {
-        //Insert the first entry that prompts to select an item
-        let opt = document.createElement('option');
-        opt.value = "";
-        opt.innerText = "Wybierz";
-        itemSlots.appendChild(opt);
-        //Then insert all owned items
-        for (let itanz of Object.entries(participants[localTurn].itemsOwned))
-        {
-            let item_name = itanz[0];
-            let item_count = itanz[1];
-            //find the item in the item list to get its name
-            let item = items.find(i => i.name === item_name);
-            if(item_count > 0) {
-                let opt = document.createElement('option');
-                opt.value = item_name;
-                opt.innerText = item.displayName + ": " + item_count;
-                itemSlots.appendChild(opt);
-            }
-        }
-    }
-}
-
-/**
  * This function updates the message sent to the user after a system call
  *
  * @function newSystemCall
@@ -266,4 +223,4 @@ function newSystemCall(call)
 }
 
 
-export {nextTurn, act, updateItemList, newSystemCall};
+export {nextTurn, act, newSystemCall};

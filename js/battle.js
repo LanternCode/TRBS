@@ -1,4 +1,4 @@
-import {updateItemList, newSystemCall} from "./action.js";
+import {newSystemCall} from "./action.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 
@@ -129,6 +129,12 @@ function refreshBattleSlots()
     }
 }
 
+/**
+ * This function refreshes cards on screen back with their definitions on battle end
+ *
+ * @function refreshDefinitions
+ * @return {void}
+ */
 function refreshDefinitions()
 {
     let playersUpdated = 0;
