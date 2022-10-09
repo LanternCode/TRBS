@@ -65,7 +65,8 @@ function generateNewEnemy(){
      //add the attributes to the card
      card.id = "participant-" + (participantsDefinition.length-1);
      card.className = type === "player" ? "playerSection" : "enemySection";
-     participantName.innerText = participantsDefinition[participantsDefinition.length-1].name;
+     participantName.innerText = participantsDefinition[participantsDefinition.length-1].name + " [" +
+         participantsDefinition[participantsDefinition.length-1].dodge + "]";
      healthLabel.innerText = "HP:";
      healthValue.innerText = participantsDefinition[participantsDefinition.length-1].health;
      speedLabel.innerText = "Szybkość:";
@@ -172,7 +173,6 @@ function generateNewEnemy(){
  {
      //get the card element
      let card = e.parentNode;
-     console.log(card);
      //construct editable elements
      let healthInput = document.createElement("input");
      healthInput.type = "text";
@@ -213,15 +213,17 @@ function generateNewEnemy(){
   */
  function saveCard(e)
  {
-     console.log(e.parentNode);
      //get the card element
      let card = e.parentNode;
      //get the new values
+     let newName = card.children[0].innerText.split("[")[0] + "[" + card.children[8].value + "]";
      let newHealth = card.children[2].value;
      let newSpeed = card.children[4].value;
      let newAttack = card.children[6].value;
      let newDodge = card.children[8].value;
      //construct text elements
+     let nameText = document.createElement("h3");
+     nameText.innerText = newName;
      let healthText = document.createElement("h4");
      healthText.innerText = newHealth;
      let speedText = document.createElement("h4");
@@ -231,6 +233,7 @@ function generateNewEnemy(){
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = newDodge;
      //replace the form elements with text
+     card.replaceChild(nameText, card.children[0]);
      card.replaceChild(healthText, card.children[2]);
      card.replaceChild(speedText, card.children[4]);
      card.replaceChild(attackText, card.children[6]);

@@ -118,7 +118,7 @@ function refreshBattleSlots()
             enemiesUpdated++;
         }
         //hide the edit button
-        battleSlot.children[0].innerText = participants[i].name;
+        battleSlot.children[0].innerText = participants[i].name + " [" + participants[i].dodge + "]";
         battleSlot.children[2].innerText = participants[i].health;
         battleSlot.children[4].innerText = participants[i].speed;
         battleSlot.children[6].innerText = participants[i].atk;

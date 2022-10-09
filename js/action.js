@@ -122,6 +122,8 @@ function act()
                     participants[target].health -= attack;
                 else participants[target].health = 0;
 
+                if (attack > 0) newSystemCall("Zadano " + attack + " obrażeń!");
+
                 priorityTwo = false;
             }
             else
