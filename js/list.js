@@ -1,3 +1,5 @@
+import {newSystemCall} from "./action.js";
+
 /**
  * This function is called when an action is selected to define which sections should show up
  * as each action uses a different section, or a mix of them
@@ -32,10 +34,17 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         }
         case "item":
         {
-            updateItemList();
-            showSection(itemSection);
-            hideSection(skillSection);
-            hideSection(targetSection);
+            if(participants[localTurn].type === "player" || (participants[localTurn].hasOwnProperty('subtype') && participants[localTurn].subtype === "human"))
+            {
+                updateItemList();
+                showSection(itemSection);
+                hideSection(skillSection);
+                hideSection(targetSection);
+            }
+            else {
+                newSystemCall("Tylko ludzie mogą używać przedmioty!");
+            }
+
             break;
         }
         case "itempicked":
@@ -179,6 +188,11 @@ function prepareTargetSection(targetList)
     let targetListSection = document.getElementById("targetsList");
     //Reset the list
     targetListSection.innerHTML = '';
+    //Insert the first entry that prompts to select an item
+    let opt = document.createElement('option');
+    opt.value = "";
+    opt.innerText = "Wybierz";
+    targetListSection.appendChild(opt);
     //Generate the list
     for(let i = 0; i < participants.length; ++i)
     {

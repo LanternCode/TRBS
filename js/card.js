@@ -1,5 +1,6 @@
 import {newSystemCall} from "./action.js";
 import {expRequired} from "./level.js";
+
 /**
  * This function generates an enemy to be inserted into the list
  *
@@ -13,12 +14,15 @@ function generateNewEnemy(){
         name: "Przeciwnik " + enemyCount,
         maxHealth: 100,
         isDodging: 0,
-        type: "enemy"
+        type: "enemy",
+        subtype: Math.random() < 0.5 ? "human" : "monster"
     };
 
     for (let enemyStat of Object.keys(enemyStatLimits)) {
         enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
     }
+
+    if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
 
     return enemy;
 }
@@ -281,6 +285,7 @@ function generateNewEnemy(){
      attackText.innerText = newAttack;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = newDodge;
+     dodgeText.classList.add("experienceLabel");
      let armorText = document.createElement("h4");
      armorText.innerText = newArmor;
      //replace the form elements with text
@@ -405,4 +410,46 @@ function refreshCardsInBattle(refreshDefs = false)
     }
 }
 
-export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle};
+/**
+ * This function generates a list of items the participant will have in battle
+ *
+ * @generator
+ * @function generateRandomItems
+ * @yields {Object} An object of {@link Item}s generated
+ */
+function generateRandomItems()
+{
+    let items = {
+        'life_flask': 0,
+        'small_life_potion': 0,
+        'life_potion': 0,
+        'large_life_potion': 0,
+        'regeneration_flask': 0
+    };
+
+    //choose two healing items and one reviving item
+    let first_healing = randomOfTwo('life_flask', 'small_life_potion');
+    let second_healing = randomOfTwo('large_life_potion', 'life_potion');
+    let first_reviving = 'regeneration_flask';
+
+    //increase the item count in the items array
+    items[first_healing]++;
+    items[second_healing]++;
+    items[first_reviving]++;
+
+    return items;
+}
+
+/**
+ * This function returns a random item of the two given
+ *
+ * @function randomOfTwo
+ * @param {any} first - The beginning of the range
+ * @param {any} second - The end of the range
+ * @return {any} The item generated
+ */
+window.randomOfTwo = function(first, second) {
+    return Math.random() < 0.5 ? first : second;
+}
+
+export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle, generateRandomItems};

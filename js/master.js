@@ -1,7 +1,7 @@
 import {nextTurn, act} from "./action.js";
 import {startBattle} from "./battle.js";
-import {addCard, delCard} from "./card.js";
-import {adjustOptions, adjustItems, adjustSkills} from "./list.js";
+import {addCard, delCard, generateRandomItems} from "./card.js";
+import {adjustOptions} from "./list.js";
 
 window.addCard = addCard;
 window.delCard = delCard;
@@ -33,13 +33,7 @@ window.players = [
         experience: 0,
         isDodging: 0,
         type: "player",
-        itemsOwned: {
-            'life_flask': 1,
-            'small_life_potion': 0,
-            'life_potion': 1,
-            'large_life_potion': 0,
-            'regeneration_flask': 0
-        },
+        itemsOwned: generateRandomItems(),
         level: 1,
         armor: 0
     },
@@ -53,13 +47,7 @@ window.players = [
         experience: 0,
         isDodging: 0,
         type: "player",
-        itemsOwned: {
-            'life_flask': 0,
-            'small_life_potion': 1,
-            'life_potion': 0,
-            'large_life_potion': 1,
-            'regeneration_flask': 0
-        },
+        itemsOwned: generateRandomItems(),
         level: 1,
         armor: 0
     },
@@ -73,13 +61,7 @@ window.players = [
         experience: 0,
         isDodging: 0,
         type: "player",
-        itemsOwned: {
-            'life_flask': 0,
-            'small_life_potion': 0,
-            'life_potion': 0,
-            'large_life_potion': 0,
-            'regeneration_flask': 1
-        },
+        itemsOwned: generateRandomItems(),
         level: 1,
         armor: 0
     },
@@ -93,13 +75,7 @@ window.players = [
         experience: 0,
         isDodging: 0,
         type: "player",
-        itemsOwned: {
-            'life_flask': 0,
-            'small_life_potion': 0,
-            'life_potion': 0,
-            'large_life_potion': 0,
-            'regeneration_flask': 10
-        },
+        itemsOwned: generateRandomItems(),
         level: 1,
         armor: 0
     }];
@@ -115,6 +91,7 @@ window.players = [
  * @property {number} dodge - Participant's dodge
  * @property {boolean} isDodging - Participant dodge action on or off
  * @property {string} type - Participant type (enemy/player)
+ * @property {string} [subtype] - Enemy type (human/monster)
  * @property {number} [experience] - Participant's xp count, only for players
  * @property {Object} [itemsOwned] - Participant's items, only for players
  * @property {number} [level] - Participant's level, only for players

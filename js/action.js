@@ -71,7 +71,7 @@ function act()
     {
         case "attack":
         {
-            if(priorityTwo === true)
+            if(priorityTwo === true && target.length > 1)
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
@@ -127,6 +127,10 @@ function act()
 
                 priorityTwo = false;
             }
+            else if(target.length < 2)
+            {
+                newSystemCall("Nie wybrano celu ataku.");
+            }
             else
             {
                 newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
@@ -148,8 +152,10 @@ function act()
         }
         case "item":
         {
-            if(priorityThree === true && item_key.length > 0)
+            if(priorityThree === true && item_key.length > 1 && target.length > 1)
             {
+                console.log(target);
+                console.log(participants[target]);
                 let itemUsed = true;
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
@@ -163,15 +169,19 @@ function act()
                     itemUsed = false;
                 }
 
-                //reduce player's item count
+                //reduce participant's item count
                 if(itemUsed){
                     participants[localTurn].itemsOwned[item_key] -= 1;
                     priorityThree = false;
                 }
             }
-            else if(item_key.length === 0)
+            else if(item_key.length < 2)
             {
                 newSystemCall("Nie wybrano żadnego przedmiotu.");
+            }
+            else if(target.length < 2)
+            {
+                newSystemCall("Nie wybrano żadnego celu.");
             }
             else
             {
