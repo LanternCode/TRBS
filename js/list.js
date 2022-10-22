@@ -11,7 +11,7 @@ import {newSystemCall} from "./action.js";
  * @return void
  */
 function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
-    let option = (reset === true) ? "dodge" : (itempicked === true ? "itempicked" : this.value);
+    let option = (reset === true) ? "dodge" : (itempicked === true ? "itempicked" : (skillpicked === true ? "skillpicked" : this.value));
     let itemSection = document.getElementById("sectionItem");
     let skillSection = document.getElementById("sectionSkill");
     let targetSection = document.getElementById("sectionTarget");
@@ -36,7 +36,7 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         {
             if(participants[localTurn].type === "player" || (participants[localTurn].hasOwnProperty('subtype') && participants[localTurn].subtype === "human"))
             {
-                updateItemList();
+                updateList("itemsList");
                 showSection(itemSection);
                 hideSection(skillSection);
                 hideSection(targetSection);
@@ -57,6 +57,7 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         }
         case "skill":
         {
+            updateList("skillsList");
             hideSection(itemSection);
             showSection(skillSection);
             hideSection(targetSection);
@@ -64,7 +65,10 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         }
         case "skillpicked":
         {
-            //to be implemented together with use ability/spell
+            adjustSkills();
+            hideSection(itemSection);
+            showSection(skillSection);
+            showSection(targetSection);
             break;
         }
         default:
@@ -144,11 +148,53 @@ function adjustItems()
 }
 
 /**
- * To be implemented when the use skill/spell action is added
+ * This function makes a list of targets that can be targets of the skill selected by the participant
+ * And calls the adequate function to implement that list
+ *
+ * @function adjustSkills
+ * @returns {void} The function calls the prepareTargetSection function immediately
  */
 function adjustSkills()
 {
-    console.log(this.value);
+    //get the skills list
+    let skillsList = document.getElementById("skillsList");
+    //check if a skill was selected, otherwise exit
+    if (skillsList.value === '') return;
+    //declare a list to store available targets
+    let filteredList = [];
+    //find the skill in the skill list to get its properties
+    let skill = skills.find(s => s.name === skillsList.value);
+    //based on the properties of the skill, find available targets
+    let subtype = skill.subtype;
+    let range = skill.range;
+    let target_group = skill.targetGroup;
+    //check if the spell targets literally everyone - if so, job done
+    if(range === "everyone") {
+        prepareTargetSection([], "everyone");
+        return;
+    }
+    //first filtering to determine which side to target (player, enemy, reversed)
+    if(target_group === "reversed")
+    {
+        if(participants[localTurn].type === "player")
+            target_group = "enemy";
+        else target_group = "player";
+    }
+    if(range === "all"){
+        //if we target everyone from that group - job done
+        prepareTargetSection([], target_group);
+        return;
+    }
+    //remaining filtering is for a list of individual participants
+    filteredList = participants.filter(p => p.type === target_group);
+    if(["restore", "damaging"].includes(subtype)) {
+        filteredList = filteredList.filter(p => p.health > 0);
+    }
+    else if (subtype === "revive") {
+        filteredList = filteredList.filter(p => p.health === 0);
+    }
+
+    prepareTargetSection(filteredList);
 }
 
 /**
@@ -180,73 +226,106 @@ function hideSection(s)
  *
  * @function prepareTargetSection
  * @param {array} targetList a list of participants
+ * @param {string} specialCase a group of participants that are the target
  * @return void
  */
-function prepareTargetSection(targetList)
+function prepareTargetSection(targetList, specialCase = '')
 {
     //Get the targets list
     let targetListSection = document.getElementById("targetsList");
     //Reset the list
     targetListSection.innerHTML = '';
-    //Insert the first entry that prompts to select an item
+    //Insert the first entry that prompts to select a target
     let opt = document.createElement('option');
     opt.value = "";
     opt.innerText = "Wybierz";
     targetListSection.appendChild(opt);
     //Generate the list
-    for(let i = 0; i < participants.length; ++i)
-    {
-        for(let j = 0; j < targetList.length; ++j)
+    if(specialCase !== '') {
+        //construct the special option and insert it into the list
+        let text = specialCase === "everyone" ? "Wszyscy Uczestnicy" : (specialCase === "player" ? "Wszyscy Gracze" : "Wszyscy Przeciwnicy");
+        let opt = document.createElement('option');
+        opt.value = specialCase;
+        opt.innerText = text;
+        targetListSection.appendChild(opt);
+    }
+    else {
+        for(let i = 0; i < participants.length; ++i)
         {
-            if(participants[i] === targetList[j])
+            for(let j = 0; j < targetList.length; ++j)
             {
-                //construct the option and insert it into the list
-                let opt = document.createElement('option');
-                opt.value = i;
-                opt.innerText = targetList[j].name;
-                targetListSection.appendChild(opt);
+                if(participants[i] === targetList[j])
+                {
+                    //construct the option and insert it into the list
+                    let opt = document.createElement('option');
+                    opt.value = i;
+                    opt.innerText = targetList[j].name;
+                    targetListSection.appendChild(opt);
+                }
             }
         }
     }
 }
 
 /**
- * This function updates the item list to these owned by a participant at the start of their turn
+ * This function updates the item or skills list to these owned by a participant
  *
- * @function updateItemList
+ * @function updateList
+ * @param {string} listName the id of the list to be updated
  * @return {void}
  */
-function updateItemList()
+function updateList(listName)
 {
     //remove all children
-    let itemSlots = document.getElementById("itemsList");
-    itemSlots.innerHTML = '';
-    //Insert the first entry that prompts to select an item
+    let list = document.getElementById(listName);
+    list.innerHTML = '';
+    //Insert the first entry that prompts to select an item or skill
     let opt = document.createElement('option');
     opt.value = "";
     opt.innerText = "Wybierz";
-    itemSlots.appendChild(opt);
-    if(participants[localTurn].itemsOwned === null || typeof participants[localTurn].itemsOwned === 'undefined')
+    list.appendChild(opt);
+    //use the attribute based on the list selected
+    let attName = listName === "itemsList" ? "itemsOwned" : "skillsOwned";
+    if(participants[localTurn][attName] === null || typeof participants[localTurn][attName] === 'undefined')
     {
-        //items are not defined/available
+        //list objects are unavailable
     }
     else
     {
-        //Then insert all owned items
-        for (let itanz of Object.entries(participants[localTurn].itemsOwned))
+        if(listName === "itemsList")
         {
-            let item_name = itanz[0];
-            let item_count = itanz[1];
-            //find the item in the item list to get its name
-            let item = items.find(i => i.name === item_name);
-            if(item_count > 0) {
-                let opt = document.createElement('option');
-                opt.value = item_name;
-                opt.innerText = item.displayName + ": " + item_count;
-                itemSlots.appendChild(opt);
+            //Then insert all list items
+            for (let itanz of Object.entries(participants[localTurn].itemsOwned))
+            {
+                let item_name = itanz[0];
+                let item_count = itanz[1];
+                //find the item in the item list to get its name
+                let item = items.find(i => i.name === item_name);
+                if(item_count > 0) {
+                    let opt = document.createElement('option');
+                    opt.value = item_name;
+                    opt.innerText = item.displayName + ": " + item_count;
+                    list.appendChild(opt);
+                }
             }
         }
+        else {
+            //Insert all skills
+            for (let skillz of Object.entries(participants[localTurn].skillsOwned))
+            {
+                let skillName = skillz[0];
+                let skillCooldown = skillz[1];
+                //find the skill in the skill list to get its priority
+                let skill = skills.find(s => s.name === skillName);
+                //create the list object
+                let opt = document.createElement('option');
+                opt.value = skillName;
+                opt.innerText = skillName + " (" + skill.priority + ") [" + skillCooldown + "]";
+                list.appendChild(opt);
+            }
+        }
+
     }
 }
 
-export {adjustOptions, adjustItems, updateItemList, adjustSkills};
+export {adjustOptions, adjustItems, updateList, adjustSkills};
