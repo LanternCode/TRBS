@@ -2,6 +2,7 @@ import {nextTurn, act} from "./action.js";
 import {startBattle} from "./battle.js";
 import {addCard, delCard, generateRandomItems} from "./card.js";
 import {adjustOptions} from "./list.js";
+import {getAvailablePlayers, getAvailableEnemies} from "./db.js";
 
 window.addCard = addCard;
 window.delCard = delCard;
@@ -82,7 +83,10 @@ window.players = [
         skillsOwned: {"Kumulacja": 0, "Energy Ball": 0},
         level: 1,
         armor: 0
-    }];
+    }
+];
+
+
 
 /**
  * A Participant
@@ -335,3 +339,16 @@ window.priorityThree = true;
 window.getRndInteger = function(min, max) {
     return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
 };
+
+
+/**
+ *
+ * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
+ */
+window.availablePlayers = getAvailablePlayers();
+
+/**
+ *
+ * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
+ */
+window.availableEnemies = getAvailableEnemies();

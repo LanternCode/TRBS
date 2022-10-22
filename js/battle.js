@@ -30,7 +30,7 @@ function startBattle()
         priorityThreeActionFlag.classList.remove("disabled");
 
         //disable the buttons that add or remove participants
-        for (let elem of document.getElementsByClassName("addCardButton"))
+        for (let elem of document.getElementsByClassName("createCardButton"))
             elem.classList.toggle("hidden");
             document.getElementById("enemyAddSection").classList.toggle("hidden");
             document.getElementById("playerAddSection").classList.toggle("hidden");
@@ -117,7 +117,7 @@ function endBattle(identifier)
     //enable the buttons that add new participants
     document.getElementById("enemyAddSection").classList.toggle("hidden");
     document.getElementById("playerAddSection").classList.toggle("hidden");
-    for (let elem of document.getElementsByClassName("addCardButton"))
+    for (let elem of document.getElementsByClassName("createCardButton"))
         elem.classList.toggle("hidden");
 
     //show the edit participant button

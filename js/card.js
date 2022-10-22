@@ -9,9 +9,8 @@ import {expRequired} from "./level.js";
  * @yields {Participant} The {@link Participant} generated
  */
 function generateNewEnemy(){
-    enemyCount++;
     let enemy = {
-        name: "Przeciwnik " + enemyCount,
+        name: "Przeciwnik",
         maxHealth: 100,
         isDodging: 0,
         type: "enemy",
@@ -28,12 +27,22 @@ function generateNewEnemy(){
 }
 
 /**
- * This function constructs a participant card and adds it into the document
+ * This function adds a participant card into the document
  *
  * @generator
  * @function addCard
  * @yields {Element} a valid participant card <section> element
- */function addCard(type)
+ */function addCard(type){
+    createCard(type);
+ }
+
+/**
+ * This function constructs a participant card
+ *
+ * @generator
+ * @function createCard
+ * @yields {Element} a valid participant card <section> element
+ */function createCard(type)
  {
      //add a new participant into the array
      if(type === "player"){
@@ -48,7 +57,10 @@ function generateNewEnemy(){
              newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9");
              return;
          }
-         participantsDefinition = participantsDefinition.concat(generateNewEnemy());
+         enemyCount++;
+         let newEnemy = generateNewEnemy();
+         newEnemy.name +=  " " + enemyCount;
+         participantsDefinition = participantsDefinition.concat(newEnemy);
      }
 
      //Create elements used by both players and enemies
@@ -454,4 +466,4 @@ window.randomOfTwo = function(first, second) {
     return Math.random() < 0.5 ? first : second;
 }
 
-export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle, generateRandomItems};
+export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle, generateRandomItems, generateNewEnemy};
