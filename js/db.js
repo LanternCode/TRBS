@@ -10,6 +10,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
 {
     return [
         {
+            UID:  0,
             name: 'Karim',
             maxHealth: 100,
             health: 100,
@@ -21,9 +22,11 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             type: "player",
             itemsOwned: generateRandomItems(),
             level: 1,
-            armor: 0
+            armor: 0,
+            inUse: false
         },
         {
+            UID:  1,
             name: 'Antonio',
             maxHealth: 80,
             health: 80,
@@ -35,9 +38,11 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             type: "player",
             itemsOwned: generateRandomItems(),
             level: 1,
-            armor: 0
+            armor: 0,
+            inUse: false
         },
         {
+            UID:  2,
             name: 'Dion',
             maxHealth: 90,
             health: 90,
@@ -49,9 +54,11 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             type: "player",
             itemsOwned: generateRandomItems(),
             level: 1,
-            armor: 0
+            armor: 0,
+            inUse: false
         },
         {
+            UID:  3,
             name: 'Astrid',
             maxHealth: 80,
             health: 80,
@@ -63,7 +70,8 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             type: "player",
             itemsOwned: generateRandomItems(),
             level: 1,
-            armor: 0
+            armor: 0,
+            inUse: false
         }
     ]; // temp
 }

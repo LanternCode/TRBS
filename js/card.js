@@ -27,76 +27,210 @@ function generateNewEnemy(){
 }
 
 /**
- * This function adds a participant card into the document
+ * This function displays participant cards to pick from
+ *
+ * @generator
+ * @function displayCardPicker
+ */
+function displayCardPicker(type) {
+    let list = (type === "player" ? availablePlayers : availableEnemies);
+
+    let selectSection = document.createElement('section');
+    let pickingOverlay = document.getElementById("pickingOverlay");
+
+    for (var i = 0; i < list.length; i++) {
+        let option = createCardTemplate(type, list[i]);
+        option.classList.add("clickOnMe");
+        let index = i;
+
+        // TODO: remove btn
+
+        option.addEventListener("click", function() {
+            if(type === "player") {
+                if(addPlayer(index)) {
+                    pickingOverlay.classList.add("hidden");
+                    pickingOverlay.removeChild(pickingOverlay.firstChild);
+                }
+            }
+            else if (type === "enemy") {
+                addEnemy(index);
+                pickingOverlay.classList.add("hidden");
+                pickingOverlay.removeChild(pickingOverlay.firstChild);
+            }
+         }, false);
+
+        selectSection.appendChild(option);
+    }
+
+    pickingOverlay.appendChild(selectSection);
+    pickingOverlay.classList.remove("hidden");
+}
+
+/**
+ * This function adds a player card
+ *
+ * @generator
+ * @function addPlayer
+ * @yields {Element} a valid participant card <section> element
+ */
+function addPlayer(index) {
+    if(availablePlayers[index].inUse){
+        newSystemCall("Wybrany gracz jest już w grze");
+        return false;
+    }
+    availablePlayers[index].inUse = true;
+    createCard("player", structuredClone(availablePlayers[index]));
+    return true;
+}
+
+/**
+ * This function adds an enemy card
+ *
+ * @generator
+ * @function addEnemy
+ * @yields {Element} a valid participant card <section> element
+ */
+ function addEnemy(index) {
+    enemyCount++;
+    let newEnemy = structuredClone(availableEnemies[index]);
+    newEnemy.name +=  " " + enemyCount;
+    createCard("enemy", newEnemy);
+}
+
+
+/**
+ * This function constructs a participant card template
+ *
+ * @generator
+ * @function createCardTemplate
+ * @returns {Element} a valid participant card template <section> element
+ */
+ function createCardTemplate(type, newParticipant){
+    //Create elements used by both players and enemies
+    let card = document.createElement("section");
+    let participantName = document.createElement("h3");
+    let healthLabel = document.createElement("label");
+    let healthValue = document.createElement("h4");
+    let speedLabel = document.createElement("label");
+    let speedValue = document.createElement("h4");
+    let attackLabel = document.createElement("label");
+    let attackValue = document.createElement("h4");
+    let dodgeLabel = document.createElement("label");
+    let dodgeValue = document.createElement("h4");
+    let armorLabel = document.createElement("label");
+    let armorValue = document.createElement("h4");
+
+    //add the attributes to the card
+    card.className = type === "player" ? "playerSection" : "enemySection";
+    participantName.innerText = newParticipant.name + " [" +
+        newParticipant.dodge + "]";
+    healthLabel.innerText = "HP:";
+    healthValue.innerText = newParticipant.health;
+    speedLabel.innerText = "Szybkość:";
+    speedValue.innerText = newParticipant.speed;
+    attackLabel.innerText = "Atak:";
+    attackValue.innerText = newParticipant.atk;
+    dodgeLabel.innerText = "Unik:";
+    dodgeValue.innerText = newParticipant.dodge;
+    dodgeLabel.classList.add("experienceLabel");
+    dodgeValue.classList.add("experienceLabel");
+    armorLabel.innerText = "Pancerz:";
+    armorValue.innerText = newParticipant.armor;
+
+    //append all elements in the right order
+    card.appendChild(participantName);
+    card.appendChild(healthLabel);
+    card.appendChild(healthValue);
+    card.appendChild(speedLabel);
+    card.appendChild(speedValue);
+    card.appendChild(attackLabel);
+    card.appendChild(attackValue);
+    card.appendChild(dodgeLabel);
+    card.appendChild(dodgeValue);
+    card.appendChild(armorLabel);
+    card.appendChild(armorValue);
+
+    //add player-only elements (lvl and exp)
+    if(type === "player"){
+        let lvlLabel = document.createElement("label");
+        let lvlValue = document.createElement("h4");
+        let experienceLabel = document.createElement("label");
+        let experienceValue = document.createElement("h4");
+
+        lvlLabel.classList.add("experienceLabel");
+        lvlValue.classList.add("experienceValue");
+        experienceLabel.classList.add("experienceLabel");
+        experienceValue.classList.add("experienceValue");
+
+        lvlLabel.innerText = "Level:";
+        lvlValue.innerText = newParticipant.level;
+        experienceLabel.innerText = "Doświadczenie:";
+        experienceValue.innerText = newParticipant.experience + " / " + expRequired(newParticipant.level);
+
+        card.appendChild(lvlLabel);
+        card.appendChild(lvlValue);
+        card.appendChild(experienceLabel);
+        card.appendChild(experienceValue);
+    }else if(type === "enemy"){
+        //add enemy-only elements (zone)
+        let zoneLabel = document.createElement("label");
+        let zoneValue = document.createElement("h4");
+
+        zoneLabel.classList.add("experienceLabel");
+        zoneValue.classList.add("experienceValue");
+
+        zoneLabel.innerText = "Strefa:";
+        zoneValue.innerText = newParticipant.zone;
+
+        card.appendChild(zoneLabel);
+        card.appendChild(zoneValue);
+    }
+
+    return card;
+}
+
+
+/**
+ * This function starts the adding process of a participant card into the document
  *
  * @generator
  * @function addCard
- * @yields {Element} a valid participant card <section> element
  */function addCard(type){
-    createCard(type);
- }
 
-/**
- * This function constructs a participant card
- *
- * @generator
- * @function createCard
- * @yields {Element} a valid participant card <section> element
- */function createCard(type)
- {
      //add a new participant into the array
      if(type === "player"){
          if(playerCount === 4) {
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4");
             return;
          }
-         participantsDefinition = participantsDefinition.concat(structuredClone(players[playerCount]));
+
          playerCount++;
-     }else if(type === "enemy"){
+     } else if(type === "enemy"){
          if(enemyCount === 9) {
              newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9");
              return;
          }
-         enemyCount++;
-         let newEnemy = generateNewEnemy();
-         newEnemy.name +=  " " + enemyCount;
-         participantsDefinition = participantsDefinition.concat(newEnemy);
      }
 
-     //Create elements used by both players and enemies
-     let card = document.createElement("section");
-     let participantName = document.createElement("h3");
-     let healthLabel = document.createElement("label");
-     let healthValue = document.createElement("h4");
-     let speedLabel = document.createElement("label");
-     let speedValue = document.createElement("h4");
-     let attackLabel = document.createElement("label");
-     let attackValue = document.createElement("h4");
-     let dodgeLabel = document.createElement("label");
-     let dodgeValue = document.createElement("h4");
-     let armorLabel = document.createElement("label");
-     let armorValue = document.createElement("h4");
+     displayCardPicker(type);
+ }
+
+/**
+ * This function constructs a participant card and adds it to the proper slot
+ *
+ * @generator
+ * @function createCard
+ * @yields {Element} a valid participant card <section> element
+ */function createCard(type, newParticipant)
+ {
+     participantsDefinition = participantsDefinition.concat(newParticipant);
+
+     let card = createCardTemplate(type, newParticipant);
+     card.id = "participant-" + (participantsDefinition.length-1);
+
      let editButton = document.createElement("button");
      let saveButton = document.createElement("button");
      let cancelButton = document.createElement("button");
-
-     //add the attributes to the card
-     card.id = "participant-" + (participantsDefinition.length-1);
-     card.className = type === "player" ? "playerSection" : "enemySection";
-     participantName.innerText = participantsDefinition[participantsDefinition.length-1].name + " [" +
-         participantsDefinition[participantsDefinition.length-1].dodge + "]";
-     healthLabel.innerText = "HP:";
-     healthValue.innerText = participantsDefinition[participantsDefinition.length-1].health;
-     speedLabel.innerText = "Szybkość:";
-     speedValue.innerText = participantsDefinition[participantsDefinition.length-1].speed;
-     attackLabel.innerText = "Atak:";
-     attackValue.innerText = participantsDefinition[participantsDefinition.length-1].atk;
-     dodgeLabel.innerText = "Unik:";
-     dodgeValue.innerText = participantsDefinition[participantsDefinition.length-1].dodge;
-     dodgeLabel.classList.add("experienceLabel");
-     dodgeValue.classList.add("experienceLabel");
-     armorLabel.innerText = "Pancerz:";
-     armorValue.innerText = participantsDefinition[participantsDefinition.length-1].armor;;
      editButton.innerText = "Edytuj";
      editButton.className = "editButton";
      editButton.onclick = function(){
@@ -112,55 +246,6 @@ function generateNewEnemy(){
      cancelButton.onclick = function(){
          cancelEdit(this);
      };
-
-     //append all elements in the right order
-     card.appendChild(participantName);
-     card.appendChild(healthLabel);
-     card.appendChild(healthValue);
-     card.appendChild(speedLabel);
-     card.appendChild(speedValue);
-     card.appendChild(attackLabel);
-     card.appendChild(attackValue);
-     card.appendChild(dodgeLabel);
-     card.appendChild(dodgeValue);
-     card.appendChild(armorLabel);
-     card.appendChild(armorValue);
-
-     //add player-only elements (lvl and exp)
-     if(type === "player"){
-         let lvlLabel = document.createElement("label");
-         let lvlValue = document.createElement("h4");
-         let experienceLabel = document.createElement("label");
-         let experienceValue = document.createElement("h4");
-
-         lvlLabel.classList.add("experienceLabel");
-         lvlValue.classList.add("experienceValue");
-         experienceLabel.classList.add("experienceLabel");
-         experienceValue.classList.add("experienceValue");
-
-         lvlLabel.innerText = "Level:";
-         lvlValue.innerText = participantsDefinition[participantsDefinition.length-1].level;
-         experienceLabel.innerText = "Doświadczenie:";
-         experienceValue.innerText = participantsDefinition[participantsDefinition.length-1].experience + " / " + expRequired(participantsDefinition[participantsDefinition.length-1].level);
-
-         card.appendChild(lvlLabel);
-         card.appendChild(lvlValue);
-         card.appendChild(experienceLabel);
-         card.appendChild(experienceValue);
-     }else if(type === "enemy"){
-         //add enemy-only elements (zone)
-         let zoneLabel = document.createElement("label");
-         let zoneValue = document.createElement("h4");
-
-         zoneLabel.classList.add("experienceLabel");
-         zoneValue.classList.add("experienceValue");
-
-         zoneLabel.innerText = "Strefa:";
-         zoneValue.innerText = participantsDefinition[participantsDefinition.length-1].zone;
-
-         card.appendChild(zoneLabel);
-         card.appendChild(zoneValue);
-     }
 
      //append the edition buttons at the end
      card.appendChild(editButton);
@@ -193,7 +278,8 @@ function generateNewEnemy(){
          let section = document.getElementById("playerSlots");
          section.removeChild(section.lastChild);
          //remove the participant from the array
-         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1);
+         let removedPlayer = participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1)[0];
+         availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
          playerCount--;
      }else if(type === "enemy"){
          if(enemyCount === 1) {

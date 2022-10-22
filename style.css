@@ -67,7 +67,7 @@ input {
 
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .priorityActionFlag.disabled::after {
@@ -82,4 +82,24 @@ input {
     text-align: center;
     float: right;
     background-color: #FFF1C7;
+}
+
+#pickingOverlay{
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+}
+
+.clickOnMe{
+    cursor: pointer;
+    transition: 0.2s ease-in opacity;
+}
+.clickOnMe:hover{
+    opacity: 0.8;
 }
