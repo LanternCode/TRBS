@@ -33,7 +33,8 @@ skillsList.addEventListener("change", () => { adjustOptions(false, false, true) 
  * @property {string} type - Participant type (enemy/player)
  * @property {string} [subtype] - Enemy type (human/monster)
  * @property {number} [experience] - Participant's xp count, only for players
- * @property {Object} [itemsOwned] - Participant's items, only for players
+ * @property {Object} [itemsOwned] - Participant's items, only for players and human enemies
+ * @property {Object} skillsOwned - Participant's skills/spells
  * @property {number} [level] - Participant's level, only for players
  * @property {number} armor - Participant's armor rating
  * @property {number} [zone] - Participant's zone, only for enemies
@@ -48,6 +49,24 @@ skillsList.addEventListener("change", () => { adjustOptions(false, false, true) 
  * @property {string} subtype - item subtype (for healing items - restore/revive)
  * @property {string} valueType - Item value type (flat or percentage)
  * @property {number} value - Item value (flat number or decimal percentage)
+ */
+
+/**
+ * A Skill/Spell (for now they're the same thing)
+ * @typedef {Object} SkillSpell
+ * @property {string} name - Skill/spell name
+ * @property {string} range - how many participants are targets of the skill/spell (individual, all, everyone - all of the same side or literally everyone)
+ * @property {string} target_group - Skill/spell target group (player, enemy, reversed - reversed means the opposite of the user)
+ * @property {string} type - Skill/spell type (healing/offensive/supporting/?)
+ * @property {string} subtype - Skill/spell subtype (ex. healing can be used as restoring/reviving)
+ * @property {string} value - Skill/spell numerical value (ex. 50 - restores 50 hp)
+ * @property {string} value_type - Skill/spell value type (flat or percentage)
+ * @property {string} value_dep - Skill/spell dependancy (talent/level/special)
+ * @property {string} dep - Skill/spell name of the dependancy (ex. sorcery)
+ * @property {string} [dep_pattern] - Skill/spell value-dependancy pattern (irregular patterns only)
+ * @property {string} cooldown - Skill/spell cooldown in global turns (1 means it's available next turn)
+ * @property {string} [cost] - Skill/spell cost (not yet used anywhere)
+ * @property {string} priority - Skill/spell priority required
  */
 
 /**
@@ -126,6 +145,75 @@ window.items = [
         valueType: "parcentage",
         value: 0.50
     }
+];
+
+window.skills = [
+    {
+        name: "Kumulacja",
+        range: "individual",
+        targetGroup: "player",
+        type: "healing",
+        subtype: "restore",
+        value: 50,
+        valueType: "flat",
+        cooldown: 3,
+        priority: 2
+    },
+    {
+        name: "Hellfire",
+        range: "everyone",
+        targetGroup: "",
+        type: "offensive",
+        subtype: "damaging",
+        value: 30,
+        valueType: "flat",
+        cooldown: 1,
+        priority: 2
+    },
+    {
+        name: "Przygrywka",
+        range: "all",
+        targetGroup: "player",
+        type: "healing",
+        subtype: "restore",
+        value: 20,
+        valueType: "flat",
+        cooldown: 4,
+        priority: 2
+    },
+    {
+        name: "Próżnia",
+        range: "all",
+        targetGroup: "enemy",
+        type: "offensive",
+        subtype: "damaging",
+        value: 80,
+        valueType: "flat",
+        cooldown: 2,
+        priority: 3
+    },
+    {
+        name: "Energy Ball",
+        range: "individual",
+        targetGroup: "reversed",
+        type: "offensive",
+        subtype: "damaging",
+        value: 70,
+        valueType: "flat",
+        cooldown: 3,
+        priority: 2
+    },
+    {
+        name: "Wskrzeszenie",
+        range: "individual",
+        targetGroup: "player",
+        type: "healing",
+        subtype: "revive",
+        value: 0.5,
+        valueType: "percentage",
+        cooldown: 4,
+        priority: 3
+    },
 ];
 
 /**

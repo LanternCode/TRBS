@@ -64,6 +64,7 @@ function act()
     let action = document.getElementById("action").value;
     let target = document.getElementById("targetsList").value;
     let item_key = document.getElementById("itemsList").value;
+    let skill_key = document.getElementById("skillsList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
@@ -71,7 +72,7 @@ function act()
     {
         case "attack":
         {
-            if(priorityTwo === true && target !== '' )
+            if(priorityTwo === true && target !== '')
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
@@ -152,7 +153,7 @@ function act()
         }
         case "item":
         {
-            if(priorityThree === true && item_key.length > 1 && target.length > 1)
+            if(priorityThree === true && item_key.length > 1 && target !== '')
             {
                 console.log(target);
                 console.log(participants[target]);
@@ -179,13 +180,77 @@ function act()
             {
                 newSystemCall("Nie wybrano żadnego przedmiotu.");
             }
-            else if(target.length < 2)
+            else if(target.length === '')
             {
                 newSystemCall("Nie wybrano żadnego celu.");
             }
             else
             {
                 newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
+            }
+            break;
+        }
+        case "skill":
+        {
+            //check that a skill was selected
+            if(skill_key !== ''){
+                //check that a valid target was selected
+                if(target !== '') {
+                    //get the selected skill and check the priority
+                    let skill = skills.find(s => s.name === skill_key);
+                    let priority = skill.priority;
+                    //check if this priority is available
+                    let priorityClear = false;
+                    if (priority === 2 && priorityTwo) {
+                        priorityClear = true;
+                        priorityTwo = false;
+                    } else if (priority === 3 && priorityThree) {
+                        priorityClear = true;
+                        priorityThree = false;
+                    }
+                    if (priorityClear) {
+                        //get the properties of the skill
+                        let participantsAffected = [];
+                        let type = skill.type;
+                        let subtype = skill.subtype;
+                        //check if a special target was selected
+                        if (target === "everyone") {
+                            //all participants are affected
+                            participantsAffected = participants;
+                        } else if (target === "player" || target === "enemy") {
+                            //all players or all enemies are the target of this skill
+                            participantsAffected = participants.filter(p => p.type === target);
+                        } else {
+                            //check that a numeric target was supplied
+                            if (!isNaN(target)) {
+                                //a single participant is the target of this skill
+                                participantsAffected.push(participants[target]);
+                            }
+                        }
+                        //only include dead or alive participants based on the subtype of the skill
+                        if (["restore", "damaging"].includes(subtype)) {
+                            participantsAffected = participantsAffected.filter(p => p.health > 0);
+                        } else if (subtype === "revive") {
+                            participantsAffected = participantsAffected.filter(p => p.health === 0);
+                        }
+                        //apply the effects of the skill (healing/damaging)
+                        for (let p of participantsAffected) {
+                            if (type === "healing")
+                                restoreHp(skill, p);
+                            else if (type === "offensive")
+                                damageTarget(skill, p);
+                        }
+                    }
+                    else {
+                        newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
+                    }
+                }
+                else {
+                    newSystemCall("Nie wybrano celu.");
+                }
+            }
+            else {
+                newSystemCall("Nie wybrano umiejętności.");
             }
             break;
         }
@@ -209,17 +274,52 @@ function act()
     if(!isBattleOver()) refreshCardsInBattle();
 }
 
-function restoreHp(item, target)
+/**
+ * This function restores hp to a given target
+ *
+ * @function restoreHp
+ * @param {Object} obj The {@link item} or {@link SkillSpell} used when restoring hp
+ * @param {Participant} target participant receiving hp
+ * @return {void}
+ */
+function restoreHp(obj, target)
 {
-    if(item.valueType === "flat"){
-        if(target.health + item.value > target.maxHealth)
+    if(obj.valueType === "flat"){
+        if(target.health + obj.value > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += item.value;
+        else target.health += obj.value;
     }
     else {
-        if(target.health + (target.maxHealth * item.value) > target.maxHealth)
+        console.log(obj);
+        console.log(target.health);
+        if(target.health + (target.maxHealth * obj.value) > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += (target.maxHealth * item.value);
+        else target.health += (target.maxHealth * obj.value);
+    }
+}
+
+/**
+ * This function restores hp to a given target
+ *
+ * @function damageTarget
+ * @param {Object} obj The {@link item} or {@link SkillSpell} used when attacking
+ * @param {Participant} target participant losing hp
+ * @return {void}
+ */
+function damageTarget(obj, target)
+{
+    let dmg = parseInt(obj.value);
+    //damages participant by a flat value
+    if(obj.valueType === "flat"){
+        if(target.health - dmg > 0)
+            target.health -= dmg;
+        else target.health = 0;
+    }
+    else {
+        //damages participant by a % of their max hp
+        if(target.health - (target.maxHealth * dmg) > 0)
+            target.health -= (target.maxHealth * dmg);
+        else target.health = 0;
     }
 }
 

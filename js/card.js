@@ -396,16 +396,17 @@ function addPlayer(index) {
      //get the participant id
      let pId = card.id.split('-')[1];
      //update the details in the participants array
-     participantsDefinition[pId].maxHealth = newHealth;
-     participantsDefinition[pId].speed = newSpeed;
-     participantsDefinition[pId].atk = newAttack;
-     participantsDefinition[pId].dodge = newDodge;
-     participantsDefinition[pId].armor = newArmor;
+     participantsDefinition[pId].maxHealth = parseInt(newHealth);
+     participantsDefinition[pId].speed = parseInt(newSpeed);
+     participantsDefinition[pId].atk = parseInt(newAttack);
+     participantsDefinition[pId].dodge = parseInt(newDodge);
+     participantsDefinition[pId].armor = parseInt(newArmor);
      //players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
          let newZone = card.children[12].value;
          let zoneText = document.createElement("h4");
          zoneText.innerText = newZone;
+         zoneText.classList.add("experienceLabel");
          card.replaceChild(zoneText, card.children[12]);
          participantsDefinition[pId].zone = newZone;
      }
@@ -452,6 +453,7 @@ function addPlayer(index) {
      if(cType === "enemy"){
          let zoneText = document.createElement("h4");
          zoneText.innerText = card.children[12].dataset.originalValue;
+         //zoneText.classList.add("experienceLabel");
          card.replaceChild(zoneText, card.children[12]);
      }
      //players and enemies have different button placement
