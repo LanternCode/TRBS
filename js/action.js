@@ -71,7 +71,7 @@ function act()
     {
         case "attack":
         {
-            if(priorityTwo === true && target.length > 1)
+            if(priorityTwo === true && target !== '' )
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
