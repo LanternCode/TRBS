@@ -185,14 +185,8 @@ function adjustSkills()
         prepareTargetSection([], target_group);
         return;
     }
-    //remaining filtering is for a list of individual participants
-    filteredList = participants.filter(p => p.type === target_group);
-    if(["restore", "damaging"].includes(subtype)) {
-        filteredList = filteredList.filter(p => p.health > 0);
-    }
-    else if (subtype === "revive") {
-        filteredList = filteredList.filter(p => p.health === 0);
-    }
+    //individual filtering includes dead or alive participants based on the subtype of the skill
+    filteredList = filterBySubtype(filteredList, subtype);
 
     prepareTargetSection(filteredList);
 }
@@ -328,4 +322,26 @@ function updateList(listName)
     }
 }
 
-export {adjustOptions, adjustItems, updateList, adjustSkills};
+
+/**
+ * This function filters a given array of participants to dead or alive participants,
+ * based on the subtype passed
+ *
+ * @function filterBySubtype
+ * @param {array} arrayToFilter the participant array to filter
+ * @param {string} subtype the subtype of skill to filter by
+ * @returns {array} the filtered array
+ */
+function filterBySubtype(arrayToFilter, subtype)
+{
+    if (["restore", "damaging"].includes(subtype)) {
+        arrayToFilter = arrayToFilter.filter(p => p.health > 0);
+    }
+    else if (subtype === "revive") {
+        arrayToFilter = arrayToFilter.filter(p => p.health === 0);
+    }
+
+    return arrayToFilter;
+}
+
+export {adjustOptions, adjustItems, updateList, adjustSkills, filterBySubtype};

@@ -1,5 +1,5 @@
 import {isBattleOver} from "./battle.js";
-import {adjustOptions} from "./list.js";
+import {adjustOptions, filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./card.js";
 
 /**
@@ -21,6 +21,19 @@ function nextTurn()
             localTurn = 0;
             globalTurn++;
             document.getElementById("globalTurn").innerText = globalTurn;
+
+            //reduce skill cooldown for any skill by 1
+            for (let i = 0; i < participants.length; ++i) {
+                //check if participant has any skills
+                if(participants[i].hasOwnProperty("skillsOwned")) {
+                    Object.entries(participants[i].skillsOwned).forEach(
+                        s => {
+                            if(s[1] > 0)
+                                participants[i].skillsOwned[s[0]]--;
+                        }
+                    );
+                }
+            }
         }
 
         //if the member was dodging, disable their dodge once their turn starts again
@@ -196,53 +209,60 @@ function act()
             if(skill_key !== ''){
                 //check that a valid target was selected
                 if(target !== '') {
-                    //get the selected skill and check the priority
+                    //get the selected skill and check the cooldown
                     let skill = skills.find(s => s.name === skill_key);
-                    let priority = skill.priority;
-                    //check if this priority is available
-                    let priorityClear = false;
-                    if (priority === 2 && priorityTwo) {
-                        priorityClear = true;
-                        priorityTwo = false;
-                    } else if (priority === 3 && priorityThree) {
-                        priorityClear = true;
-                        priorityThree = false;
-                    }
-                    if (priorityClear) {
-                        //get the properties of the skill
-                        let participantsAffected = [];
-                        let type = skill.type;
-                        let subtype = skill.subtype;
-                        //check if a special target was selected
-                        if (target === "everyone") {
-                            //all participants are affected
-                            participantsAffected = participants;
-                        } else if (target === "player" || target === "enemy") {
-                            //all players or all enemies are the target of this skill
-                            participantsAffected = participants.filter(p => p.type === target);
-                        } else {
-                            //check that a numeric target was supplied
-                            if (!isNaN(target)) {
-                                //a single participant is the target of this skill
-                                participantsAffected.push(participants[target]);
+                    let cooldownRemaining = participants[localTurn].skillsOwned[skill_key];
+                    if (cooldownRemaining === 0) {
+                        //check if this priority is available
+                        let priority = skill.priority;
+                        let priorityClear = false;
+                        if (priority === 2 && priorityTwo) {
+                            priorityClear = true;
+                            priorityTwo = false;
+                        } else if (priority === 3 && priorityThree) {
+                            priorityClear = true;
+                            priorityThree = false;
+                        }
+                        if(priorityClear) {
+                            //fetch skill properties
+                            let participantsAffected = [];
+                            let type = skill.type;
+                            let subtype = skill.subtype;
+                            //check if a special target was selected
+                            if (target === "everyone") {
+                                //all participants are affected
+                                participantsAffected = participants;
+                            } else if (target === "player" || target === "enemy") {
+                                //all players or all enemies are the target of this skill
+                                participantsAffected = participants.filter(p => p.type === target);
+                            } else {
+                                //check that a numeric target was supplied
+                                if (!isNaN(target)) {
+                                    //a single participant is the target of this skill
+                                    participantsAffected.push(participants[target]);
+                                }
                             }
+
+                            //only include dead or alive participants based on the subtype of the skill
+                            participantsAffected = filterBySubtype(participantsAffected, subtype);
+
+                            //apply the effects of the skill (healing/damaging)
+                            for (let p of participantsAffected) {
+                                if (type === "healing")
+                                    restoreHp(skill, p);
+                                else if (type === "offensive")
+                                    damageTarget(skill, p);
+                            }
+
+                            //set the skill on cooldown
+                            participants[localTurn].skillsOwned[skill_key] = skill.cooldown;
                         }
-                        //only include dead or alive participants based on the subtype of the skill
-                        if (["restore", "damaging"].includes(subtype)) {
-                            participantsAffected = participantsAffected.filter(p => p.health > 0);
-                        } else if (subtype === "revive") {
-                            participantsAffected = participantsAffected.filter(p => p.health === 0);
-                        }
-                        //apply the effects of the skill (healing/damaging)
-                        for (let p of participantsAffected) {
-                            if (type === "healing")
-                                restoreHp(skill, p);
-                            else if (type === "offensive")
-                                damageTarget(skill, p);
+                        else {
+                            newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
                         }
                     }
                     else {
-                        newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
+                        newSystemCall("Ta umiejętność jeszcze się nie odnowiła!");
                     }
                 }
                 else {
@@ -290,8 +310,6 @@ function restoreHp(obj, target)
         else target.health += obj.value;
     }
     else {
-        console.log(obj);
-        console.log(target.health);
         if(target.health + (target.maxHealth * obj.value) > target.maxHealth)
             target.health = target.maxHealth;
         else target.health += (target.maxHealth * obj.value);
@@ -335,5 +353,4 @@ function newSystemCall(call)
     document.getElementById("systemCall").innerText = call;
 }
 
-
-export {nextTurn, act, newSystemCall};
+export {nextTurn, act, newSystemCall, filterBySubtype};
