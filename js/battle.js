@@ -14,7 +14,7 @@ function startBattle()
     //Check if there is enough players and enemies to start the battle
     let participantsOK = playerCount > 0 && enemyCount > 0;
 
-    //Check if there are not any cards being edited
+    //Check that no cards are being edited
     let cardsOK = document.getElementsByTagName("input").length === 0;
 
     if(participantsOK && cardsOK)
@@ -35,16 +35,14 @@ function startBattle()
             document.getElementById("enemyAddSection").classList.toggle("hidden");
             document.getElementById("playerAddSection").classList.toggle("hidden");
 
-        //enable the act button
-        document.getElementById("actButton").classList.toggle("hidden");
+        //show the controls in battle
+        document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
         //reset the current action
         action.value = "none";
 
-        //hide experience
-        for (let elem of document.getElementsByClassName("experienceValue"))
-            elem.classList.toggle("hidden");
-        for (let elem of document.getElementsByClassName("experienceLabel"))
+        //hide out-of-battle labels when entering battle
+        for (let elem of document.getElementsByClassName("outOfBattleLabel"))
             elem.classList.toggle("hidden");
 
         //hide the edit participant button
@@ -96,23 +94,23 @@ function startBattle()
  * This function ends the battle
  *
  * @function endBattle
- * @param {string} identifier - a char "p" or "e" that identifies who lost the battle
+ * @param {string} winner - a char "p" or "e" that identifies which side won the battle
  * @return {void}
  */
-function endBattle(identifier)
+function endBattle(winner)
 {
     //Update the "acts now" label
     document.getElementById("nowActsDesc").innerText = "-";
 
     //Update the battle state description
-    document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (identifier === "e" ? "Graczy!" : "Przeciwników!");
+    document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!");
 
-    //change the next turn button into reset battle
+    //Hide the next turn button, show the start battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
     document.getElementById("startBattleButton").classList.toggle("hidden");
 
-    //hide the act button
-    document.getElementById("actButton").classList.toggle("hidden");
+    //hide the battle controls
+    document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
     //enable the buttons that add new participants
     document.getElementById("enemyAddSection").classList.toggle("hidden");
@@ -124,8 +122,12 @@ function endBattle(identifier)
     for (let elem of document.getElementsByClassName("editButton"))
         elem.classList.toggle("hidden");
 
+    //show out-of-battle labels when exiting battle
+    for (let elem of document.getElementsByClassName("outOfBattleLabel"))
+        elem.classList.toggle("hidden");
+
     //give players xp after the battle
-    if(identifier === "e"){
+    if(winner === "p"){
         for (let player of participants.filter(participant => participant.type === "player")) {
             if(player.health > 0){
                 //match the battle participant to their external definition
@@ -153,10 +155,10 @@ function endBattle(identifier)
 }
 
 /**
- * This function checks if the battle has ended or not
+ * This function checks if the battle has concluded
  *
  * @function isBattleOver
- * @return {boolean} calls {@link endBattle} if the condition is met and a confirmation
+ * @return {boolean} calls {@link endBattle} if the condition is met and returns a confirmation
  */
 function isBattleOver()
 {
@@ -165,11 +167,11 @@ function isBattleOver()
     let enemiesDown = participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
 
     if(playersDown) {
-        endBattle("p");
+        endBattle("e");
         return true;
     }
     else if(enemiesDown) {
-        endBattle("e");
+        endBattle("p");
         return true;
     }
     else return false;

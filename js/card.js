@@ -8,7 +8,8 @@ import {expRequired} from "./level.js";
  * @function generateNewEnemy
  * @yields {Participant} The {@link Participant} generated
  */
-function generateNewEnemy(){
+function generateNewEnemy()
+{
     let enemy = {
         name: "Przeciwnik",
         maxHealth: 100,
@@ -31,14 +32,17 @@ function generateNewEnemy(){
  *
  * @generator
  * @function displayCardPicker
+ * @param {string} type participant type
+ * @yields {Element} a Participant card added to the table
  */
-function displayCardPicker(type) {
+function displayCardPicker(type)
+{
     let list = (type === "player" ? availablePlayers : availableEnemies);
 
     let selectSection = document.createElement('section');
     let pickingOverlay = document.getElementById("pickingOverlay");
 
-    for (var i = 0; i < list.length; i++) {
+    for (let i = 0; i < list.length; i++) {
         let option = createCardTemplate(type, list[i]);
         option.classList.add("clickOnMe");
         let index = i;
@@ -73,9 +77,10 @@ function displayCardPicker(type) {
  * @function addPlayer
  * @yields {Element} a valid participant card <section> element
  */
-function addPlayer(index) {
-    if(availablePlayers[index].inUse){
-        newSystemCall("Wybrany gracz jest już w grze");
+function addPlayer(index)
+{
+    if(availablePlayers[index].inUse) {
+        newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
     availablePlayers[index].inUse = true;
@@ -90,13 +95,13 @@ function addPlayer(index) {
  * @function addEnemy
  * @yields {Element} a valid participant card <section> element
  */
- function addEnemy(index) {
+ function addEnemy(index)
+{
     enemyCount++;
     let newEnemy = structuredClone(availableEnemies[index]);
     newEnemy.name +=  " " + enemyCount;
     createCard("enemy", newEnemy);
 }
-
 
 /**
  * This function constructs a participant card template
@@ -105,7 +110,8 @@ function addPlayer(index) {
  * @function createCardTemplate
  * @returns {Element} a valid participant card template <section> element
  */
- function createCardTemplate(type, newParticipant){
+ function createCardTemplate(type, newParticipant)
+{
     //Create elements used by both players and enemies
     let card = document.createElement("section");
     let participantName = document.createElement("h3");
@@ -131,9 +137,9 @@ function addPlayer(index) {
     attackLabel.innerText = "Atak:";
     attackValue.innerText = newParticipant.atk;
     dodgeLabel.innerText = "Unik:";
+    dodgeLabel.classList.add("outOfBattleLabel");
     dodgeValue.innerText = newParticipant.dodge;
-    dodgeLabel.classList.add("experienceLabel");
-    dodgeValue.classList.add("experienceLabel");
+    dodgeValue.classList.add("outOfBattleLabel");
     armorLabel.innerText = "Pancerz:";
     armorValue.innerText = newParticipant.armor;
 
@@ -157,10 +163,10 @@ function addPlayer(index) {
         let experienceLabel = document.createElement("label");
         let experienceValue = document.createElement("h4");
 
-        lvlLabel.classList.add("experienceLabel");
-        lvlValue.classList.add("experienceValue");
-        experienceLabel.classList.add("experienceLabel");
-        experienceValue.classList.add("experienceValue");
+        lvlLabel.classList.add("outOfBattleLabel");
+        lvlValue.classList.add("outOfBattleLabel");
+        experienceLabel.classList.add("outOfBattleLabel");
+        experienceValue.classList.add("outOfBattleLabel");
 
         lvlLabel.innerText = "Level:";
         lvlValue.innerText = newParticipant.level;
@@ -171,13 +177,14 @@ function addPlayer(index) {
         card.appendChild(lvlValue);
         card.appendChild(experienceLabel);
         card.appendChild(experienceValue);
-    }else if(type === "enemy"){
+    }
+    else if(type === "enemy"){
         //add enemy-only elements (zone)
         let zoneLabel = document.createElement("label");
         let zoneValue = document.createElement("h4");
 
-        zoneLabel.classList.add("experienceLabel");
-        zoneValue.classList.add("experienceValue");
+        zoneLabel.classList.add("outOfBattleLabel");
+        zoneValue.classList.add("outOfBattleLabel");
 
         zoneLabel.innerText = "Strefa:";
         zoneValue.innerText = newParticipant.zone;
@@ -189,37 +196,42 @@ function addPlayer(index) {
     return card;
 }
 
-
 /**
  * This function starts the adding process of a participant card into the document
  *
  * @generator
  * @function addCard
- */function addCard(type){
-
+ * @param {string} type participant's type
+ * @return {void} immediately calls {@link displayCardPicker} on success
+ */
+function addCard(type)
+{
      //add a new participant into the array
      if(type === "player"){
          if(playerCount === 4) {
-            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4");
+            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
             return;
          }
 
          playerCount++;
-     } else if(type === "enemy"){
+     }
+     else if(type === "enemy") {
          if(enemyCount === 9) {
-             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9");
+             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
              return;
          }
      }
 
      displayCardPicker(type);
- }
+}
 
 /**
  * This function constructs a participant card and adds it to the proper slot
  *
  * @generator
  * @function createCard
+ * @param {string} type participant's type
+ * @param {Participant} newParticipant the participant being added
  * @yields {Element} a valid participant card <section> element
  */function createCard(type, newParticipant)
  {
@@ -271,7 +283,7 @@ function addPlayer(index) {
  {
      if(type === "player"){
          if(playerCount === 1) {
-             newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1");
+             newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
              return;
          }
          //remove the participant card
@@ -281,9 +293,10 @@ function addPlayer(index) {
          let removedPlayer = participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1)[0];
          availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
          playerCount--;
-     }else if(type === "enemy"){
+     }
+     else if(type === "enemy"){
          if(enemyCount === 1) {
-             newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1");
+             newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
              return;
          }
          //remove the participant card
@@ -383,7 +396,7 @@ function addPlayer(index) {
      attackText.innerText = newAttack;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = newDodge;
-     dodgeText.classList.add("experienceLabel");
+     dodgeText.classList.add("outOfBattleLabel");
      let armorText = document.createElement("h4");
      armorText.innerText = newArmor;
      //replace the form elements with text
@@ -406,7 +419,7 @@ function addPlayer(index) {
          let newZone = card.children[12].value;
          let zoneText = document.createElement("h4");
          zoneText.innerText = newZone;
-         zoneText.classList.add("experienceLabel");
+         zoneText.classList.add("outOfBattleLabel");
          card.replaceChild(zoneText, card.children[12]);
          participantsDefinition[pId].zone = newZone;
      }
@@ -441,6 +454,7 @@ function addPlayer(index) {
      attackText.innerText = card.children[6].dataset.originalValue;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = card.children[8].dataset.originalValue;
+     dodgeText.classList.add("outOfBattleLabel");
      let armorText = document.createElement("h4");
      armorText.innerText = card.children[10].dataset.originalValue;
      //replace the form elements with text
@@ -453,7 +467,7 @@ function addPlayer(index) {
      if(cType === "enemy"){
          let zoneText = document.createElement("h4");
          zoneText.innerText = card.children[12].dataset.originalValue;
-         //zoneText.classList.add("experienceLabel");
+         zoneText.classList.add("outOfBattleLabel");
          card.replaceChild(zoneText, card.children[12]);
      }
      //players and enemies have different button placement
@@ -503,7 +517,7 @@ function refreshCardsInBattle(refreshDefs = false)
         battleSlot.children[8].innerText = arrOfChoice[i].dodge;
         battleSlot.children[10].innerText = arrOfChoice[i].armor;
         if(arrOfChoice[i].type === "player" && refreshDefs){
-            //xp is updated in the definition so it has to be fetched from the definition too
+            //xp is updated in the definition only, hence refreshDefs must be true
             battleSlot.children[12].innerText = arrOfChoice[i].level;
             battleSlot.children[14].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
         }

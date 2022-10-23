@@ -15,11 +15,12 @@ input {
   /*  border: 1px solid blue; */
     width: 80%;
     text-align: center;
+    margin: 10px;
 }
 
 .enemySection {
     display: block;
-    height: 250px;
+    height: 320px;
     width: 120px;
     border: 1px solid red;
     text-align: center;
@@ -32,7 +33,6 @@ input {
   background-color: #FFD6D6;
 }
 
-
 /* Section of players */
 
 #playerSlots {
@@ -40,11 +40,12 @@ input {
   /*  border: 1px solid violet; */
     width: 80%;
     text-align: center;
+    margin: 10px;
 }
 
 .playerSection {
   display: block;
-  height: 250px;
+  height: 320px;
   width: 120px;
   border: 1px solid green;
   text-align: center;
@@ -58,13 +59,11 @@ input {
 }
 
 /* Section of buttons */
-.createCardButton {
+.cardPickerButton {
     display: inline-block;
     height: 30px;
     width: 30px;
 }
-
-
 
 .hidden {
     display: none !important;

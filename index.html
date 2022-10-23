@@ -15,52 +15,54 @@
         <article id="enemySlots">
             <section class="enemySection" id = "enemyAddSection">
                 <h3>Dodaj:</h3><br>
-                <button onclick="addCard('enemy')" class="createCardButton">+</button><br>
+                <button onclick="addCard('enemy')" class="cardPickerButton">+</button><br>
                 <h3><Label>Usuń:</Label></h3><br>
-                <button onclick="delCard('enemy')" class="createCardButton">-</button>
+                <button onclick="delCard('enemy')" class="cardPickerButton">-</button>
             </section>
         </article>
         <article class="sideSection">
             <label>Teraz walczy:</label>
             <h2 id="nowActsDesc">-</h2>
-            <h3>Dostępne priorytety:</h3>
-            <section>
-                <p class="priorityActionFlag" id="priorityTwoActionFlag">II</p>
-                <p class="priorityActionFlag"  id="priorityThreeActionFlag">III</p>
-            </section>
-            <h3>Wybierz akcję:</h3>
-            <select id="action">
-                <option value="none">Wybierz</option>
-                <option value="attack">Zwykły Atak</option>
-                <option value="dodge">Unikanie</option>
-                <option value="item">Użycie Przedmiotu</option>
-                <option value="skill">Umiejętność/Zaklęcie</option>
-            </select>
-            <section id="sectionSkill">
-                <h3>Wybierz umiejętność:</h3>
-                <select id="skillsList">
+            <section id="sideSection--battleControls" class="hidden">
+                <h3>Dostępne priorytety:</h3>
+                <section>
+                    <p class="priorityActionFlag" id="priorityTwoActionFlag">II</p>
+                    <p class="priorityActionFlag"  id="priorityThreeActionFlag">III</p>
+                </section>
+                <h3>Wybierz akcję:</h3>
+                <select id="action">
+                    <option value="none">Wybierz</option>
+                    <option value="attack">Zwykły Atak</option>
+                    <option value="dodge">Unikanie</option>
+                    <option value="item">Użycie Przedmiotu</option>
+                    <option value="skill">Umiejętność/Zaklęcie</option>
                 </select>
+                <section id="sectionSkill">
+                    <h3>Wybierz umiejętność:</h3>
+                    <select id="skillsList">
+                    </select>
+                </section>
+                <section id="sectionItem">
+                    <h3>Wybierz przedmiot:</h3>
+                    <select id="itemsList">
+                    </select>
+                </section>
+                <section id="sectionTarget">
+                    <h3>Cel:</h3>
+                    <select id="targetsList">
+                    </select>
+                </section><br>
+                <button onclick="act()" id="actButton" class="battleButton">Wykonaj</button><br>
             </section>
-            <section id="sectionItem">
-                <h3>Wybierz przedmiot:</h3>
-                <select id="itemsList">
-                </select>
-            </section>
-            <section id="sectionTarget">
-                <h3>Cel:</h3>
-                <select id="targetsList">
-                </select>
-            </section><br>
-            <button onclick="act()" id="actButton" class="battleButton hidden">Wykonaj</button><br>
             <button onclick="startBattle()" id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
             <button onclick="nextTurn()" id="nextTurnButton" class="battleButton hidden">Następna tura</button>
         </article>
         <article id="playerSlots">
             <section class="playerSection" id = "playerAddSection">
                 <h3>Dodaj:</h3><br>
-                <button onclick="addCard('player')" class="createCardButton">+</button><br>
+                <button onclick="addCard('player')" class="cardPickerButton">+</button><br>
                 <h3><Label>Usuń:</Label></h3><br>
-                <button onclick="delCard('player')" class="createCardButton">-</button>
+                <button onclick="delCard('player')" class="cardPickerButton">-</button>
             </section>
         </article>
     </body>

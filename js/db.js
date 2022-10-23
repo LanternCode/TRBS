@@ -21,6 +21,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
+            skillsOwned: {"Próżnia": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -37,6 +38,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
+            skillsOwned: {"Energy Ball": 0, "Kumulacja": 0, "Hellfire": 0, "Wielki Wybuch": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -53,6 +55,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
+            skillsOwned: {"Wskrzeszenie": 0, "Przygrywka": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -69,6 +72,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
+            skillsOwned: {"Energy Ball": 0, "Kumulacja": 0, "Hellfire": 0},
             level: 1,
             armor: 0,
             inUse: false
