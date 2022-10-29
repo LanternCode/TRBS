@@ -1,5 +1,5 @@
 import {newSystemCall} from "./action.js";
-import {expRequired} from "./level.js";
+import {expRequired, levelDown, levelUp} from "./level.js";
 
 /**
  * This function generates an enemy to be inserted into the list
@@ -137,9 +137,9 @@ function addPlayer(index)
     attackLabel.innerText = "Atak:";
     attackValue.innerText = newParticipant.atk;
     dodgeLabel.innerText = "Unik:";
-    dodgeLabel.classList.add("outOfBattleLabel");
+    dodgeLabel.classList.add("outOfBattleElem");
     dodgeValue.innerText = newParticipant.dodge;
-    dodgeValue.classList.add("outOfBattleLabel");
+    dodgeValue.classList.add("outOfBattleElem");
     armorLabel.innerText = "Pancerz:";
     armorValue.innerText = newParticipant.armor;
 
@@ -162,11 +162,25 @@ function addPlayer(index)
         let lvlValue = document.createElement("h4");
         let experienceLabel = document.createElement("label");
         let experienceValue = document.createElement("h4");
+        let lvlUpButton = document.createElement("button");
+        lvlUpButton.innerText = "+";
+        let lvlDownButton = document.createElement("button");
+        lvlDownButton.innerText = "-";
+        lvlUpButton.onclick = function(){
+            levelUp(newParticipant);
+            refreshCardsInBattle(true);
+        };
+        lvlDownButton.onclick = function(){
+            levelDown(newParticipant);
+            refreshCardsInBattle(true);
+        };
 
-        lvlLabel.classList.add("outOfBattleLabel");
-        lvlValue.classList.add("outOfBattleLabel");
-        experienceLabel.classList.add("outOfBattleLabel");
-        experienceValue.classList.add("outOfBattleLabel");
+        lvlLabel.classList.add("outOfBattleElem", "blockDisp");
+        lvlValue.classList.add("outOfBattleElem", "inlineBlockDisp");
+        experienceLabel.classList.add("outOfBattleElem", "blockDisp");
+        experienceValue.classList.add("outOfBattleElem");
+        lvlUpButton.classList.add("outOfBattleElem", "lvlButton");
+        lvlDownButton.classList.add("outOfBattleElem", "lvlButton");
 
         lvlLabel.innerText = "Level:";
         lvlValue.innerText = newParticipant.level;
@@ -174,7 +188,9 @@ function addPlayer(index)
         experienceValue.innerText = newParticipant.experience + " / " + expRequired(newParticipant.level);
 
         card.appendChild(lvlLabel);
+        card.appendChild(lvlDownButton);
         card.appendChild(lvlValue);
+        card.appendChild(lvlUpButton);
         card.appendChild(experienceLabel);
         card.appendChild(experienceValue);
     }
@@ -183,8 +199,8 @@ function addPlayer(index)
         let zoneLabel = document.createElement("label");
         let zoneValue = document.createElement("h4");
 
-        zoneLabel.classList.add("outOfBattleLabel");
-        zoneValue.classList.add("outOfBattleLabel");
+        zoneLabel.classList.add("outOfBattleElem");
+        zoneValue.classList.add("outOfBattleElem");
 
         zoneLabel.innerText = "Strefa:";
         zoneValue.innerText = newParticipant.zone;
@@ -233,7 +249,8 @@ function addCard(type)
  * @param {string} type participant's type
  * @param {Participant} newParticipant the participant being added
  * @yields {Element} a valid participant card <section> element
- */function createCard(type, newParticipant)
+ */
+function createCard(type, newParticipant)
  {
      participantsDefinition = participantsDefinition.concat(newParticipant);
 
@@ -356,8 +373,12 @@ function addCard(type)
          zoneInput.dataset.originalValue = card.children[12].innerText;
          card.replaceChild(zoneInput, card.children[12]);
      }
+     else {
+         card.children[12].classList.toggle("hidden");
+         card.children[14].classList.toggle("hidden");
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 15;
+     let buttonsStartHere = cType === "enemy" ? 13 : 17;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -396,7 +417,7 @@ function addCard(type)
      attackText.innerText = newAttack;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = newDodge;
-     dodgeText.classList.add("outOfBattleLabel");
+     dodgeText.classList.add("outOfBattleElem");
      let armorText = document.createElement("h4");
      armorText.innerText = newArmor;
      //replace the form elements with text
@@ -419,12 +440,16 @@ function addCard(type)
          let newZone = card.children[12].value;
          let zoneText = document.createElement("h4");
          zoneText.innerText = newZone;
-         zoneText.classList.add("outOfBattleLabel");
+         zoneText.classList.add("outOfBattleElem");
          card.replaceChild(zoneText, card.children[12]);
          participantsDefinition[pId].zone = newZone;
      }
+     else {
+         card.children[12].classList.toggle("hidden");
+         card.children[14].classList.toggle("hidden");
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 15;
+     let buttonsStartHere = cType === "enemy" ? 13 : 17;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -454,7 +479,7 @@ function addCard(type)
      attackText.innerText = card.children[6].dataset.originalValue;
      let dodgeText = document.createElement("h4");
      dodgeText.innerText = card.children[8].dataset.originalValue;
-     dodgeText.classList.add("outOfBattleLabel");
+     dodgeText.classList.add("outOfBattleElem");
      let armorText = document.createElement("h4");
      armorText.innerText = card.children[10].dataset.originalValue;
      //replace the form elements with text
@@ -467,11 +492,15 @@ function addCard(type)
      if(cType === "enemy"){
          let zoneText = document.createElement("h4");
          zoneText.innerText = card.children[12].dataset.originalValue;
-         zoneText.classList.add("outOfBattleLabel");
+         zoneText.classList.add("outOfBattleElem");
          card.replaceChild(zoneText, card.children[12]);
      }
+     else {
+         card.children[12].classList.toggle("hidden");
+         card.children[14].classList.toggle("hidden");
+     }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 15;
+     let buttonsStartHere = cType === "enemy" ? 13 : 17;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
      //enable the save and cancel buttons
@@ -518,8 +547,8 @@ function refreshCardsInBattle(refreshDefs = false)
         battleSlot.children[10].innerText = arrOfChoice[i].armor;
         if(arrOfChoice[i].type === "player" && refreshDefs){
             //xp is updated in the definition only, hence refreshDefs must be true
-            battleSlot.children[12].innerText = arrOfChoice[i].level;
-            battleSlot.children[14].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
+            battleSlot.children[13].innerText = arrOfChoice[i].level;
+            battleSlot.children[16].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
         }
     }
 }

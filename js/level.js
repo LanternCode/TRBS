@@ -1,8 +1,10 @@
+import {newSystemCall} from "./action.js";
+
 /**
  * The JSON object with xp required to level up
  * @type {string}
  */
-const expTable = '{"1":"0", "2":"2", "3":"5", "4":"10","5":"20","6":"50"}';
+const expTable = '{"1":"0", "2":"2", "3":"5", "4":"10","5":"20","6":"50","7":"100","8":"250","9":"780","10":"2850"}';
 /**
  * A JS object to fetch the value by its key
  * @type {any}
@@ -18,7 +20,8 @@ let xpRequired = JSON.parse(expTable);
  */
 function expRequired(lvl)
 {
-    return xpRequired[lvl+1];
+    if(lvl < 10) return xpRequired[lvl+1];
+    else return 0;
 }
 
 /**
@@ -30,13 +33,46 @@ function expRequired(lvl)
  */
 function levelUp(player)
 {
-    player.atk += 2;
-    player.speed += 5;
-    player.maxHealth += 10;
-    player.dodge += 1;
-    player.armor += 1;
-    player.experience = 0;
-    player.level += 1;
+    if(player.level < 10) {
+        player.atk += 2;
+        player.speed += 5;
+        player.maxHealth += 10;
+        player.dodge += 1;
+        player.armor += 1;
+        player.experience = 0;
+        player.level += 1;
+    }
+    else {
+        newSystemCall("Gracz posiada już maksymalny poziom!");
+    }
 }
 
-export {expRequired, levelUp};
+/**
+ * This function decreases a player's level
+ *
+ * @function levelDown
+ * @param {Participant} player - The player who levels down
+ * @return {void}
+ */
+function levelDown(player)
+{
+    if(player.level > 1) {
+        if(player.atk > 2)
+            player.atk -= 2;
+        if(player.speed > 5)
+            player.speed -= 5;
+        if(player.maxHealth > 10)
+            player.maxHealth -= 10;
+        if(player.dodge > 1)
+            player.dodge -= 1;
+        if(player.armor > 1)
+            player.armor -= 1;
+        player.experience = 0;
+        player.level -= 1;
+    }
+    else {
+        newSystemCall("Gracz posiada pierwszy poziom!");
+    }
+}
+
+export {expRequired, levelUp, levelDown};

@@ -99,6 +99,20 @@ input {
     cursor: pointer;
     transition: 0.2s ease-in opacity;
 }
+
 .clickOnMe:hover{
     opacity: 0.8;
+}
+
+.inlineBlockDisp {
+    display: inline-block;
+}
+
+.blockDisp {
+    display: block;
+}
+
+.lvlButton {
+    width: 17px;
+    margin: 3px;
 }

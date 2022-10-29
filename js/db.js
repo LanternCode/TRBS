@@ -88,8 +88,8 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
  */
 function getAvailableEnemies()
 {
-    var enemies = [];
-    for (var i = 0; i < 5; i++)
+    let enemies = [];
+    for (let i = 0; i < 5; i++)
         enemies[i] = generateNewEnemy(); // temp
     return enemies;
 }

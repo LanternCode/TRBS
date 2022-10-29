@@ -42,7 +42,7 @@ function startBattle()
         action.value = "none";
 
         //hide out-of-battle labels when entering battle
-        for (let elem of document.getElementsByClassName("outOfBattleLabel"))
+        for (let elem of document.getElementsByClassName("outOfBattleElem"))
             elem.classList.toggle("hidden");
 
         //hide the edit participant button
@@ -123,13 +123,14 @@ function endBattle(winner)
         elem.classList.toggle("hidden");
 
     //show out-of-battle labels when exiting battle
-    for (let elem of document.getElementsByClassName("outOfBattleLabel"))
+    for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.toggle("hidden");
 
     //give players xp after the battle
+    let levelUpCall = "\n";
     if(winner === "p"){
         for (let player of participants.filter(participant => participant.type === "player")) {
-            if(player.health > 0){
+            if(player.health > 0 && player.level !== 10){
                 //match the battle participant to their external definition
                 for(let playerDefinition of participantsDefinition.filter(p => p.type === "player")) {
                     if(player.name === playerDefinition.name) {
@@ -137,12 +138,17 @@ function endBattle(winner)
                         if(playerDefinition.experience >= expRequired(playerDefinition.level))
                         {
                             levelUp(playerDefinition);
+                            levelUpCall += `Gracz ${player.name} przeszedł na ${playerDefinition.level} poziom doświadczenia!\n`;
                         }
                     }
                 }
             }
         }
     }
+
+    //announce the level-ups
+    if(levelUpCall !== "\n")
+        newSystemCall(levelUpCall);
 
     //display experience labels
     for (let elem of document.getElementsByClassName("experienceValue"))
