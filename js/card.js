@@ -260,6 +260,7 @@ function createCard(type, newParticipant)
      let editButton = document.createElement("button");
      let saveButton = document.createElement("button");
      let cancelButton = document.createElement("button");
+     let deleteCardButton = document.createElement("button");
      editButton.innerText = "Edytuj";
      editButton.className = "editButton";
      editButton.onclick = function(){
@@ -275,11 +276,17 @@ function createCard(type, newParticipant)
      cancelButton.onclick = function(){
          cancelEdit(this);
      };
+     deleteCardButton.innerText = "Usuń uczestnika";
+     deleteCardButton.className = "hidden";
+     deleteCardButton.onclick = function(){
+         delCardOnTable(this);
+     };
 
      //append the edition buttons at the end
      card.appendChild(editButton);
      card.appendChild(saveButton);
      card.appendChild(cancelButton);
+     card.appendChild(deleteCardButton);
 
      //append the card to the right side of the board
      if(type === "player"){
@@ -320,6 +327,45 @@ function createCard(type, newParticipant)
          let section = document.getElementById("enemySlots");
          section.removeChild(section.lastChild);
          //remove the participant from the array
+         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "enemy").pop()), 1);
+         enemyCount--;
+     }
+ }
+
+/**
+ * This function deletes a participant card from the table
+ *
+ * @function delCardOnTable
+ * @param {Element} e - The button on-click event passes the button element here
+ * @return {void}
+ */
+ function delCardOnTable(e)
+ {
+     //Get the card element
+     let card = e.parentNode;
+     //Figure out the card type
+     let type = card.classList.contains("enemySection") ? "enemy" : "player";
+     //Check if there are enough participants to safely delete one
+     if(type === "player" && playerCount === 1) {
+         newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
+         return;
+     }
+     else if (type === "enemy" && enemyCount === 1) {
+         newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
+         return;
+     }
+     //Remove the participant card from the table
+     let section = document.getElementById(type + "Slots");
+     section.removeChild(card);
+     //Remove the participant from the participants array and reduce the counter
+     if(type === "player")
+     {
+         //if they're a player - also update their inUse property
+         let removedPlayer = participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1)[0];
+         availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
+         playerCount--;
+     }
+     else {
          participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "enemy").pop()), 1);
          enemyCount--;
      }
@@ -381,9 +427,10 @@ function createCard(type, newParticipant)
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
      //hide the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
-     //enable the save and cancel buttons
+     //enable the save, cancel and drop buttons
      card.children[buttonsStartHere+1].classList.toggle("hidden");
      card.children[buttonsStartHere+2].classList.toggle("hidden");
+     card.children[buttonsStartHere+3].classList.toggle("hidden");
  }
 
  /**
@@ -450,11 +497,12 @@ function createCard(type, newParticipant)
      }
      //players and enemies have different button placement
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
-     //hide the edit button
+     //enable the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
-     //enable the save and cancel buttons
+     //hide the save, cancel and drop buttons
      card.children[buttonsStartHere+1].classList.toggle("hidden");
      card.children[buttonsStartHere+2].classList.toggle("hidden");
+     card.children[buttonsStartHere+3].classList.toggle("hidden");
  }
 
  /**
@@ -501,11 +549,12 @@ function createCard(type, newParticipant)
      }
      //players and enemies have different button placement
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
-     //hide the edit button
+     //enable the edit button
      card.children[buttonsStartHere].classList.toggle("hidden");
-     //enable the save and cancel buttons
+     //hide the save, cancel and drop buttons
      card.children[buttonsStartHere+1].classList.toggle("hidden");
      card.children[buttonsStartHere+2].classList.toggle("hidden");
+     card.children[buttonsStartHere+3].classList.toggle("hidden");
  }
 
 /**
