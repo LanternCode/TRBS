@@ -2,33 +2,36 @@ import {newSystemCall} from "./action.js";
 import {expRequired, levelDown, levelUp} from "./level.js";
 
 /**
- * This function generates an enemy to be inserted into the list
+ * This function checks if new participants can be added into battle and if so,
+ * opens the card picker. Called by pressing the plus button on the left.
  *
  * @generator
- * @function generateNewEnemy
- * @yields {Participant} The {@link Participant} generated
+ * @function addCard
+ * @param {string} type participant's type
+ * @return {void} immediately calls {@link displayCardPicker} on success
  */
-function generateNewEnemy()
+function addCard(type)
 {
-    let enemy = {
-        name: "Przeciwnik",
-        maxHealth: 100,
-        isDodging: 0,
-        type: "enemy",
-        subtype: Math.random() < 0.5 ? "human" : "monster"
-    };
-
-    for (let enemyStat of Object.keys(enemyStatLimits)) {
-        enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
+    //check if more participants can be added onto the table
+    if(type === "player"){
+        if(playerCount === 4) {
+            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
+            return;
+        }
+    }
+    else if(type === "enemy") {
+        if(enemyCount === 9) {
+            newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
+            return;
+        }
     }
 
-    if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
-
-    return enemy;
+    displayCardPicker(type);
 }
 
 /**
- * This function displays participant cards to pick from
+ * This function displays the list with available participant cards
+ * for the user to choose from
  *
  * @generator
  * @function displayCardPicker
@@ -37,70 +40,70 @@ function generateNewEnemy()
  */
 function displayCardPicker(type)
 {
-    let list = (type === "player" ? availablePlayers : availableEnemies);
-
-    let selectSection = document.createElement('section');
     let pickingOverlay = document.getElementById("pickingOverlay");
 
-    for (let i = 0; i < list.length; i++) {
-        let option = createCardTemplate(type, list[i]);
-        option.classList.add("clickOnMe");
-        let index = i;
+    //insert participants of the 'type' into the card picker
+    let selectSection = refreshCardList(type, true);
 
-        // TODO: remove btn
+    //attach styles to the select section
+    selectSection.classList.add("cardListFrame");
+    selectSection.id = "listSection";
 
-        option.addEventListener("click", function() {
-            if(type === "player") {
-                if(addPlayer(index)) {
-                    pickingOverlay.classList.add("hidden");
-                    pickingOverlay.removeChild(pickingOverlay.firstChild);
-                }
-            }
-            else if (type === "enemy") {
-                addEnemy(index);
-                pickingOverlay.classList.add("hidden");
-                pickingOverlay.removeChild(pickingOverlay.firstChild);
-            }
-         }, false);
-
-        selectSection.appendChild(option);
-    }
-
+    //reveal the card picker
     pickingOverlay.appendChild(selectSection);
     pickingOverlay.classList.remove("hidden");
 }
 
 /**
- * This function adds a player card
+ * Takes the card list and refreshes it or generates it for the first time
  *
- * @generator
- * @function addPlayer
- * @yields {Element} a valid participant card <section> element
+ * @function refreshCardList
+ * @param {string} cardType the type of list (player/enemy list)
+ * @param {boolean} firstUse whether to generate the list for the first time
+ * @returns {HTMLElement | void} For the first time return a valid section element, void otherwise
  */
-function addPlayer(index)
+function refreshCardList(cardType, firstUse = false)
 {
-    if(availablePlayers[index].inUse) {
-        newSystemCall("Wybrany gracz jest już w grze.");
-        return false;
+    //fetch or create the card picker selection list
+    let pickingOverlay = document.getElementById("pickingOverlay");
+    let cardList = (cardType === "player" ? availablePlayers : availableEnemies);
+    let selectSection;
+    if(firstUse)
+        selectSection = document.createElement('section');
+    else {
+        selectSection = document.getElementById("listSection");
+        selectSection.innerHTML = "";
     }
-    availablePlayers[index].inUse = true;
-    createCard("player", structuredClone(availablePlayers[index]));
-    return true;
-}
 
-/**
- * This function adds an enemy card
- *
- * @generator
- * @function addEnemy
- * @yields {Element} a valid participant card <section> element
- */
- function addEnemy(index)
-{
-    enemyCount++;
-    let newEnemy = structuredClone(availableEnemies[index]);
-    newEnemy.name +=  " " + enemyCount;
-    createCard("enemy", newEnemy);
+    //insert each available participant into the list
+    for (let i = 0; i < cardList.length; i++) {
+        let index = i;
+        let option = createCardTemplate(cardType, cardList[i]);
+        option.classList.add("clickOnMe");
+
+        option.addEventListener("click", function() {
+            if(cardType === "player") {
+                if(addPlayer(index)) {
+                    pickingOverlay.classList.add("hidden");
+                    pickingOverlay.removeChild(pickingOverlay.firstChild);
+                }
+            }
+            else if (cardType === "enemy") {
+                addEnemy(index);
+                pickingOverlay.classList.add("hidden");
+                pickingOverlay.removeChild(pickingOverlay.firstChild);
+            }
+        }, false);
+
+        selectSection.appendChild(option);
+    }
+
+    //create the settings card and append it at the end
+    let settings = createSettingsCard(cardType);
+    selectSection.appendChild(settings);
+
+    if (firstUse)
+        return selectSection;
 }
 
 /**
@@ -108,9 +111,11 @@ function addPlayer(index)
  *
  * @generator
  * @function createCardTemplate
- * @returns {Element} a valid participant card template <section> element
+ * @param {string} type player/enemy
+ * @param {Participant} newParticipant a {@link Participant} object
+ * @yields {Element} a valid participant card template <section> element
  */
- function createCardTemplate(type, newParticipant)
+function createCardTemplate(type, newParticipant)
 {
     //Create elements used by both players and enemies
     let card = document.createElement("section");
@@ -213,124 +218,196 @@ function addPlayer(index)
 }
 
 /**
- * This function starts the adding process of a participant card into the document
+ * This function completes the construction of a participant card
+ * and adds that card to the table or to the list
  *
  * @generator
- * @function addCard
+ * @function insertCard
  * @param {string} type participant's type
- * @return {void} immediately calls {@link displayCardPicker} on success
+ * @param {Participant} newParticipant the participant being added
+ * @param {string} location where to add the card (table/list)
+ * @yields {Element} a valid participant card <section> element
  */
-function addCard(type)
+function insertCard(type, newParticipant, location = "table")
 {
-     //add a new participant into the array
-     if(type === "player"){
-         if(playerCount === 4) {
-            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
-            return;
-         }
+    if(location === "table")
+        participantsDefinition = participantsDefinition.concat(newParticipant);
+    else {
+        //TODO: Insert the new participant into the database
+        if(type === "player") availablePlayers = availablePlayers.concat(newParticipant);
+        else availableEnemies = availableEnemies.concat(newParticipant);
+    }
 
-         playerCount++;
-     }
-     else if(type === "enemy") {
-         if(enemyCount === 9) {
-             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
-             return;
-         }
-     }
+    let card = createCardTemplate(type, newParticipant);
+    card.id = "participant-" + (participantsDefinition.length-1);
 
-     displayCardPicker(type);
+    let editButton = document.createElement("button");
+    let saveButton = document.createElement("button");
+    let cancelButton = document.createElement("button");
+    let deleteCardButton = document.createElement("button");
+    editButton.innerText = "Edytuj";
+    editButton.className = "editButton";
+    editButton.onclick = function(){
+        editCard(this);
+    };
+    saveButton.innerText = "Zapisz";
+    saveButton.className = "hidden";
+    saveButton.onclick = function(){
+        saveCard(this);
+    };
+    cancelButton.innerText = "Cofnij";
+    cancelButton.className = "hidden";
+    cancelButton.onclick = function(){
+        cancelEdit(this);
+    };
+    deleteCardButton.innerText = "Usuń uczestnika";
+    deleteCardButton.className = "hidden";
+    deleteCardButton.onclick = function(){
+        delCardOnTable(this);
+    };
+
+    //append the edition buttons at the end
+    card.appendChild(editButton);
+    card.appendChild(saveButton);
+    card.appendChild(cancelButton);
+    card.appendChild(deleteCardButton);
+
+    //append the card to the list or the correct side of the board
+    if(location === "list") {
+        document.getElementById("listSection").appendChild(card);
+    }
+    else if(type === "player"){
+        document.getElementById("playerSlots").appendChild(card);
+    }
+    else if(type === "enemy"){
+        document.getElementById("enemySlots").appendChild(card);
+    }
 }
 
 /**
- * This function constructs a participant card and adds it to the proper slot
+ * This function adds a player card from the list into the table
+ *
+ * @function addPlayer
+ * @param {int} index player position in the array
+ * @returns {Boolean} true on success, false on failure
+ */
+function addPlayer(index)
+{
+    //check if the player is available and if not, return
+    if(availablePlayers[index].inUse) {
+        newSystemCall("Wybrany gracz jest już w grze.");
+        return false;
+    }
+    else {
+        playerCount++;
+        availablePlayers[index].inUse = true;
+        insertCard("player", structuredClone(availablePlayers[index]));
+        return true;
+    }
+}
+
+/**
+ * This function adds an enemy card from the list into the table
+ *
+ * @function addEnemy
+ * @param {int} index enemy position in the array
+ * @return {void} calls insertCard function on call
+ */
+function addEnemy(index)
+{
+    enemyCount++;
+    let newEnemy = structuredClone(availableEnemies[index]);
+    newEnemy.name +=  " " + enemyCount;
+    insertCard("enemy", newEnemy);
+}
+
+/**
+ * This function generates an enemy to be inserted into the list
  *
  * @generator
- * @function createCard
- * @param {string} type participant's type
- * @param {Participant} newParticipant the participant being added
- * @yields {Element} a valid participant card <section> element
+ * @function generateNewEnemy
+ * @yields {Participant} The {@link Participant} generated
  */
-function createCard(type, newParticipant)
- {
-     participantsDefinition = participantsDefinition.concat(newParticipant);
+function generateNewEnemy()
+{
+    let enemy = {
+        name: "Przeciwnik",
+        maxHealth: 100,
+        isDodging: 0,
+        type: "enemy",
+        subtype: Math.random() < 0.5 ? "human" : "monster"
+    };
 
-     let card = createCardTemplate(type, newParticipant);
-     card.id = "participant-" + (participantsDefinition.length-1);
+    for (let enemyStat of Object.keys(enemyStatLimits)) {
+        enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
+    }
 
-     let editButton = document.createElement("button");
-     let saveButton = document.createElement("button");
-     let cancelButton = document.createElement("button");
-     let deleteCardButton = document.createElement("button");
-     editButton.innerText = "Edytuj";
-     editButton.className = "editButton";
-     editButton.onclick = function(){
-         editCard(this);
-     };
-     saveButton.innerText = "Zapisz";
-     saveButton.className = "hidden";
-     saveButton.onclick = function(){
-         saveCard(this);
-     };
-     cancelButton.innerText = "Cofnij";
-     cancelButton.className = "hidden";
-     cancelButton.onclick = function(){
-         cancelEdit(this);
-     };
-     deleteCardButton.innerText = "Usuń uczestnika";
-     deleteCardButton.className = "hidden";
-     deleteCardButton.onclick = function(){
-         delCardOnTable(this);
-     };
+    if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
 
-     //append the edition buttons at the end
-     card.appendChild(editButton);
-     card.appendChild(saveButton);
-     card.appendChild(cancelButton);
-     card.appendChild(deleteCardButton);
+    return enemy;
+}
 
-     //append the card to the right side of the board
-     if(type === "player"){
-         document.getElementById("playerSlots").appendChild(card);
-     }else if(type === "enemy"){
-         document.getElementById("enemySlots").appendChild(card);
-     }
- }
+/**
+ * This function generates a player to be inserted into the list
+ * for now using a template, to be expanded in later phases
+ *
+ * @generator
+ * @function generateNewPlayer
+ * @yields {Participant} The {@link Participant} generated
+ */
+function generateNewPlayer()
+{
+    let player = {
+        name: "Gracz",
+        maxHealth: 100,
+        isDodging: 0,
+        type: "player",
+        health: 100,
+        speed: 70,
+        atk: 32,
+        dodge: 45,
+        experience: 0,
+        itemsOwned: generateRandomItems(),
+        skillsOwned: {"Próżnia": 0},
+        level: 1,
+        armor: 2,
+        inUse: false
+    };
 
- /**
-  * This function deleted an existing participant's card
-  *
-  * @function delCard
-  * @param {string} type - The type of participant (player/enemy)
-  * @return {void}
-  */
- function delCard(type)
- {
-     if(type === "player"){
-         if(playerCount === 1) {
-             newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
-             return;
-         }
-         //remove the participant card
-         let section = document.getElementById("playerSlots");
-         section.removeChild(section.lastChild);
-         //remove the participant from the array
-         let removedPlayer = participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1)[0];
-         availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
-         playerCount--;
-     }
-     else if(type === "enemy"){
-         if(enemyCount === 1) {
-             newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
-             return;
-         }
-         //remove the participant card
-         let section = document.getElementById("enemySlots");
-         section.removeChild(section.lastChild);
-         //remove the participant from the array
-         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "enemy").pop()), 1);
-         enemyCount--;
-     }
- }
+    return player;
+}
+
+/**
+ * Creates a special card with only settings to be appended at the end
+ * of the participants list
+ *
+ * @generator
+ * @function createSettingsCard
+ * @param {string} type card type (to inherit styles)
+ * @yields {HTMLElement} valid section element
+ */
+function createSettingsCard(type)
+{
+    let card = document.createElement("section");
+    card.className = type === "player" ? "playerSection" : "enemySection";
+    let addParticipantH3 = document.createElement("h3");
+    addParticipantH3.innerText = "Dodaj:";
+    let addParticipantButton = document.createElement("button");
+    addParticipantButton.className = "cardPickerButton";
+    addParticipantButton.innerText = "+";
+    addParticipantButton.onclick = function(){
+        let newParticipant;
+        if(type === "player") newParticipant = generateNewPlayer();
+        else newParticipant = generateNewEnemy();
+        insertCard(type, newParticipant, "list");
+        refreshCardList(type);
+    };
+
+    card.appendChild(addParticipantH3);
+    card.appendChild(addParticipantButton);
+
+    return card;
+}
 
 /**
  * This function deletes a participant card from the table
@@ -644,4 +721,4 @@ window.randomOfTwo = function(first, second) {
     return Math.random() < 0.5 ? first : second;
 }
 
-export {addCard, delCard, editCard, saveCard, cancelEdit, refreshCardsInBattle, generateRandomItems, generateNewEnemy};
+export {addCard, editCard, saveCard, cancelEdit, refreshCardsInBattle, generateRandomItems, generateNewEnemy};
