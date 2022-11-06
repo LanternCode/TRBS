@@ -79,9 +79,10 @@ function refreshCardList(cardType, firstUse = false)
     for (let i = 0; i < cardList.length; i++) {
         let index = i;
         let option = createCardTemplate(cardType, cardList[i]);
-        option.classList.add("clickOnMe");
-
-        option.addEventListener("click", function() {
+        option.id = "participant-" + i;
+        let btnPickCard = document.createElement('button');
+        btnPickCard.innerText = "Wybierz!";
+        btnPickCard.addEventListener("click", function() {
             if(cardType === "player") {
                 if(addPlayer(index)) {
                     pickingOverlay.classList.add("hidden");
@@ -94,7 +95,9 @@ function refreshCardList(cardType, firstUse = false)
                 pickingOverlay.removeChild(pickingOverlay.firstChild);
             }
         }, false);
+        option.classList.add("clickOnMe");
 
+        option.appendChild(btnPickCard);
         selectSection.appendChild(option);
     }
 
@@ -171,13 +174,21 @@ function createCardTemplate(type, newParticipant)
         lvlUpButton.innerText = "+";
         let lvlDownButton = document.createElement("button");
         lvlDownButton.innerText = "-";
+        //check if we're in the list or editing on the table
+        let inList;
         lvlUpButton.onclick = function(){
             levelUp(newParticipant);
-            refreshCardsInBattle(true);
+            inList = this.parentNode.classList.contains("clickOnMe");
+            if(inList)
+                refreshCardList("player");
+            else refreshCardsInBattle(true);
         };
         lvlDownButton.onclick = function(){
             levelDown(newParticipant);
-            refreshCardsInBattle(true);
+            inList = this.parentNode.classList.contains("clickOnMe");
+            if(inList)
+                refreshCardList("player");
+            else refreshCardsInBattle(true);
         };
 
         lvlLabel.classList.add("outOfBattleElem", "blockDisp");
@@ -214,6 +225,38 @@ function createCardTemplate(type, newParticipant)
         card.appendChild(zoneValue);
     }
 
+    //create functional buttons for the card
+    let editButton = document.createElement("button");
+    let saveButton = document.createElement("button");
+    let cancelButton = document.createElement("button");
+    let deleteCardButton = document.createElement("button");
+    editButton.innerText = "Edytuj";
+    editButton.className = "editButton";
+    editButton.onclick = function(){
+        editCard(this);
+    };
+    saveButton.innerText = "Zapisz";
+    saveButton.className = "hidden";
+    saveButton.onclick = function(){
+        saveCard(this);
+    };
+    cancelButton.innerText = "Cofnij";
+    cancelButton.className = "hidden";
+    cancelButton.onclick = function(){
+        cancelEdit(this);
+    };
+    deleteCardButton.innerText = "Usuń uczestnika";
+    deleteCardButton.className = "hidden";
+    deleteCardButton.onclick = function(){
+        delCardOnTable(this);
+    };
+
+    //append the buttons at the end
+    card.appendChild(editButton);
+    card.appendChild(saveButton);
+    card.appendChild(cancelButton);
+    card.appendChild(deleteCardButton);
+
     return card;
 }
 
@@ -240,37 +283,6 @@ function insertCard(type, newParticipant, location = "table")
 
     let card = createCardTemplate(type, newParticipant);
     card.id = "participant-" + (participantsDefinition.length-1);
-
-    let editButton = document.createElement("button");
-    let saveButton = document.createElement("button");
-    let cancelButton = document.createElement("button");
-    let deleteCardButton = document.createElement("button");
-    editButton.innerText = "Edytuj";
-    editButton.className = "editButton";
-    editButton.onclick = function(){
-        editCard(this);
-    };
-    saveButton.innerText = "Zapisz";
-    saveButton.className = "hidden";
-    saveButton.onclick = function(){
-        saveCard(this);
-    };
-    cancelButton.innerText = "Cofnij";
-    cancelButton.className = "hidden";
-    cancelButton.onclick = function(){
-        cancelEdit(this);
-    };
-    deleteCardButton.innerText = "Usuń uczestnika";
-    deleteCardButton.className = "hidden";
-    deleteCardButton.onclick = function(){
-        delCardOnTable(this);
-    };
-
-    //append the edition buttons at the end
-    card.appendChild(editButton);
-    card.appendChild(saveButton);
-    card.appendChild(cancelButton);
-    card.appendChild(deleteCardButton);
 
     //append the card to the list or the correct side of the board
     if(location === "list") {
@@ -391,7 +403,7 @@ function createSettingsCard(type)
     let card = document.createElement("section");
     card.className = type === "player" ? "playerSection" : "enemySection";
     let addParticipantH3 = document.createElement("h3");
-    addParticipantH3.innerText = "Dodaj:";
+    addParticipantH3.innerText = "Nowy Przeciwnik:";
     let addParticipantButton = document.createElement("button");
     addParticipantButton.className = "cardPickerButton";
     addParticipantButton.innerText = "+";
@@ -523,6 +535,8 @@ function createSettingsCard(type)
      let card = e.parentNode;
      //get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
+     //get the location
+     let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //get the new values
      let newName = card.children[0].innerText.split("[")[0] + "[" + card.children[8].value + "]";
      let newHealth = card.children[2].value;
@@ -553,12 +567,15 @@ function createSettingsCard(type)
      card.replaceChild(armorText, card.children[10]);
      //get the participant id
      let pId = card.id.split('-')[1];
+     //choose the array to update
+     let arrayOfChoice = cLoc === "list" ? (cType === "player" ? availablePlayers : availableEnemies) : participantsDefinition;
      //update the details in the participants array
-     participantsDefinition[pId].maxHealth = parseInt(newHealth);
-     participantsDefinition[pId].speed = parseInt(newSpeed);
-     participantsDefinition[pId].atk = parseInt(newAttack);
-     participantsDefinition[pId].dodge = parseInt(newDodge);
-     participantsDefinition[pId].armor = parseInt(newArmor);
+     arrayOfChoice[pId].maxHealth = parseInt(newHealth);
+     arrayOfChoice[pId].health = parseInt(newHealth);
+     arrayOfChoice[pId].speed = parseInt(newSpeed);
+     arrayOfChoice[pId].atk = parseInt(newAttack);
+     arrayOfChoice[pId].dodge = parseInt(newDodge);
+     arrayOfChoice[pId].armor = parseInt(newArmor);
      //players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
          let newZone = card.children[12].value;
@@ -566,7 +583,7 @@ function createSettingsCard(type)
          zoneText.innerText = newZone;
          zoneText.classList.add("outOfBattleElem");
          card.replaceChild(zoneText, card.children[12]);
-         participantsDefinition[pId].zone = newZone;
+         arrayOfChoice[pId].zone = newZone;
      }
      else {
          card.children[12].classList.toggle("hidden");
