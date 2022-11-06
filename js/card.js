@@ -248,7 +248,7 @@ function createCardTemplate(type, newParticipant)
     deleteCardButton.innerText = "Usuń uczestnika";
     deleteCardButton.className = "hidden";
     deleteCardButton.onclick = function(){
-        delCardOnTable(this);
+        deleteCard(this);
     };
 
     //append the buttons at the end
@@ -403,7 +403,7 @@ function createSettingsCard(type)
     let card = document.createElement("section");
     card.className = type === "player" ? "playerSection" : "enemySection";
     let addParticipantH3 = document.createElement("h3");
-    addParticipantH3.innerText = "Nowy Przeciwnik:";
+    addParticipantH3.innerText = type === "player" ? "Dodaj Gracza:" : "Dodaj Przeciwnika:";
     let addParticipantButton = document.createElement("button");
     addParticipantButton.className = "cardPickerButton";
     addParticipantButton.innerText = "+";
@@ -422,41 +422,48 @@ function createSettingsCard(type)
 }
 
 /**
- * This function deletes a participant card from the table
+ * This function deletes a participant card from the list or the table
  *
- * @function delCardOnTable
+ * @function deleteCard
  * @param {Element} e - The button on-click event passes the button element here
  * @return {void}
  */
- function delCardOnTable(e)
+ function deleteCard(e)
  {
      //Get the card element
      let card = e.parentNode;
      //Figure out the card type
      let type = card.classList.contains("enemySection") ? "enemy" : "player";
-     //Check if there are enough participants to safely delete one
-     if(type === "player" && playerCount === 1) {
+     //Figure out the card location
+     let location = card.classList.contains("clickOnMe") ? "list" : "table";
+     //Check if there are enough participants to safely delete one (table only)
+     if(type === "player" && playerCount === 1 && location === "table") {
          newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
          return;
      }
-     else if (type === "enemy" && enemyCount === 1) {
+     else if (type === "enemy" && enemyCount === 1 && location === "table") {
          newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
          return;
      }
      //Remove the participant card from the table
-     let section = document.getElementById(type + "Slots");
+     let sectionId = location === "table" ? (type + "Slots") : "listSection";
+     let section = document.getElementById(sectionId);
      section.removeChild(card);
-     //Remove the participant from the participants array and reduce the counter
+     //Remove the participant from the participants array and reduce the counter if removing from the table
+     let arrayOfChoice = location === "table" ? participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
      if(type === "player")
      {
+         let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player").pop()), 1)[0];
          //if they're a player - also update their inUse property
-         let removedPlayer = participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "player").pop()), 1)[0];
-         availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
-         playerCount--;
+         if(location === "table") {
+             availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
+             playerCount--;
+         }
      }
      else {
-         participantsDefinition.splice(participantsDefinition.indexOf(participantsDefinition.filter(p => p.type === "enemy").pop()), 1);
-         enemyCount--;
+         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy").pop()), 1);
+         if(location === "table")
+            enemyCount--;
      }
  }
 
