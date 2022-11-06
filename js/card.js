@@ -414,9 +414,20 @@ function createSettingsCard(type)
         insertCard(type, newParticipant, "list");
         refreshCardList(type);
     };
+    let closeListH3 = document.createElement("h3");
+    closeListH3.innerText = "Zamknij listę:";
+    let closeListButton = document.createElement("button");
+    closeListButton.className = "cardPickerButton";
+    closeListButton.innerText = "✖";
+    closeListButton.onclick = function(){
+        pickingOverlay.classList.add("hidden");
+        pickingOverlay.removeChild(pickingOverlay.firstChild);
+    };
 
     card.appendChild(addParticipantH3);
     card.appendChild(addParticipantButton);
+    card.appendChild(closeListH3);
+    card.appendChild(closeListButton);
 
     return card;
 }
@@ -451,6 +462,7 @@ function createSettingsCard(type)
      section.removeChild(card);
      //Remove the participant from the participants array and reduce the counter if removing from the table
      let arrayOfChoice = location === "table" ? participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
+     //TODO: Remove the participant from the database if removing from the list
      if(type === "player")
      {
          let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player").pop()), 1)[0];
