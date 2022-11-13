@@ -84,15 +84,10 @@ function refreshCardList(cardType, firstUse = false)
         btnPickCard.innerText = "Wybierz!";
         btnPickCard.addEventListener("click", function() {
             if(cardType === "player") {
-                if(addPlayer(index)) {
-                    pickingOverlay.classList.add("hidden");
-                    pickingOverlay.removeChild(pickingOverlay.firstChild);
-                }
+                addPlayer(index);
             }
             else if (cardType === "enemy") {
                 addEnemy(index);
-                pickingOverlay.classList.add("hidden");
-                pickingOverlay.removeChild(pickingOverlay.firstChild);
             }
         }, false);
         option.classList.add("clickOnMe");
