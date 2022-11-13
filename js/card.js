@@ -447,15 +447,8 @@ function createSettingsCard(type)
      let type = card.classList.contains("enemySection") ? "enemy" : "player";
      //Figure out the card location
      let location = card.classList.contains("clickOnMe") ? "list" : "table";
-     //Check if there are enough participants to safely delete one (table only)
-     if(type === "player" && playerCount === 1 && location === "table") {
-         newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
-         return;
-     }
-     else if (type === "enemy" && enemyCount === 1 && location === "table") {
-         newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
-         return;
-     }
+     //Get the participant id
+     let pId = card.id.split('-')[1];
      //Remove the participant card from the table
      let sectionId = location === "table" ? (type + "Slots") : "listSection";
      let section = document.getElementById(sectionId);
@@ -463,9 +456,13 @@ function createSettingsCard(type)
      //Remove the participant from the participants array and reduce the counter if removing from the table
      let arrayOfChoice = location === "table" ? participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
      //TODO: Remove the participant from the database if removing from the list
-     if(type === "player")
+     if(location === "list") {
+         arrayOfChoice.splice(pId, 1);
+     }
+     else if(type === "player")
      {
-         let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player").pop()), 1)[0];
+         let pName = card.children[0].textContent.split('[')[0].trim();
+         let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
          //if they're a player - also update their inUse property
          if(location === "table") {
              availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
@@ -473,7 +470,8 @@ function createSettingsCard(type)
          }
      }
      else {
-         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy").pop()), 1);
+         let pName = card.children[0].textContent.split('[')[0].trim();
+         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
          if(location === "table")
             enemyCount--;
      }

@@ -1,6 +1,7 @@
-import {isBattleOver} from "./battle.js";
+import {endBattle, isBattleOver} from "./battle.js";
 import {adjustOptions, filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./card.js";
+import {Settings} from "./settings.js";
 
 /**
  * This function ends the current local/global turn
@@ -52,8 +53,8 @@ function nextTurn()
         let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
         priorityTwoActionFlag.classList.remove("disabled");
         priorityThreeActionFlag.classList.remove("disabled");
-        priorityTwo = true;
-        priorityThree = true;
+        Settings.priorityTwo = true;
+        Settings.priorityThree = true;
 
         //reset system throw display
         document.getElementById("systemThrow").innerText = "";
@@ -78,6 +79,7 @@ function act()
     let target = document.getElementById("targetsList").value;
     let item_key = document.getElementById("itemsList").value;
     let skill_key = document.getElementById("skillsList").value;
+    let testing_key = document.getElementById("testingList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
@@ -85,7 +87,7 @@ function act()
     {
         case "attack":
         {
-            if(priorityTwo === true && target !== '')
+            if(Settings.priorityTwo === true && target !== '')
             {
                 let participantType = participants[localTurn].type;
                 let attack = participants[localTurn].atk;
@@ -139,7 +141,7 @@ function act()
 
                 if (attack > 0) newSystemCall("Zadano " + attack + " obrażeń!");
 
-                priorityTwo = false;
+                Settings.priorityTwo = false;
             }
             else if(target.length < 2)
             {
@@ -153,10 +155,10 @@ function act()
         }
         case "dodge":
         {
-            if(priorityTwo === true)
+            if(Settings.priorityTwo === true)
             {
                 participants[localTurn].isDodging = 1;
-                priorityTwo = false;
+                Settings.priorityTwo = false;
             }
             else
             {
@@ -166,7 +168,7 @@ function act()
         }
         case "item":
         {
-            if(priorityThree === true && item_key.length > 1 && target !== '')
+            if(Settings.priorityThree === true && item_key.length > 1 && target !== '')
             {
                 console.log(target);
                 console.log(participants[target]);
@@ -186,7 +188,7 @@ function act()
                 //reduce participant's item count
                 if(itemUsed){
                     participants[localTurn].itemsOwned[item_key] -= 1;
-                    priorityThree = false;
+                    Settings.priorityThree = false;
                 }
             }
             else if(item_key.length < 2)
@@ -216,12 +218,12 @@ function act()
                         //check if this priority is available
                         let priority = skill.priority;
                         let priorityClear = false;
-                        if (priority === 2 && priorityTwo) {
+                        if (priority === 2 && Settings.priorityTwo) {
                             priorityClear = true;
-                            priorityTwo = false;
-                        } else if (priority === 3 && priorityThree) {
+                            Settings.priorityTwo = false;
+                        } else if (priority === 3 && Settings.priorityThree) {
                             priorityClear = true;
-                            priorityThree = false;
+                            Settings.priorityThree = false;
                         }
                         if(priorityClear) {
                             //fetch skill properties
@@ -274,6 +276,32 @@ function act()
             }
             break;
         }
+        case "testing":
+        {
+            switch(testing_key)
+            {
+                case "defeatParticipant":
+                {
+                    participants[target].health = 0;
+                    break;
+                }
+                case "winBattle":
+                {
+                    endBattle("p");
+                    break;
+                }
+                case "loseBattle":
+                {
+                    endBattle("e");
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+            break;
+        }
         default:
         {
             newSystemCall("Nie wybrano żadnej akcji.");
@@ -281,11 +309,11 @@ function act()
     }
 
     // mark unavailable actions
-    if(priorityTwo === false)
+    if(Settings.priorityTwo === false)
     {
         priorityTwoActionFlag.classList.add("disabled");
     }
-    if(priorityThree === false)
+    if(Settings.priorityThree === false)
     {
         priorityThreeActionFlag.classList.add("disabled");
     }

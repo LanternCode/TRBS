@@ -8,13 +8,15 @@ import {newSystemCall} from "./action.js";
  * @param {boolean} [reset] - whether to simply hide all section or not
  * @param {boolean} [itempicked] - whether a specific item was picked from the list
  * @param {boolean} [skillpicked] - whether a specific skill was picked from the list
+ * @param {boolean} [testingpicked] - whether a specific testing action was picked from the list
  * @return void
  */
-function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
-    let option = (reset === true) ? "dodge" : (itempicked === true ? "itempicked" : (skillpicked === true ? "skillpicked" : this.value));
+function adjustOptions(reset = false, itempicked = false, skillpicked = false, testingpicked = false) {
+    let option = (reset === true) ? "dodge" : (itempicked === true ? "itempicked" : (skillpicked === true ? "skillpicked" : (testingpicked === true ? "testingpicked" : this.value)));
     let itemSection = document.getElementById("sectionItem");
     let skillSection = document.getElementById("sectionSkill");
     let targetSection = document.getElementById("sectionTarget");
+    let testingSection = document.getElementById("sectionTesting");
     switch(option)
     {
         case "attack":
@@ -27,9 +29,11 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
         }
         case "dodge":
         {
+            //dodge is also used for "reset" as it literally hides everything
             hideSection(itemSection);
             hideSection(skillSection);
             hideSection(targetSection);
+            hideSection(testingSection);
             break;
         }
         case "item":
@@ -68,6 +72,22 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false) {
             adjustSkills();
             hideSection(itemSection);
             showSection(skillSection);
+            showSection(targetSection);
+            break;
+        }
+        case "testing":
+        {
+            showSection(testingSection);
+            hideSection(itemSection);
+            hideSection(targetSection);
+            hideSection(skillSection);
+            break;
+        }
+        case "testingpicked":
+        {
+            setTestingActions();
+            hideSection(itemSection);
+            hideSection(skillSection);
             showSection(targetSection);
             break;
         }
@@ -192,6 +212,32 @@ function adjustSkills()
 }
 
 /**
+ * This function makes a list of targets that can be targets of the special action
+ * And calls the adequate function to implement that list
+ *
+ * @function setTestingActions
+ * @returns {void} The function calls the prepareTargetSection function immediately
+ */
+function setTestingActions()
+{
+    //get the testing actions list
+    let testingList = document.getElementById("testingList");
+    //check if an action was selected, otherwise exit
+    if (testingList.value === '') return;
+    //declare a list to store available targets
+    let filteredList = [];
+    //check if the action targets literally everyone - if so, job done
+    if(["winBattle", "loseBattle"].includes(testingList.value)) {
+        prepareTargetSection([], "everyone");
+    }
+    else {
+        //for now the only other testing action is to defeat any participant
+        //so proceed with the list of all participants
+        prepareTargetSection(participants);
+    }
+}
+
+/**
  * This function takes a given section and shows it on the screen by deleting the hidden class
  *
  * @function showSection
@@ -216,7 +262,7 @@ function hideSection(s)
 }
 
 /**
- * This function takes a list of participants and generates the pick target section from the list
+ * This function takes a list of participants and generates the targetsList section from that list
  *
  * @function prepareTargetSection
  * @param {array} targetList a list of participants
@@ -321,7 +367,6 @@ function updateList(listName)
 
     }
 }
-
 
 /**
  * This function filters a given array of participants to dead or alive participants,
