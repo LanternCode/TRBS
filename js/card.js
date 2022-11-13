@@ -442,15 +442,7 @@ function createSettingsCard(type)
      let type = card.classList.contains("enemySection") ? "enemy" : "player";
      //Figure out the card location
      let location = card.classList.contains("clickOnMe") ? "list" : "table";
-     //Check if there are enough participants to safely delete one (table only)
-     if(type === "player" && playerCount === 1 && location === "table") {
-         newSystemCall("Nie udało się usunąć gracza, w walce musi brać udział minimum 1.");
-         return;
-     }
-     else if (type === "enemy" && enemyCount === 1 && location === "table") {
-         newSystemCall("Nie udało się usunąć przeciwnika, w walce musi brać udział minimum 1.");
-         return;
-     }
+
      //Remove the participant card from the table
      let sectionId = location === "table" ? (type + "Slots") : "listSection";
      let section = document.getElementById(sectionId);
