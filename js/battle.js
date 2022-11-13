@@ -2,6 +2,7 @@ import {newSystemCall} from "./action.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./card.js";
+import {Settings} from "./settings.js";
 
 /**
  * This function starts or resets a battle
@@ -24,9 +25,9 @@ function startBattle()
         globalTurn = 1;
 
         //reset priority
-        priorityTwo = true;
+        Settings.priorityTwo = true;
         priorityTwoActionFlag.classList.remove("disabled");
-        priorityThree = true;
+        Settings.priorityThree = true;
         priorityThreeActionFlag.classList.remove("disabled");
 
         //disable the buttons that add or remove participants

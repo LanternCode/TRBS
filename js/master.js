@@ -19,6 +19,9 @@ itemsList.addEventListener("change", () => { adjustOptions(false, true) }, false
 const skillsList = document.getElementById("skillsList");
 skillsList.addEventListener("change", () => { adjustOptions(false, false, true) }, false);
 
+const testingList = document.getElementById("testingList");
+testingList.addEventListener("change", () => { adjustOptions(false, false, false, true) }, false);
+
 
 /**
  * A Participant
@@ -262,17 +265,6 @@ window.globalTurn = 1;
  * @type {number}
  */
 window.localTurn = 0;
-
-/**
- * Pre-defined priority 2 flag
- * @type {boolean}
- */
-window.priorityTwo = true;
-/**
- * Pre-defined priority 3 flag
- * @type {boolean}
- */
-window.priorityThree = true;
 
 /**
  * This function generates a random integer in the given range, inclusive.
