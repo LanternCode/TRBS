@@ -105,9 +105,9 @@ function endBattle(winner)
     //Update the battle state description
     document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!");
 
-    //Hide the next turn button, show the start battle button
+    //Hide the next turn button, show the continue to battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
-    document.getElementById("startBattleButton").classList.toggle("hidden");
+    document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
     //hide the battle controls
     document.getElementById("sideSection--battleControls").classList.toggle("hidden");
@@ -155,9 +155,6 @@ function endBattle(winner)
         elem.classList.toggle("hidden");
     for (let elem of document.getElementsByClassName("experienceLabel"))
         elem.classList.toggle("hidden");
-
-    //refresh cards to definitions
-    refreshCardsInBattle(true);
 }
 
 /**
@@ -183,4 +180,13 @@ function isBattleOver()
     else return false;
 }
 
-export {startBattle, endBattle, isBattleOver};
+function continueToBattle() {
+    // Hide the ontinue to battle button, show the start battle button
+    document.getElementById("startBattleButton").classList.toggle("hidden");
+    document.getElementById("continueToBattleButton").classList.toggle("hidden");
+
+    //refresh cards to definitions
+    refreshCardsInBattle(true);
+}
+
+export {startBattle, endBattle, isBattleOver, continueToBattle};

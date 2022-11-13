@@ -339,7 +339,6 @@ function generateNewEnemy()
 {
     let enemy = {
         name: "Przeciwnik",
-        maxHealth: 100,
         isDodging: 0,
         type: "enemy",
         subtype: Math.random() < 0.5 ? "human" : "monster"
@@ -348,6 +347,7 @@ function generateNewEnemy()
     for (let enemyStat of Object.keys(enemyStatLimits)) {
         enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
     }
+    enemy.maxHealth = enemy.health;
 
     if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
 
@@ -694,6 +694,7 @@ function refreshCardsInBattle(refreshDefs = false)
         battleSlot.children[6].innerText = arrOfChoice[i].atk;
         battleSlot.children[8].innerText = arrOfChoice[i].dodge;
         battleSlot.children[10].innerText = arrOfChoice[i].armor;
+
         if(arrOfChoice[i].type === "player" && refreshDefs){
             //xp is updated in the definition only, hence refreshDefs must be true
             battleSlot.children[13].innerText = arrOfChoice[i].level;
