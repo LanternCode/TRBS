@@ -113,20 +113,6 @@ function endBattle(winner)
     //hide the battle controls
     document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
-    //enable the buttons that add new participants
-    document.getElementById("enemyAddSection").classList.toggle("hidden");
-    document.getElementById("playerAddSection").classList.toggle("hidden");
-    for (let elem of document.getElementsByClassName("createCardButton"))
-        elem.classList.toggle("hidden");
-
-    //show the edit participant button
-    for (let elem of document.getElementsByClassName("editButton"))
-        elem.classList.toggle("hidden");
-
-    //show out-of-battle labels when exiting battle
-    for (let elem of document.getElementsByClassName("outOfBattleElem"))
-        elem.classList.toggle("hidden");
-
     //give players xp after the battle
     let levelUpCall = "\n";
     if(winner === "p"){
@@ -146,6 +132,8 @@ function endBattle(winner)
             }
         }
     }
+
+    refreshCardsInBattle();
 
     //announce the level-ups
     if(levelUpCall !== "\n")
@@ -182,6 +170,20 @@ function isBattleOver()
 }
 
 function continueToBattle() {
+    //enable the buttons that add new participants
+    document.getElementById("enemyAddSection").classList.toggle("hidden");
+    document.getElementById("playerAddSection").classList.toggle("hidden");
+    for (let elem of document.getElementsByClassName("createCardButton"))
+        elem.classList.toggle("hidden");
+
+    //show the edit participant button
+    for (let elem of document.getElementsByClassName("editButton"))
+        elem.classList.toggle("hidden");
+
+    //show out-of-battle labels when exiting battle
+    for (let elem of document.getElementsByClassName("outOfBattleElem"))
+        elem.classList.toggle("hidden");
+
     // Hide the ontinue to battle button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
