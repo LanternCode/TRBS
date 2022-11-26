@@ -186,10 +186,10 @@ function createCardTemplate(type, newParticipant)
             else refreshCardsInBattle(true);
         };
 
-        lvlLabel.classList.add("outOfBattleElem", "blockDisp");
-        lvlValue.classList.add("outOfBattleElem", "inlineBlockDisp");
-        experienceLabel.classList.add("outOfBattleElem", "blockDisp");
-        experienceValue.classList.add("outOfBattleElem");
+        lvlLabel.classList.add("outOfBattleElem", "blockDisp", "displayAfterBattle");
+        lvlValue.classList.add("outOfBattleElem", "inlineBlockDisp", "displayAfterBattle");
+        experienceLabel.classList.add("outOfBattleElem", "blockDisp", "displayAfterBattle");
+        experienceValue.classList.add("outOfBattleElem", "displayAfterBattle");
         lvlUpButton.classList.add("outOfBattleElem", "lvlButton");
         lvlDownButton.classList.add("outOfBattleElem", "lvlButton");
 
