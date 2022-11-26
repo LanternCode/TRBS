@@ -139,11 +139,15 @@ function endBattle(winner)
     if(levelUpCall !== "\n")
         newSystemCall(levelUpCall);
 
-    //display experience labels
-    for (let elem of document.getElementsByClassName("experienceValue"))
-        elem.classList.toggle("hidden");
-    for (let elem of document.getElementsByClassName("experienceLabel"))
-        elem.classList.toggle("hidden");
+    // //display experience labels
+    // for (let elem of document.getElementsByClassName("experienceValue"))
+    //     elem.classList.toggle("hidden");
+    // for (let elem of document.getElementsByClassName("experienceLabel"))
+    //     elem.classList.toggle("hidden");
+
+    for (let elem of document.getElementsByClassName("displayAfterBattle")) {
+        elem.classList.remove("hidden");
+    }
 }
 
 /**
@@ -182,7 +186,7 @@ function continueToBattle() {
 
     //show out-of-battle labels when exiting battle
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
-        elem.classList.toggle("hidden");
+        elem.classList.remove("hidden");
 
     // Hide the ontinue to battle button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
