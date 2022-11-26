@@ -256,17 +256,6 @@ window.playerCount = 0;
 window.enemyCount = 0;
 
 /**
- * Pre-defined global turn counter
- * @type {number}
- */
-window.globalTurn = 1;
-/**
- * Pre-defined local turn counter
- * @type {number}
- */
-window.localTurn = 0;
-
-/**
  * This function generates a random integer in the given range, inclusive.
  *
  * @generator

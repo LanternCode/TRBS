@@ -21,8 +21,8 @@ function startBattle()
     if(participantsOK && cardsOK)
     {
         //reset the turn counters
-        localTurn = 0;
-        globalTurn = 1;
+        Settings.localTurn = 0;
+        Settings.globalTurn = 1;
 
         //reset priority
         Settings.priorityTwo = true;

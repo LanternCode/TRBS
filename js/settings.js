@@ -18,6 +18,16 @@ class Settings {
          * @type {boolean}
          */
         this.priorityThree = true;
+        /**
+         * Pre-defined global turn counter
+         * @type {number}
+         */
+        this.globalTurn = 1;
+        /**
+         * Pre-defined local turn counter
+         * @type {number}
+         */
+        this.localTurn = 0;
     }
     debuggingEnabled() {
         return this.debugging;

@@ -1,4 +1,5 @@
 import {newSystemCall} from "./action.js";
+import {Settings} from "./settings.js";
 
 /**
  * This function is called when an action is selected to define which sections should show up
@@ -38,7 +39,7 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false, t
         }
         case "item":
         {
-            if(participants[localTurn].type === "player" || (participants[localTurn].hasOwnProperty('subtype') && participants[localTurn].subtype === "human"))
+            if(participants[Settings.localTurn].type === "player" || (participants[Settings.localTurn].hasOwnProperty('subtype') && participants[Settings.localTurn].subtype === "human"))
             {
                 updateList("itemsList");
                 showSection(itemSection);
@@ -108,9 +109,9 @@ function adjustOptions(reset = false, itempicked = false, skillpicked = false, t
 function adjustAttackTargets()
 {
     //declare a list to store available targets
-    let filteredList = [];
+    let filteredList;
     //Apply filtering
-    if(participants[localTurn].type === "player")
+    if(participants[Settings.localTurn].type === "player")
     {
         filteredList = participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
     }
@@ -143,7 +144,7 @@ function adjustItems()
     {
         case "restore":
         {
-            if(participants[localTurn].type === "player")
+            if(participants[Settings.localTurn].type === "player")
             {
                 filteredList = participants.filter(p => p.type === "player").filter(p => p.health > 0);
             }
@@ -154,7 +155,7 @@ function adjustItems()
         }
         case "revive":
         {
-            if(participants[localTurn].type === "player")
+            if(participants[Settings.localTurn].type === "player")
             {
                 filteredList = participants.filter(p => p.type === "player").filter(p => p.health === 0);
             }
@@ -196,7 +197,7 @@ function adjustSkills()
     //first filtering to determine which side to target (player, enemy, reversed)
     if(target_group === "reversed")
     {
-        if(participants[localTurn].type === "player")
+        if(participants[Settings.localTurn].type === "player")
             target_group = "enemy";
         else target_group = "player";
     }
@@ -224,8 +225,6 @@ function setTestingActions()
     let testingList = document.getElementById("testingList");
     //check if an action was selected, otherwise exit
     if (testingList.value === '') return;
-    //declare a list to store available targets
-    let filteredList = [];
     //check if the action targets literally everyone - if so, job done
     if(["winBattle", "loseBattle"].includes(testingList.value)) {
         prepareTargetSection([], "everyone");
@@ -326,7 +325,7 @@ function updateList(listName)
     list.appendChild(opt);
     //use the attribute based on the list selected
     let attName = listName === "itemsList" ? "itemsOwned" : "skillsOwned";
-    if(participants[localTurn][attName] === null || typeof participants[localTurn][attName] === 'undefined')
+    if(participants[Settings.localTurn][attName] === null || typeof participants[Settings.localTurn][attName] === 'undefined')
     {
         //list objects are unavailable
     }
@@ -335,7 +334,7 @@ function updateList(listName)
         if(listName === "itemsList")
         {
             //Then insert all list items
-            for (let itanz of Object.entries(participants[localTurn].itemsOwned))
+            for (let itanz of Object.entries(participants[Settings.localTurn].itemsOwned))
             {
                 let item_name = itanz[0];
                 let item_count = itanz[1];
@@ -351,7 +350,7 @@ function updateList(listName)
         }
         else {
             //Insert all skills
-            for (let skillz of Object.entries(participants[localTurn].skillsOwned))
+            for (let skillz of Object.entries(participants[Settings.localTurn].skillsOwned))
             {
                 let skillName = skillz[0];
                 let skillCooldown = skillz[1];

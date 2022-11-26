@@ -14,14 +14,14 @@ function nextTurn()
     //check if the battle is over and end it if so, else continue
     if(!isBattleOver()){
         //update the local turn counter
-        localTurn++;
+        Settings.localTurn++;
 
         //check if this was the last local turn of the global turn
-        if(localTurn === participants.length)
+        if(Settings.localTurn === participants.length)
         {
-            localTurn = 0;
-            globalTurn++;
-            document.getElementById("globalTurn").innerText = globalTurn;
+            Settings.localTurn = 0;
+            Settings.globalTurn++;
+            document.getElementById("globalTurn").innerText = Settings.globalTurn;
 
             //reduce skill cooldown for any skill by 1
             for (let i = 0; i < participants.length; ++i) {
@@ -39,10 +39,10 @@ function nextTurn()
 
         //if the member was dodging, disable their dodge once their turn starts again
         //this has to be disabled now in case a defeated member was revived
-        participants[localTurn].isDodging = 0;
+        participants[Settings.localTurn].isDodging = 0;
 
         //Check if the participant is alive, if not, start next turn
-        if(participants[localTurn].health === 0) nextTurn();
+        if(participants[Settings.localTurn].health === 0) nextTurn();
 
         //reset the action list
         action.value = "none";
@@ -63,7 +63,7 @@ function nextTurn()
         newSystemCall("");
 
         //Update the "acts now" label
-        document.getElementById("nowActsDesc").innerText = participants[localTurn].name;
+        document.getElementById("nowActsDesc").innerText = participants[Settings.localTurn].name;
     }
 }
 
@@ -89,8 +89,8 @@ function act()
         {
             if(Settings.priorityTwo === true && target !== '')
             {
-                let participantType = participants[localTurn].type;
-                let attack = participants[localTurn].atk;
+                let participantType = participants[Settings.localTurn].type;
+                let attack = participants[Settings.localTurn].atk;
                 if(participants[target].isDodging)
                 {
                     //target is dodging - in phase 2 avoid half the damage
@@ -105,7 +105,7 @@ function act()
                 let criticalWeakPoint = hitCheck === 100;
                 let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
                 if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
-                else if (criticalHit) attack += participants[localTurn].zone;
+                else if (criticalHit) attack += participants[Settings.localTurn].zone;
 
                 if(hitCheck < participants[target].dodge)
                 {
@@ -157,7 +157,7 @@ function act()
         {
             if(Settings.priorityTwo === true)
             {
-                participants[localTurn].isDodging = 1;
+                participants[Settings.localTurn].isDodging = 1;
                 Settings.priorityTwo = false;
             }
             else
@@ -170,8 +170,6 @@ function act()
         {
             if(Settings.priorityThree === true && item_key.length > 1 && target !== '')
             {
-                console.log(target);
-                console.log(participants[target]);
                 let itemUsed = true;
                 //find the item in the item list
                 let item = items.find(i => i.name === item_key);
@@ -187,7 +185,7 @@ function act()
 
                 //reduce participant's item count
                 if(itemUsed){
-                    participants[localTurn].itemsOwned[item_key] -= 1;
+                    participants[Settings.localTurn].itemsOwned[item_key] -= 1;
                     Settings.priorityThree = false;
                 }
             }
@@ -213,7 +211,7 @@ function act()
                 if(target !== '') {
                     //get the selected skill and check the cooldown
                     let skill = skills.find(s => s.name === skill_key);
-                    let cooldownRemaining = participants[localTurn].skillsOwned[skill_key];
+                    let cooldownRemaining = participants[Settings.localTurn].skillsOwned[skill_key];
                     if (cooldownRemaining === 0) {
                         //check if this priority is available
                         let priority = skill.priority;
@@ -257,7 +255,7 @@ function act()
                             }
 
                             //set the skill on cooldown
-                            participants[localTurn].skillsOwned[skill_key] = skill.cooldown;
+                            participants[Settings.localTurn].skillsOwned[skill_key] = skill.cooldown;
                         }
                         else {
                             newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
