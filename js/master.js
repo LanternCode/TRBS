@@ -10,18 +10,11 @@ window.startBattle = startBattle;
 window.continueToBattle = continueToBattle;
 window.nextTurn = nextTurn;
 
-const actionsList = document.getElementById("action");
-actionsList.addEventListener("change", adjustOptions, false);
+const actionsList = document.getElementById("actionList");
+actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
 
-const itemsList = document.getElementById("itemsList");
-itemsList.addEventListener("change", () => { adjustOptions(false, true) }, false);
-
-const skillsList = document.getElementById("skillsList");
-skillsList.addEventListener("change", () => { adjustOptions(false, false, true) }, false);
-
-const testingList = document.getElementById("testingList");
-testingList.addEventListener("change", () => { adjustOptions(false, false, false, true) }, false);
-
+const actionElementsList = document.getElementById("actionElementsList");
+actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
 
 /**
  * A Participant
@@ -46,7 +39,7 @@ testingList.addEventListener("change", () => { adjustOptions(false, false, false
 /**
  * An Item
  * @typedef {Object} Item
- * @property {string} name - Item id
+ * @property {string} uiid - Unique item id
  * @property {string} displayName - Item display name
  * @property {string} type - Item type (for now only healing)
  * @property {string} subtype - item subtype (for healing items - restore/revive)
@@ -57,6 +50,7 @@ testingList.addEventListener("change", () => { adjustOptions(false, false, false
 /**
  * A Skill/Spell (for now they're the same thing)
  * @typedef {Object} SkillSpell
+ * @property {string} usid - Unique skill id
  * @property {string} name - Skill/spell name
  * @property {string} range - how many participants are targets of the skill/spell (individual, all, everyone - all of the same side or literally everyone)
  * @property {string} target_group - Skill/spell target group (player, enemy, reversed - reversed means the opposite of the user)
@@ -105,11 +99,11 @@ window.enemyStatLimits = {
 
 /**
  * pre-defined item definition array
- * @type {[{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number},{subtype: string, displayName: string, valueType: string, name: string, type: string, value: number}]}
+ * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
  */
 window.items = [
     {
-        name: "life_flask",
+        uiid: 1,
         displayName: "Flakon Życia",
         type: "healing",
         subtype: "restore",
@@ -117,7 +111,7 @@ window.items = [
         value: 10
     },
     {
-        name: "small_life_potion",
+        uiid: 2,
         displayName: "Mała Mikstura Życia",
         type: "healing",
         subtype: "restore",
@@ -125,7 +119,7 @@ window.items = [
         value: 15
     },
     {
-        name: "life_potion",
+        uiid: 3,
         displayName: "Mikstura Życia",
         type: "healing",
         subtype: "restore",
@@ -133,7 +127,7 @@ window.items = [
         value: 22
     },
     {
-        name: "large_life_potion",
+        uiid: 4,
         displayName: "Większa Mikstura Życia",
         type: "healing",
         subtype: "restore",
@@ -141,7 +135,7 @@ window.items = [
         value: 30
     },
     {
-        name: "regeneration_flask",
+        uiid: 5,
         displayName: "Flakon Regeneracji",
         type: "healing",
         subtype: "revive",
@@ -152,10 +146,11 @@ window.items = [
 
 /**
  *
- * @type {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number},null]}
+ * @type {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},null,null]}
  */
 window.skills = [
     {
+        usid: 0,
         name: "Kumulacja",
         range: "individual",
         targetGroup: "player",
@@ -167,6 +162,7 @@ window.skills = [
         priority: 2
     },
     {
+        usid: 1,
         name: "Hellfire",
         range: "everyone",
         targetGroup: "",
@@ -178,6 +174,7 @@ window.skills = [
         priority: 2
     },
     {
+        usid: 2,
         name: "Przygrywka",
         range: "all",
         targetGroup: "player",
@@ -189,6 +186,7 @@ window.skills = [
         priority: 2
     },
     {
+        usid: 3,
         name: "Próżnia",
         range: "all",
         targetGroup: "enemy",
@@ -200,6 +198,7 @@ window.skills = [
         priority: 3
     },
     {
+        usid: 4,
         name: "Energy Ball",
         range: "individual",
         targetGroup: "reversed",
@@ -211,6 +210,7 @@ window.skills = [
         priority: 2
     },
     {
+        usid: 5,
         name: "Wskrzeszenie",
         range: "individual",
         targetGroup: "player",
@@ -222,6 +222,7 @@ window.skills = [
         priority: 3
     },
     {
+        usid: 6,
         name: "Wielki Wybuch",
         range: "all",
         targetGroup: "reversed",

@@ -45,8 +45,7 @@ function nextTurn()
         if(participants[Settings.localTurn].health === 0) nextTurn();
 
         //reset the action list
-        action.value = "none";
-        adjustOptions(true);
+        adjustOptions("reset");
 
         //reset the available action flags
         let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
@@ -75,17 +74,16 @@ function nextTurn()
  */
 function act()
 {
-    let action = document.getElementById("action").value;
+    let action = document.getElementById("actionList").value;
+    let actionElement = document.getElementById("actionElementsList").value;
+    let actionElementId = parseInt(actionElement.split("-")[1]);
     let target = document.getElementById("targetsList").value;
-    let item_key = document.getElementById("itemsList").value;
-    let skill_key = document.getElementById("skillsList").value;
-    let testing_key = document.getElementById("testingList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
     switch(action)
     {
-        case "attack":
+        case "regAttack":
         {
             if(Settings.priorityTwo === true && target !== '')
             {
@@ -143,7 +141,7 @@ function act()
 
                 Settings.priorityTwo = false;
             }
-            else if(target.length < 2)
+            else if(target.length < 1)
             {
                 newSystemCall("Nie wybrano celu ataku.");
             }
@@ -168,11 +166,11 @@ function act()
         }
         case "item":
         {
-            if(Settings.priorityThree === true && item_key.length > 1 && target !== '')
+            if(Settings.priorityThree === true && actionElement.length > 1 && target !== '')
             {
                 let itemUsed = true;
                 //find the item in the item list
-                let item = items.find(i => i.name === item_key);
+                let item = items.find(i => i.uiid === actionElementId);
                 //see if the target is dead or alive
                 let targetAlive = participants[target].health > 0;
                 //use the healing item
@@ -185,11 +183,11 @@ function act()
 
                 //reduce participant's item count
                 if(itemUsed){
-                    participants[Settings.localTurn].itemsOwned[item_key] -= 1;
+                    participants[Settings.localTurn].itemsOwned[actionElementId] -= 1;
                     Settings.priorityThree = false;
                 }
             }
-            else if(item_key.length < 2)
+            else if(actionElement.length < 2)
             {
                 newSystemCall("Nie wybrano żadnego przedmiotu.");
             }
@@ -206,12 +204,12 @@ function act()
         case "skill":
         {
             //check that a skill was selected
-            if(skill_key !== ''){
+            if(actionElement !== ''){
                 //check that a valid target was selected
                 if(target !== '') {
                     //get the selected skill and check the cooldown
-                    let skill = skills.find(s => s.name === skill_key);
-                    let cooldownRemaining = participants[Settings.localTurn].skillsOwned[skill_key];
+                    let skill = skills.find(s => s.usid === actionElementId);
+                    let cooldownRemaining = participants[Settings.localTurn].skillsOwned[actionElementId];
                     if (cooldownRemaining === 0) {
                         //check if this priority is available
                         let priority = skill.priority;
@@ -255,7 +253,7 @@ function act()
                             }
 
                             //set the skill on cooldown
-                            participants[Settings.localTurn].skillsOwned[skill_key] = skill.cooldown;
+                            participants[Settings.localTurn].skillsOwned[actionElementId] = skill.cooldown;
                         }
                         else {
                             newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
@@ -274,13 +272,16 @@ function act()
             }
             break;
         }
-        case "testing":
+        case "debug":
         {
-            switch(testing_key)
+            switch(actionElement)
             {
                 case "defeatParticipant":
                 {
-                    participants[target].health = 0;
+                    if(target !== '') {
+                        participants[target].health = 0;
+                    }
+                    else newSystemCall("Nie wybrano celu.");
                     break;
                 }
                 case "winBattle":

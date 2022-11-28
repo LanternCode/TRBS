@@ -40,7 +40,7 @@ function startBattle()
         document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
         //reset the current action
-        action.value = "none";
+        actionList.value = "none";
 
         //hide out-of-battle labels when entering battle
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
@@ -76,7 +76,7 @@ function startBattle()
         }
 
         //hide all sections at the start
-        adjustOptions(true);
+        adjustOptions("reset");
 
         //prepare cards
         refreshCardsInBattle();

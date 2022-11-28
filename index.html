@@ -28,31 +28,17 @@
                     <p class="priorityActionFlag"  id="priorityThreeActionFlag">III</p>
                 </section>
                 <h3>Wybierz akcję:</h3>
-                <select id="action">
+                <select id="actionList">
                     <option value="none">Wybierz</option>
-                    <option value="attack">Zwykły Atak</option>
+                    <option value="regAttack">Zwykły Atak</option>
                     <option value="dodge">Unikanie</option>
                     <option value="item">Użycie Przedmiotu</option>
                     <option value="skill">Umiejętność/Zaklęcie</option>
-                    <option value="testing">Specjalne</option>
+                    <option value="debug">Debugowanie</option>
                 </select>
-                <section id="sectionSkill">
-                    <h3>Wybierz umiejętność:</h3>
-                    <select id="skillsList">
-                    </select>
-                </section>
-                <section id="sectionItem">
-                    <h3>Wybierz przedmiot:</h3>
-                    <select id="itemsList">
-                    </select>
-                </section>
-                <section id="sectionTesting">
-                    <h3>Specjalne:</h3>
-                    <select id="testingList">
-                        <option value="">Wybierz</option>
-                        <option value="defeatParticipant">[D] Zabij uczestnika</option>
-                        <option value="winBattle">[D] Wygraj walkę</option>
-                        <option value="loseBattle">[D] Przegraj walkę</option>
+                <section id="actionElementsSection">
+                    <h3 id="actionElementsLabel">Wybierz umiejętność:</h3>
+                    <select id="actionElementsList">
                     </select>
                 </section>
                 <section id="sectionTarget">

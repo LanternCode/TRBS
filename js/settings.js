@@ -29,7 +29,7 @@ class Settings {
          */
         this.localTurn = 0;
     }
-    debuggingEnabled() {
+    static debuggingEnabled() {
         return this.debugging;
     }
     static createAnonymous() {

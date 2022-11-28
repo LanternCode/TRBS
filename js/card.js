@@ -65,7 +65,6 @@ function displayCardPicker(type)
 function refreshCardList(cardType, firstUse = false)
 {
     //fetch or create the card picker selection list
-    let pickingOverlay = document.getElementById("pickingOverlay");
     let cardList = (cardType === "player" ? availablePlayers : availableEnemies);
     let selectSection;
     if(firstUse)
@@ -375,7 +374,7 @@ function generateNewPlayer()
         dodge: 45,
         experience: 0,
         itemsOwned: generateRandomItems(),
-        skillsOwned: {"Próżnia": 0},
+        skillsOwned: {"3": 0},
         level: 1,
         armor: 2,
         inUse: false
@@ -719,17 +718,17 @@ function refreshCardsInBattle(refreshDefs = false)
 function generateRandomItems()
 {
     let items = {
-        'life_flask': 0,
-        'small_life_potion': 0,
-        'life_potion': 0,
-        'large_life_potion': 0,
-        'regeneration_flask': 0
+        '1': 0,
+        '2': 0,
+        '3': 0,
+        '4': 0,
+        '5': 0
     };
 
     //choose two healing items and one reviving item
-    let first_healing = randomOfTwo('life_flask', 'small_life_potion');
-    let second_healing = randomOfTwo('large_life_potion', 'life_potion');
-    let first_reviving = 'regeneration_flask';
+    let first_healing = randomOfTwo('1', '2');
+    let second_healing = randomOfTwo('3', '4');
+    let first_reviving = '5';
 
     //increase the item count in the items array
     items[first_healing]++;

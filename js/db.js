@@ -4,7 +4,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
  * This function obtains the players list
  *
  * @function getAvailablePlayers
- * @returns {[{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number}]}
+ * @returns {[{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number}]}
  */
  function getAvailablePlayers()
 {
@@ -21,7 +21,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
-            skillsOwned: {"Próżnia": 0},
+            skillsOwned: {"3": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -38,7 +38,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
-            skillsOwned: {"Energy Ball": 0, "Kumulacja": 0, "Hellfire": 0, "Wielki Wybuch": 0},
+            skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -55,7 +55,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
-            skillsOwned: {"Wskrzeszenie": 0, "Przygrywka": 0},
+            skillsOwned: {"5": 0, "2": 0},
             level: 1,
             armor: 0,
             inUse: false
@@ -72,7 +72,7 @@ import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
             isDodging: 0,
             type: "player",
             itemsOwned: generateRandomItems(),
-            skillsOwned: {"Energy Ball": 0, "Kumulacja": 0, "Hellfire": 0},
+            skillsOwned: {"4": 0, "0": 0, "1": 0},
             level: 1,
             armor: 0,
             inUse: false
