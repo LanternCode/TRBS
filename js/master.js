@@ -245,16 +245,6 @@ window.participantsDefinition = [];
  * @type {*[]}
  */
 window.participants = [];
-/**
- * Pre-defined player counter
- * @type {number}
- */
-window.playerCount = 0;
-/**
- * Pre-defined enemy counter
- * @type {number}
- */
-window.enemyCount = 0;
 
 /**
  * This function generates a random integer in the given range, inclusive.

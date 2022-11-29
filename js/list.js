@@ -348,13 +348,8 @@ function createActionElementsList(listName)
         case "itemsList":
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz przedmiot:";
-           //let attName = "itemsOwned";
             //Check that this participant has access to items
             if(!Object.hasOwn(participants[Settings.localTurn], "itemsOwned")) return;
-            //if(participants[Settings.localTurn][attName] === null || typeof participants[Settings.localTurn][attName] === 'undefined')
-            //{
-                //list objects are unavailable
-            //}
             //Then insert all list items
             for (let itanz of Object.entries(participants[Settings.localTurn].itemsOwned))
             {
@@ -377,11 +372,6 @@ function createActionElementsList(listName)
             document.getElementById("actionElementsLabel").innerText = "Wybierz umiejętność:";
             //Check that this participant has access to skills
             if(!Object.hasOwn(participants[Settings.localTurn], "skillsOwned")) return;
-            //let attName = "skillsOwned";
-            //if(participants[Settings.localTurn][attName] === null || typeof participants[Settings.localTurn][attName] === 'undefined')
-            //{
-                //list objects are unavailable
-            //}
             //Insert all skills
             for (let skillz of Object.entries(participants[Settings.localTurn].skillsOwned))
             {

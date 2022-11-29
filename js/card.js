@@ -1,5 +1,6 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelDown, levelUp} from "./level.js";
+import {Settings} from "./settings.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -14,13 +15,13 @@ function addCard(type)
 {
     //check if more participants can be added onto the table
     if(type === "player"){
-        if(playerCount === 4) {
+        if(Settings.playerCount === 4) {
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
             return;
         }
     }
     else if(type === "enemy") {
-        if(enemyCount === 9) {
+        if(Settings.enemyCount === 9) {
             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
             return;
         }
@@ -305,7 +306,7 @@ function addPlayer(index)
         return false;
     }
     else {
-        playerCount++;
+        Settings.playerCount++;
         availablePlayers[index].inUse = true;
         insertCard("player", structuredClone(availablePlayers[index]));
         return true;
@@ -321,9 +322,10 @@ function addPlayer(index)
  */
 function addEnemy(index)
 {
-    enemyCount++;
+    Settings.enemyCount++;
+    Settings.addedEnemiesCount++;
     let newEnemy = structuredClone(availableEnemies[index]);
-    newEnemy.name +=  " " + enemyCount;
+    newEnemy.name = newEnemy.name + " " + Settings.addedEnemiesCount;
     insertCard("enemy", newEnemy);
 }
 
@@ -460,14 +462,14 @@ function createSettingsCard(type)
          //if they're a player - also update their inUse property
          if(location === "table") {
              availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
-             playerCount--;
+             Settings.playerCount--;
          }
      }
      else {
          let pName = card.children[0].textContent.split('[')[0].trim();
          arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
          if(location === "table")
-            enemyCount--;
+            Settings.enemyCount--;
      }
  }
 

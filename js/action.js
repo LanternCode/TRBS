@@ -76,235 +76,80 @@ function act()
 {
     let action = document.getElementById("actionList").value;
     let actionElement = document.getElementById("actionElementsList").value;
+    let actionElementType = actionElement.split("-")[0];
     let actionElementId = parseInt(actionElement.split("-")[1]);
     let target = document.getElementById("targetsList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
-    switch(action)
-    {
-        case "regAttack":
+    //The switches will handle action "security" and then pass the action to the appropriate handler
+    if(action !== '') {
+        switch(action)
         {
-            if(Settings.priorityTwo === true && target !== '')
+            case "regAttack":
             {
-                let participantType = participants[Settings.localTurn].type;
-                let attack = participants[Settings.localTurn].atk;
-                if(participants[target].isDodging)
-                {
-                    //target is dodging - in phase 2 avoid half the damage
-                    attack = Math.floor(attack / 2);
-                }
-
-                //players roll from 1-20, enemies from 1-100
-                let maxRoll = participantType === "enemy" ? 100 : 20;
-                let hitCheck = Math.floor(Math.random() * maxRoll) + 1;
-
-                //critical attacks double or increase the damage, check if they happened
-                let criticalWeakPoint = hitCheck === 100;
-                let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
-                if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
-                else if (criticalHit) attack += participants[Settings.localTurn].zone;
-
-                if(hitCheck < participants[target].dodge)
-                {
-                    //target avoids being hit
-                    attack = 0;
-                    document.getElementById("systemThrow").innerText = hitCheck + " (Unik)";
-                }
-                else if(hitCheck === participants[target].dodge)
-                {
-                    //target is taking half of the damage
-                    attack = Math.floor(attack / 2);
-                    if(criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Atak Krytyczny, Połowiczny)";
-                    else document.getElementById("systemThrow").innerText = hitCheck + " (Atak Połowiczny)";
-                }
-                else
-                {
-                    //target is taking the whole damage
-                    if(criticalWeakPoint) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Słaby Punkt)";
-                    else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
-                    else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
-                }
-
-                //reduce the attack by target's armor rating
-                if(attack - participants[target].armor >= 0)
-                    attack -= participants[target].armor;
-                else attack = 0;
-
-                //deal damage
-                let targetHealth = participants[target].health;
-                if(targetHealth - attack > 0)
-                    participants[target].health -= attack;
-                else participants[target].health = 0;
-
-                if (attack > 0) newSystemCall("Zadano " + attack + " obrażeń!");
-
-                Settings.priorityTwo = false;
+                if(Settings.priorityTwo === true)
+                    handleRegAttack(participants[target], participants[Settings.localTurn]);
+                else if(Settings.priorityTwo === false) newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
+                else newSystemCall("Nie wybrano żadnego celu.");
+                break;
             }
-            else if(target.length < 1)
+            case "dodge":
             {
-                newSystemCall("Nie wybrano celu ataku.");
+                if(Settings.priorityTwo === true)
+                    handleDodge();
+                else newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
+                break;
             }
-            else
+            case "item":
             {
-                newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
+                if(Settings.priorityThree === true && actionElement !== "" && target !== '')
+                    handleUseItem(participants[target], actionElementId);
+                else if (actionElement === "") newSystemCall("Nie wybrano żadnego przedmiotu.");
+                else if (target === '') newSystemCall("Nie wybrano żadnego celu.");
+                else newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
+                break;
             }
-            break;
-        }
-        case "dodge":
-        {
-            if(Settings.priorityTwo === true)
+            case "skill":
             {
-                participants[Settings.localTurn].isDodging = 1;
-                Settings.priorityTwo = false;
-            }
-            else
-            {
-                newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
-            }
-            break;
-        }
-        case "item":
-        {
-            if(Settings.priorityThree === true && actionElement.length > 1 && target !== '')
-            {
-                let itemUsed = true;
-                //find the item in the item list
-                let item = items.find(i => i.uiid === actionElementId);
-                //see if the target is dead or alive
-                let targetAlive = participants[target].health > 0;
-                //use the healing item
-                if(targetAlive && item.subtype === "restore") restoreHp(item, participants[target]);
-                else if (!targetAlive && item.subtype === "revive") restoreHp(item, participants[target]);
-                else {
-                    newSystemCall("Nie możesz użyć tego przedmiotu na wskazanym celu.");
-                    itemUsed = false;
-                }
-
-                //reduce participant's item count
-                if(itemUsed){
-                    participants[Settings.localTurn].itemsOwned[actionElementId] -= 1;
-                    Settings.priorityThree = false;
-                }
-            }
-            else if(actionElement.length < 2)
-            {
-                newSystemCall("Nie wybrano żadnego przedmiotu.");
-            }
-            else if(target.length === '')
-            {
-                newSystemCall("Nie wybrano żadnego celu.");
-            }
-            else
-            {
-                newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
-            }
-            break;
-        }
-        case "skill":
-        {
-            //check that a skill was selected
-            if(actionElement !== ''){
-                //check that a valid target was selected
-                if(target !== '') {
-                    //get the selected skill and check the cooldown
+                if(actionElement !== '' && target !== '') {
                     let skill = skills.find(s => s.usid === actionElementId);
                     let cooldownRemaining = participants[Settings.localTurn].skillsOwned[actionElementId];
                     if (cooldownRemaining === 0) {
-                        //check if this priority is available
                         let priority = skill.priority;
                         let priorityClear = false;
                         if (priority === 2 && Settings.priorityTwo) {
                             priorityClear = true;
                             Settings.priorityTwo = false;
-                        } else if (priority === 3 && Settings.priorityThree) {
+                        }
+                        else if (priority === 3 && Settings.priorityThree) {
                             priorityClear = true;
                             Settings.priorityThree = false;
                         }
-                        if(priorityClear) {
-                            //fetch skill properties
-                            let participantsAffected = [];
-                            let type = skill.type;
-                            let subtype = skill.subtype;
-                            //check if a special target was selected
-                            if (target === "everyone") {
-                                //all participants are affected
-                                participantsAffected = participants;
-                            } else if (target === "player" || target === "enemy") {
-                                //all players or all enemies are the target of this skill
-                                participantsAffected = participants.filter(p => p.type === target);
-                            } else {
-                                //check that a numeric target was supplied
-                                if (!isNaN(target)) {
-                                    //a single participant is the target of this skill
-                                    participantsAffected.push(participants[target]);
-                                }
-                            }
-
-                            //only include dead or alive participants based on the subtype of the skill
-                            participantsAffected = filterBySubtype(participantsAffected, subtype);
-
-                            //apply the effects of the skill (healing/damaging)
-                            for (let p of participantsAffected) {
-                                if (type === "healing")
-                                    restoreHp(skill, p);
-                                else if (type === "offensive")
-                                    damageTarget(skill, p);
-                            }
-
-                            //set the skill on cooldown
-                            participants[Settings.localTurn].skillsOwned[actionElementId] = skill.cooldown;
-                        }
-                        else {
-                            newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
-                        }
+                        if(priorityClear)
+                            handleUseSkill(skill, target);
+                        else newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
                     }
-                    else {
-                        newSystemCall("Ta umiejętność jeszcze się nie odnowiła!");
-                    }
+                    else newSystemCall("Ta umiejętność jeszcze się nie odnowiła!");
                 }
-                else {
-                    newSystemCall("Nie wybrano celu.");
-                }
+                else newSystemCall("Nie wybrano celu bądź umiejętności.");
+                break;
             }
-            else {
-                newSystemCall("Nie wybrano umiejętności.");
-            }
-            break;
-        }
-        case "debug":
-        {
-            switch(actionElement)
+            case "debug":
             {
-                case "defeatParticipant":
-                {
-                    if(target !== '') {
-                        participants[target].health = 0;
-                    }
-                    else newSystemCall("Nie wybrano celu.");
-                    break;
-                }
-                case "winBattle":
-                {
-                    endBattle("p");
-                    break;
-                }
-                case "loseBattle":
-                {
-                    endBattle("e");
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
+                handleDebugAction(actionElement, participants[target]);
+                break;
             }
-            break;
+            default:
+            {
+                //only print errors to the console when debugging is enabled
+                if(Settings.debuggingEnabled())
+                    console.log("An error has occured, the following value was passed as action: ", action);
+            }
         }
-        default:
-        {
-            newSystemCall("Nie wybrano żadnej akcji.");
-        }
+    }
+    else {
+        newSystemCall("Nie wybrano żadnej akcji.");
     }
 
     // mark unavailable actions
@@ -319,6 +164,199 @@ function act()
 
     //check if the battle is over
     if(!isBattleOver()) refreshCardsInBattle();
+}
+
+/**
+ * This function handles a regular attack of the attacker.
+ *
+ * @function handleRegAttack
+ * @param {Participant} target the target of the attack
+ * @param {Participant} attacker the attacking participant
+ * @return void
+ */
+function handleRegAttack(target, attacker)
+{
+    let participantType = attacker.type;
+    let attack = attacker.atk;
+    if(target.isDodging)
+    {
+        //target is dodging - in phase 2 avoid half the damage
+        attack = Math.floor(attack / 2);
+    }
+
+    //players roll from 1-20, enemies from 1-100
+    let maxRoll = participantType === "enemy" ? 100 : 20;
+    let hitCheck = Math.floor(Math.random() * maxRoll) + 1;
+
+    //critical attacks double or increase the damage, check if they happened
+    let criticalWeakPoint = hitCheck === 100;
+    let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
+    if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
+    else if (criticalHit) attack += attacker.zone;
+
+    if(hitCheck < target.dodge)
+    {
+        //target avoids being hit
+        attack = 0;
+        document.getElementById("systemThrow").innerText = hitCheck + " (Unik)";
+    }
+    else if(hitCheck === target.dodge)
+    {
+        //target is taking half of the damage
+        attack = Math.floor(attack / 2);
+        if(criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Atak Krytyczny, Połowiczny)";
+        else document.getElementById("systemThrow").innerText = hitCheck + " (Atak Połowiczny)";
+    }
+    else
+    {
+        //target is taking the whole damage
+        if(criticalWeakPoint) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Słaby Punkt)";
+        else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
+        else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
+    }
+
+    //reduce the attack by target's armor rating
+    if(attack - target.armor >= 0)
+        attack -= target.armor;
+    else attack = 0;
+
+    //deal damage
+    let targetHealth = target.health;
+    if(targetHealth - attack > 0)
+        target.health -= attack;
+    else target.health = 0;
+
+    if (attack > 0) newSystemCall("Zadano " + attack + " obrażeń!");
+
+    Settings.priorityTwo = false;
+}
+
+/**
+ * This function enables a target's dodge. If target is not specified,
+ * dodge will be activated for the currently acting participant.
+ * This is devised so that if some ability wants to also activate
+ * someone's dodge in the future, they can just use this function.
+ *
+ * @function handleDodge
+ * @param {Participant} [target] target to enable the dodge for
+ * @return void
+ */
+function handleDodge(target = {})
+{
+    if(target !== {})
+        participants[Settings.localTurn].isDodging = true;
+    else target.isDodging = true;
+    Settings.priorityTwo = false;
+}
+
+/**
+ * This function takes an item id and a target to use the item on.
+ * If it is possible, the target will have hp restored, or they will be
+ * revived if they died earlier.
+ *
+ * @function handleUseItem
+ * @param {Participant} target participant to use the item on
+ * @param {int} itemId item id
+ * @return void
+ */
+function handleUseItem(target, itemId)
+{
+    let itemUsed = true;
+    //find the item in the item list
+    let item = items.find(i => i.uiid === itemId);
+    //see if the target is dead or alive
+    let targetAlive = target.health > 0;
+    //use the healing item
+    if(targetAlive && item.subtype === "restore") restoreHp(item, target);
+    else if (!targetAlive && item.subtype === "revive") restoreHp(item, target);
+    else {
+        newSystemCall("Nie możesz użyć tego przedmiotu na wskazanym celu.");
+        itemUsed = false;
+    }
+
+    //reduce participant's item count
+    if(itemUsed){
+        participants[Settings.localTurn].itemsOwned[itemId] -= 1;
+        Settings.priorityThree = false;
+    }
+}
+
+/**
+ * This function takes a skill and a target to use the skill on that target
+ *
+ * @function handleUseSkill
+ * @param {SkillSpell} skill The skill to use
+ * @param {string|int} target A group or an individual participant to target
+ * @return void
+ */
+function handleUseSkill(skill, target)
+{
+    //fetch skill properties
+    let participantsAffected = [];
+    let type = skill.type;
+    let subtype = skill.subtype;
+    //check if a special target was selected
+    if (target === "everyone")
+        participantsAffected = participants;
+    else if (target === "player" || target === "enemy")
+        participantsAffected = participants.filter(p => p.type === target);
+    else {
+        if (!isNaN(target)) {
+            //a single participant is the target of this skill
+            participantsAffected.push(participants[target]);
+        }
+    }
+
+    //only include dead or alive participants based on the subtype of the skill
+    participantsAffected = filterBySubtype(participantsAffected, subtype);
+
+    //apply the effects of the skill (healing/damaging)
+    for (let p of participantsAffected) {
+        if (type === "healing")
+            restoreHp(skill, p);
+        else if (type === "offensive")
+            damageTarget(skill, p);
+    }
+
+    //set the skill on cooldown
+    participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
+}
+
+/**
+ * This function handles a debugging action selected by the user
+ *
+ * @function handleDebugAction
+ * @param {string} actionElement
+ * @param {Participant} target
+ * @return void
+ */
+function handleDebugAction(actionElement, target)
+{
+    switch(actionElement)
+    {
+        case "defeatParticipant":
+        {
+            if(target.hasOwnProperty("health")) {
+                target.health = 0;
+            }
+            else newSystemCall("Nie wybrano celu.");
+            break;
+        }
+        case "winBattle":
+        {
+            endBattle("p");
+            break;
+        }
+        case "loseBattle":
+        {
+            endBattle("e");
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
 }
 
 /**
@@ -344,7 +382,7 @@ function restoreHp(obj, target)
 }
 
 /**
- * This function restores hp to a given target
+ * This function damages a given target using an item or a skill
  *
  * @function damageTarget
  * @param {Object} obj The {@link item} or {@link SkillSpell} used when attacking
