@@ -1,4 +1,5 @@
 import {Settings} from "./settings.js";
+const base_url = "http://localhost:3000/";
 
 function makeRequest(method, url) {
     return new Promise(function (resolve, reject) {
@@ -45,9 +46,9 @@ function makeRequest(method, url) {
  */
 async function getAvailableEnemies()
 {
-    Settings.db.connect();
-    let enemies = await Settings.db("TRBS").collection("enemy").find().toArray();
-    return enemies;
+    let result = await makeRequest("GET", "http://localhost:3000/enemies/");
+    console.log(JSON.parse(result));
+    return JSON.parse(result);
 }
 
 /**
@@ -58,9 +59,9 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-    Settings.db.connect();
-    let items = await Settings.db("TRBS").collection("item").find().toArray();
-    return items;
+    let result = await makeRequest("GET", "http://localhost:3000/items/");
+    console.log(JSON.parse(result));
+    return JSON.parse(result);
 }
 
 /**
@@ -71,9 +72,9 @@ async function getItems()
  */
 async function getSkills()
 {
-    Settings.db.connect();
-    let skills = await Settings.db("TRBS").collection("skill").find().toArray();
-    return skills;
+    let result = await makeRequest("GET", "http://localhost:3000/skills/");
+    console.log(JSON.parse(result));
+    return JSON.parse(result);
 }
 
 /**
@@ -83,10 +84,12 @@ async function getSkills()
  * @param participant the object to insert
  * @param type participant type (player/enemy)
  */
-function insertParticipant(participant, type)
+function insertParticpant(participant, type)
 {
-    Settings.db.connect();
-    Settings.db("TRBS").collection(type).insertOne(participant);
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", base_url + "participants/", true);
+
+    xhr.send("participant=" + JSON.stringify(participant) + "&type=" + type);
 }
 
 /**
