@@ -1,6 +1,4 @@
-import {generateRandomItems, generateNewEnemy} from "./card.js"; // temp
-
-function makeRequest(method, url) {
+function makeRequest(method, url, body = null) {
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
         xhr.open(method, url);
@@ -20,9 +18,11 @@ function makeRequest(method, url) {
                 statusText: xhr.statusText
             });
         };
-        xhr.send();
+        xhr.send(body);
     });
 }
+
+const base_url = "http://localhost:3000/";
 
 /**
  * This function obtains the players list
@@ -32,8 +32,7 @@ function makeRequest(method, url) {
  */
  async function getAvailablePlayers()
  {
-    let result = await makeRequest("GET", "http://localhost:3000/players/");
-    console.log(JSON.parse(result));
+    let result = await makeRequest("GET", base_url + "players/");
     return JSON.parse(result);
  }
 
@@ -45,9 +44,8 @@ function makeRequest(method, url) {
  */
 async function getAvailableEnemies()
 {
-    Settings.db.connect();
-    let enemies = await Settings.db("TRBS").collection("enemy").find().toArray();
-    return enemies;
+    let result = await makeRequest("GET", base_url + "enemies/");
+    return JSON.parse(result);
 }
 
 /**
@@ -58,9 +56,8 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-    Settings.db.connect();
-    var items = await Settings.db("TRBS").collection("item").find().toArray();
-    return items;
+    let result = await makeRequest("GET", base_url + "items/");
+    return JSON.parse(result);
 }
 
 /**
@@ -71,16 +68,19 @@ async function getItems()
  */
 async function getSkills()
 {
-    Settings.db.connect();
-   var skills = await Settings.db("TRBS").collection("skill").find().toArray();
-   return skills;
+    let result = await makeRequest("GET", base_url + "skills/");
+    return JSON.parse(result);
 }
 
 
 function insertParticpant(participant, type)
 {
-    Settings.db.connect();
-    Settings.db("TRBS").collection(type).insertOne(participant);
+    let body = JSON.stringify({
+        "participant": participant,
+        "type": type
+    });
+
+    makeRequest("PUT", base_url + "participants/" + JSON.stringify(participant) + "/" + type );
 }
 
 
