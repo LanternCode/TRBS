@@ -1,7 +1,6 @@
-import {Settings} from "./settings.js";
 const base_url = "http://localhost:3000/";
 
-function makeRequest(method, url) {
+function makeRequest(method, url, body = null) {
     return new Promise(function (resolve, reject) {
         let xhr = new XMLHttpRequest();
         xhr.open(method, url);
@@ -21,7 +20,7 @@ function makeRequest(method, url) {
                 statusText: xhr.statusText
             });
         };
-        xhr.send();
+        xhr.send(body);
     });
 }
 
@@ -33,8 +32,7 @@ function makeRequest(method, url) {
  */
  async function getAvailablePlayers()
  {
-    let result = await makeRequest("GET", "http://localhost:3000/players/");
-    console.log(JSON.parse(result));
+    let result = await makeRequest("GET", base_url + "players/");
     return JSON.parse(result);
  }
 
@@ -46,8 +44,7 @@ function makeRequest(method, url) {
  */
 async function getAvailableEnemies()
 {
-    let result = await makeRequest("GET", "http://localhost:3000/enemies/");
-    console.log(JSON.parse(result));
+    let result = await makeRequest("GET", base_url + "enemies/");
     return JSON.parse(result);
 }
 
@@ -59,8 +56,7 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-    let result = await makeRequest("GET", "http://localhost:3000/items/");
-    console.log(JSON.parse(result));
+    let result = await makeRequest("GET", base_url + "items/");
     return JSON.parse(result);
 }
 
@@ -72,8 +68,7 @@ async function getItems()
  */
 async function getSkills()
 {
-    let result = await makeRequest("GET", "http://localhost:3000/skills/");
-    console.log(JSON.parse(result));
+    let result = await makeRequest("GET", base_url + "skills/");
     return JSON.parse(result);
 }
 
@@ -86,10 +81,12 @@ async function getSkills()
  */
 function insertParticpant(participant, type)
 {
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", base_url + "participants/", true);
+    let body = JSON.stringify({
+        "participant": participant,
+        "type": type
+    });
 
-    xhr.send("participant=" + JSON.stringify(participant) + "&type=" + type);
+    makeRequest("PUT", base_url + "participants/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**

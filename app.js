@@ -2,7 +2,6 @@ import express from 'express';
 
 import { config } from 'dotenv';
 import { connectToCluster, migrateAll } from './public/js/establish_db.js';
-import {Settings} from "./public/js/settings.js";
 const app = express();
 config();
 
@@ -17,7 +16,11 @@ let mc = await connectToCluster();
 app.get('/players/', async (req, res, next) => {
     const players = await mc.db("TRBS").collection("player").find().toArray();
     res.send(players);
-    res.send(req.params.app_id);
+});
+
+app.put('/participants/:participant/:type', async (req, res, next) => {
+    await mc.db("TRBS").collection(req.params.type).insertOne(JSON.parse(req.params.participant));
+    res.sendStatus("200");
 });
 
 app.get('/enemies/', async (req, res, next) => {
