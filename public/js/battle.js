@@ -3,6 +3,7 @@ import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./card.js";
 import {Settings} from "./settings.js";
+import {experienceUp} from "./db.js";
 
 /**
  * This function starts or resets a battle
@@ -126,6 +127,9 @@ function endBattle(winner)
                         {
                             levelUp(playerDefinition);
                             levelUpCall += `Gracz ${player.name} przeszedł na ${playerDefinition.level} poziom doświadczenia!\n`;
+                        }
+                        else {
+                            experienceUp(player);
                         }
                     }
                 }
