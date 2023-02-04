@@ -455,9 +455,3 @@ export async function migrateAll()
     if(!skillCollectionExists) await createSkills(mongoClient);
     await mongoClient.close()
 }
-
-function getAvailablePlayers()
-{
-    var players = dbo.collection("players").find().toArray();
-    return players;
-}

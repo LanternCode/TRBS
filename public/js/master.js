@@ -2,7 +2,7 @@ import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
 import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
-import {getAvailablePlayers, getAvailableEnemies} from "./db.js";
+import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills} from "./db.js";
 
 window.addCard = addCard;
 window.act = act;
@@ -101,139 +101,13 @@ window.enemyStatLimits = {
  * pre-defined item definition array
  * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
  */
-window.items = [
-    {
-        uiid: 1,
-        displayName: "Flakon Życia",
-        type: "healing",
-        subtype: "restore",
-        valueType: "flat",
-        value: 10
-    },
-    {
-        uiid: 2,
-        displayName: "Mała Mikstura Życia",
-        type: "healing",
-        subtype: "restore",
-        valueType: "flat",
-        value: 15
-    },
-    {
-        uiid: 3,
-        displayName: "Mikstura Życia",
-        type: "healing",
-        subtype: "restore",
-        valueType: "flat",
-        value: 22
-    },
-    {
-        uiid: 4,
-        displayName: "Większa Mikstura Życia",
-        type: "healing",
-        subtype: "restore",
-        valueType: "flat",
-        value: 30
-    },
-    {
-        uiid: 5,
-        displayName: "Flakon Regeneracji",
-        type: "healing",
-        subtype: "revive",
-        valueType: "parcentage",
-        value: 0.50
-    }
-];
+window.items = getItems();
 
 /**
  *
  * @type {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},null,null]}
  */
-window.skills = [
-    {
-        usid: 0,
-        name: "Kumulacja",
-        range: "individual",
-        targetGroup: "player",
-        type: "healing",
-        subtype: "restore",
-        value: 50,
-        valueType: "flat",
-        cooldown: 3,
-        priority: 2
-    },
-    {
-        usid: 1,
-        name: "Hellfire",
-        range: "everyone",
-        targetGroup: "",
-        type: "offensive",
-        subtype: "damaging",
-        value: 30,
-        valueType: "flat",
-        cooldown: 1,
-        priority: 2
-    },
-    {
-        usid: 2,
-        name: "Przygrywka",
-        range: "all",
-        targetGroup: "player",
-        type: "healing",
-        subtype: "restore",
-        value: 20,
-        valueType: "flat",
-        cooldown: 4,
-        priority: 2
-    },
-    {
-        usid: 3,
-        name: "Próżnia",
-        range: "all",
-        targetGroup: "enemy",
-        type: "offensive",
-        subtype: "damaging",
-        value: 80,
-        valueType: "flat",
-        cooldown: 2,
-        priority: 3
-    },
-    {
-        usid: 4,
-        name: "Energy Ball",
-        range: "individual",
-        targetGroup: "reversed",
-        type: "offensive",
-        subtype: "damaging",
-        value: 70,
-        valueType: "flat",
-        cooldown: 3,
-        priority: 2
-    },
-    {
-        usid: 5,
-        name: "Wskrzeszenie",
-        range: "individual",
-        targetGroup: "player",
-        type: "healing",
-        subtype: "revive",
-        value: 0.5,
-        valueType: "percentage",
-        cooldown: 4,
-        priority: 3
-    },
-    {
-        usid: 6,
-        name: "Wielki Wybuch",
-        range: "all",
-        targetGroup: "reversed",
-        type: "offensive",
-        subtype: "damaging",
-        value: 300,
-        valueType: "flat",
-        cooldown: 1,
-        priority: 2
-    }
-];
+window.skills = getSkills();
 
 /**
  * Pre-defined, empty participants array used outside the battle
