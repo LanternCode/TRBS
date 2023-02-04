@@ -1,3 +1,29 @@
+import {Settings} from "./settings.js";
+
+function makeRequest(method, url) {
+    return new Promise(function (resolve, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.onload = function () {
+            if (this.status >= 200 && this.status < 300) {
+                resolve(xhr.response);
+            } else {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            }
+        };
+        xhr.onerror = function () {
+            reject({
+                status: this.status,
+                statusText: xhr.statusText
+            });
+        };
+        xhr.send();
+    });
+}
+
 /**
  * This function obtains the players list
  *
@@ -6,8 +32,9 @@
  */
  async function getAvailablePlayers()
  {
-    let players = await db.collection("player").find().toArray();
-    return players;
+    let result = await makeRequest("GET", "http://localhost:3000/players/");
+    console.log(JSON.parse(result));
+    return JSON.parse(result);
  }
 
 /**
@@ -18,8 +45,9 @@
  */
 async function getAvailableEnemies()
 {
-   let enemies = await db.collection("enemy").find().toArray();
-   return enemies;
+    Settings.db.connect();
+    let enemies = await Settings.db("TRBS").collection("enemy").find().toArray();
+    return enemies;
 }
 
 /**
@@ -30,8 +58,9 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-   let items = await db.collection("item").find().toArray();
-   return items;
+    Settings.db.connect();
+    let items = await Settings.db("TRBS").collection("item").find().toArray();
+    return items;
 }
 
 /**
@@ -42,8 +71,9 @@ async function getItems()
  */
 async function getSkills()
 {
-   let skills = await db.collection("skill").find().toArray();
-   return skills;
+    Settings.db.connect();
+    let skills = await Settings.db("TRBS").collection("skill").find().toArray();
+    return skills;
 }
 
 /**
@@ -55,7 +85,8 @@ async function getSkills()
  */
 function insertParticipant(participant, type)
 {
-    db.collection(type).insertOne(participant);
+    Settings.db.connect();
+    Settings.db("TRBS").collection(type).insertOne(participant);
 }
 
 /**
@@ -67,11 +98,12 @@ function insertParticipant(participant, type)
  */
 function dropParticipant(participant, type)
 {
+    Settings.db.connect();
     if(type === "player") {
-        db.collection("player").deleteOne({ "UID" : participant.UID });
+        Settings.db("TRBS").collection(type).deleteOne({ "UID" : participant.UID });
     }
     else {
-        db.collection("enemy").deleteOne({ "name" : participant.name });
+        Settings.db("TRBS").collection(type).deleteOne({ "name" : participant.name });
     }
 }
 
@@ -84,11 +116,12 @@ function dropParticipant(participant, type)
  */
 function updateParticipant(participant, type)
 {
+    Settings.db.connect();
     if(type === "player") {
-        db.collection("player").updateOne({ "UID" : participant.UID }, participant);
+        Settings.db("TRBS").collection(type).updateOne({ "UID" : participant.UID }, participant);
     }
     else {
-        db.collection("enemy").updateOne({ "name" : participant.name }, participant);
+        Settings.db("TRBS").collection(type).updateOne({ "name" : participant.name }, participant);
     }
 }
 
@@ -100,7 +133,8 @@ function updateParticipant(participant, type)
  */
 function experienceUp(player)
 {
-    db.collection("player").updateOne(
+    Settings.db.connect();
+    Settings.db("TRBS").collection("player").updateOne(
         { "UID" : player.UID },
         { "experience": player.experience + 1 }
     );
