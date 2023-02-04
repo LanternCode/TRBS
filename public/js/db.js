@@ -79,13 +79,8 @@ async function getSkills()
  * @param participant the object to insert
  * @param type participant type (player/enemy)
  */
-function insertParticpant(participant, type)
+function insertParticipant(participant, type)
 {
-    let body = JSON.stringify({
-        "participant": participant,
-        "type": type
-    });
-
     makeRequest("PUT", base_url + "participants/" + JSON.stringify(participant) + "/" + type );
 }
 
@@ -98,13 +93,7 @@ function insertParticpant(participant, type)
  */
 function dropParticipant(participant, type)
 {
-    Settings.db.connect();
-    if(type === "player") {
-        Settings.db("TRBS").collection(type).deleteOne({ "UID" : participant.UID });
-    }
-    else {
-        Settings.db("TRBS").collection(type).deleteOne({ "name" : participant.name });
-    }
+    makeRequest("DELETE", base_url + "dropParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -116,13 +105,7 @@ function dropParticipant(participant, type)
  */
 function updateParticipant(participant, type)
 {
-    Settings.db.connect();
-    if(type === "player") {
-        Settings.db("TRBS").collection(type).updateOne({ "UID" : participant.UID }, participant);
-    }
-    else {
-        Settings.db("TRBS").collection(type).updateOne({ "name" : participant.name }, participant);
-    }
+    makeRequest("PUT", base_url + "updateParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -133,11 +116,7 @@ function updateParticipant(participant, type)
  */
 function experienceUp(player)
 {
-    Settings.db.connect();
-    Settings.db("TRBS").collection("player").updateOne(
-        { "UID" : player.UID },
-        { "experience": player.experience + 1 }
-    );
+    makeRequest("PUT", base_url + "grantExperience/" + JSON.stringify(player) );
 }
 
 export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant, dropParticipant, updateParticipant, experienceUp};
