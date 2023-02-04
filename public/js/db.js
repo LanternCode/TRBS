@@ -72,8 +72,14 @@ async function getSkills()
     return JSON.parse(result);
 }
 
-
-function insertParticpant(participant, type)
+/**
+ * This function inserts a participant into the collection
+ *
+ * @function insertParticipant
+ * @param participant the object to insert
+ * @param type participant type (player/enemy)
+ */
+function insertParticipant(participant, type)
 {
     let body = JSON.stringify({
         "participant": participant,
@@ -83,8 +89,14 @@ function insertParticpant(participant, type)
     makeRequest("PUT", base_url + "participants/" + JSON.stringify(participant) + "/" + type );
 }
 
-
-function dropParticpant(participant, type)
+/**
+ * This function removes a participant from its corresponding collection
+ *
+ * @function dropParticipant
+ * @param participant The participant object
+ * @param type Participant type (player/enemy)
+ */
+function dropParticipant(participant, type)
 {
     Settings.db.connect();
     if(type === "player") {
@@ -95,8 +107,14 @@ function dropParticpant(participant, type)
     }
 }
 
-
-function updateParticpant(participant, type)
+/**
+ * This function updates a named participant
+ *
+ * @function updateParticipant
+ * @param participant The participant object to update
+ * @param type Participant type (player/enemy)
+ */
+function updateParticipant(participant, type)
 {
     Settings.db.connect();
     if(type === "player") {
@@ -107,7 +125,12 @@ function updateParticpant(participant, type)
     }
 }
 
-
+/**
+ * This function updates the player's experience in the collection
+ *
+ * @function experienceUp
+ * @param player The player to get experience
+ */
 function experienceUp(player)
 {
     Settings.db.connect();
@@ -117,5 +140,4 @@ function experienceUp(player)
     );
 }
 
-
-export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticpant, dropParticpant, updateParticpant, experienceUp};
+export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant, dropParticipant, updateParticipant, experienceUp};
