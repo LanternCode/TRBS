@@ -1,7 +1,7 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelDown, levelUp} from "./level.js";
 import {Settings} from "./settings.js";
-import {insertParticipant, dropParticipant, updateParticipant} from "./db.js";
+import {insertParticipant, dropParticipant, updateParticipant, getAvailablePlayers, getAvailableEnemies} from "./db.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -12,7 +12,7 @@ import {insertParticipant, dropParticipant, updateParticipant} from "./db.js";
  * @param {string} type participant's type
  * @return {void} immediately calls {@link displayCardPicker} on success
  */
-function addCard(type)
+async function addCard(type)
 {
     //check if more participants can be added onto the table
     if(type === "player"){
@@ -20,13 +20,20 @@ function addCard(type)
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
             return;
         }
+        else {
+            window.availablePlayers = await getAvailablePlayers();
+        }
     }
     else if(type === "enemy") {
         if(Settings.enemyCount === 9) {
             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
             return;
         }
+        else {
+            window.availableEnemies = await getAvailableEnemies();
+        }
     }
+
 
     displayCardPicker(type);
 }
