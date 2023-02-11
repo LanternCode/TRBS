@@ -58,6 +58,7 @@ app.put('/updateParticipant/:participant/:type', async (req, res, next) => {
     else {
         await mc.db("TRBS").collection(req.params.type).updateOne({ "name" : JSON.parse(req.params.participant.name) }, participant);
     }
+    res.sendStatus("200");
 });
 
 app.put('/grantExperience/:player', async (req, res, next) => {
@@ -65,4 +66,5 @@ app.put('/grantExperience/:player', async (req, res, next) => {
         { "UID" : JSON.parse(req.params.player.UID) },
         { "experience": JSON.parse(req.params.player.experience) + 1 }
     );
+    res.sendStatus("200");
 });
