@@ -1,4 +1,4 @@
-const base_url = "http://localhost:3000/";
+const base_url = "http://localhost:3000";
 
 function makeRequest(method, url, body = null) {
     return new Promise(function (resolve, reject) {
@@ -32,7 +32,7 @@ function makeRequest(method, url, body = null) {
  */
  async function getAvailablePlayers()
  {
-    let result = await makeRequest("GET", base_url + "players/");
+    let result = await makeRequest("GET", base_url + "/players/");
     return JSON.parse(result);
  }
 
@@ -44,7 +44,7 @@ function makeRequest(method, url, body = null) {
  */
 async function getAvailableEnemies()
 {
-    let result = await makeRequest("GET", base_url + "enemies/");
+    let result = await makeRequest("GET", base_url + "/enemies/");
     return JSON.parse(result);
 }
 
@@ -56,7 +56,7 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-    let result = await makeRequest("GET", base_url + "items/");
+    let result = await makeRequest("GET", base_url + "/items/");
     return JSON.parse(result);
 }
 
@@ -68,7 +68,7 @@ async function getItems()
  */
 async function getSkills()
 {
-    let result = await makeRequest("GET", base_url + "skills/");
+    let result = await makeRequest("GET", base_url + "/skills/");
     return JSON.parse(result);
 }
 
@@ -81,7 +81,7 @@ async function getSkills()
  */
 function insertParticipant(participant, type)
 {
-    makeRequest("PUT", base_url + "participants/" + JSON.stringify(participant) + "/" + type );
+    makeRequest("PUT", base_url + "/participants/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -93,7 +93,7 @@ function insertParticipant(participant, type)
  */
 function dropParticipant(participant, type)
 {
-    makeRequest("DELETE", base_url + "dropParticipant/" + JSON.stringify(participant) + "/" + type );
+    makeRequest("DELETE", base_url + "/dropParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -105,7 +105,7 @@ function dropParticipant(participant, type)
  */
 function updateParticipant(participant, type)
 {
-    makeRequest("PUT", base_url + "updateParticipant/" + JSON.stringify(participant) + "/" + type );
+    makeRequest("PUT", base_url + "/updateParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -116,7 +116,7 @@ function updateParticipant(participant, type)
  */
 function experienceUp(player)
 {
-    makeRequest("PUT", base_url + "grantExperience/" + JSON.stringify(player) );
+    makeRequest("PUT", base_url + "/grantExperience/" + JSON.stringify(player) );
 }
 
 export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant, dropParticipant, updateParticipant, experienceUp};
