@@ -1,7 +1,7 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelDown, levelUp} from "./level.js";
 import {Settings} from "./settings.js";
-import {insertParticpant, dropParticpant, updateParticpant} from "./db.js";
+import {insertParticipant, dropParticipant, updateParticipant} from "./db.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -276,7 +276,7 @@ function insertCard(type, newParticipant, location = "table")
         if(type === "player") availablePlayers = availablePlayers.concat(newParticipant);
         else availableEnemies = availableEnemies.concat(newParticipant);
 
-        insertParticpant(newParticipant, type);
+        insertParticipant(newParticipant, type);
     }
 
     let card = createCardTemplate(type, newParticipant);
@@ -456,7 +456,7 @@ function createSettingsCard(type)
      let arrayOfChoice = location === "table" ? participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
      //TODO: Remove the participant from the database if removing from the list
      if(location === "list") {
-         dropParticpant(arrayOfChoice[pId], type);
+         dropParticipant(arrayOfChoice[pId], type);
          arrayOfChoice.splice(pId, 1);
      }
      else if(type === "player")
@@ -616,7 +616,7 @@ function createSettingsCard(type)
      card.children[buttonsStartHere+3].classList.toggle("hidden");
 
      if(cLoc === "list") {
-        updateParticpant(arrayOfChoice[pId], cType);
+        updateParticipant(arrayOfChoice[pId], cType);
      }
  }
 

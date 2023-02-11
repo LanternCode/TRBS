@@ -1,5 +1,5 @@
 import {newSystemCall} from "./action.js";
-import {updateParticpant} from "./db.js";
+import {updateParticipant} from "./db.js";
 
 /**
  * The JSON object with xp required to level up
@@ -43,7 +43,7 @@ function levelUp(player)
         player.experience = 0;
         player.level += 1;
 
-        updateParticpant(player, "player");
+        updateParticipant(player, "player");
     }
     else {
         newSystemCall("Gracz posiada już maksymalny poziom!");
@@ -73,7 +73,7 @@ function levelDown(player)
         player.experience = 0;
         player.level -= 1;
 
-        updateParticpant(player, "player");
+        updateParticipant(player, "player");
     }
     else {
         newSystemCall("Gracz posiada pierwszy poziom!");
