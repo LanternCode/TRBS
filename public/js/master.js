@@ -2,7 +2,7 @@ import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
 import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
-import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant} from "./db.js";
+import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills} from "./db.js";
 
 window.addCard = addCard;
 window.act = act;
@@ -101,13 +101,13 @@ window.enemyStatLimits = {
  * pre-defined item definition array
  * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
  */
-// window.items = await getItems();
+window.items = getItems();
 
 /**
  *
  * @type {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},null,null]}
  */
-// window.skills = await getSkills();
+window.skills = getSkills();
 
 /**
  * Pre-defined, empty participants array used outside the battle
