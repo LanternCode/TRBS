@@ -29,12 +29,12 @@ app.get('/enemies/', async (req, res, next) => {
 });
 
 app.get('/items/', async (req, res, next) => {
-    const items = await mc.db("TRBS").collection("item").find(({}, {projection:{ _id: 0 }})).toArray();
+    const items = await mc.db("TRBS").collection("item").find().toArray();
     res.send(items);
 });
 
 app.get('/skills/', async (req, res, next) => {
-    const skills = await mc.db("TRBS").collection("skill").find(({}, {projection:{ _id: 0 }})).toArray();
+    const skills = await mc.db("TRBS").collection("skill").find().toArray();
     res.send(skills);
 });
 
