@@ -38,7 +38,7 @@ app.get('/skills/', async (req, res, next) => {
     res.send(skills);
 });
 
-app.put('/dropParticipant/:participant/:type', async (req, res, next) => {
+app.delete('/dropParticipant/:participant/:type', async (req, res, next) => {
     if(req.params.type === "player") {
         await mc.db("TRBS").collection(req.params.type).deleteOne({ "UID" : JSON.parse(req.params.participant).UID });
     }
