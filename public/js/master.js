@@ -2,7 +2,7 @@ import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
 import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
-import {getAvailablePlayers, getAvailableEnemies} from "./db.js";
+import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant} from "./db.js";
 
 window.addCard = addCard;
 window.act = act;
