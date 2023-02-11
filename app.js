@@ -26,19 +26,16 @@ app.put('/participants/:participant/:type', async (req, res, next) => {
 app.get('/enemies/', async (req, res, next) => {
     const enemies = await mc.db("TRBS").collection("enemy").find().toArray();
     res.send(enemies);
-    res.send(req.params.app_id);
 });
 
 app.get('/items/', async (req, res, next) => {
     const items = await mc.db("TRBS").collection("item").find().toArray();
     res.send(items);
-    res.send(req.params.app_id);
 });
 
 app.get('/skills/', async (req, res, next) => {
     const skills = await mc.db("TRBS").collection("skill").find().toArray();
     res.send(skills);
-    res.send(req.params.app_id);
 });
 
 app.put('/dropParticipant/:participant/:type', async (req, res, next) => {
