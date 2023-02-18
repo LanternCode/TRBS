@@ -58,7 +58,7 @@ function nextTurn()
         Settings.priorityThree = true;
 
         //announce the new turn in the history
-        newSystemCall("teraz tura " + Settings.participants[Settings.localTurn].name);
+        newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
@@ -197,21 +197,21 @@ function handleRegAttack(target, attacker)
     {
         //target avoids being hit
         attack = 0;
-        newSystemCall("rzut systemu: " + hitCheck + " (Unik)");
+        newSystemCall("Rzut systemu: " + hitCheck + " (Unik)");
     }
     else if(hitCheck === target.dodge)
     {
         //target is taking half of the damage
         attack = Math.floor(attack / 2);
-        if(criticalHit) newSystemCall("rzut systemu: " + hitCheck + " (Atak Krytyczny, Połowiczny)");
-        else  newSystemCall("rzut systemu: " + hitCheck + " (Atak Połowiczny)");
+        if(criticalHit) newSystemCall("Rzut systemu: " + hitCheck + " (Atak Krytyczny, Połowiczny)");
+        else  newSystemCall("Rzut systemu: " + hitCheck + " (Atak Połowiczny)");
     }
     else
     {
         //target is taking the whole damage
-        if(criticalWeakPoint) newSystemCall("rzut systemu: " + hitCheck + " (Krytyczny Słaby Punkt)");
-        else if (criticalHit) newSystemCall("rzut systemu: " + hitCheck + " (Krytyczny Atak)");
-        else newSystemCall("rzut systemu: " + hitCheck + " (Trafienie)");
+        if(criticalWeakPoint) newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczny Słaby Punkt)");
+        else if (criticalHit) newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczny Atak)");
+        else newSystemCall("Rzut systemu: " + hitCheck + " (Trafienie)");
     }
 
     //reduce the attack by target's armor rating
@@ -280,7 +280,7 @@ function handleUseItem(target, itemId)
         Settings.priorityThree = false;
 
         //history system call
-        newSystemCall("użycie " + item.displayName + " na " + target.name);
+        newSystemCall("Użycie " + item.displayName + " na " + target.name);
     }
 }
 
@@ -299,14 +299,22 @@ function handleUseSkill(skill, target)
     let type = skill.type;
     let subtype = skill.subtype;
     //check if a special target was selected
-    if (target === "everyone")
+    if (target === "everyone"){
         participantsAffected = Settings.participants;
-    else if (target === "player" || target === "enemy")
+        //history system call
+        newSystemCall("Użycie umiejętności " + skill.name + " na wszystkich");
+    }
+    else if (target === "player" || target === "enemy"){
         participantsAffected = Settings.participants.filter(p => p.type === target);
+        //history system call
+        newSystemCall("Użycie umiejętności " + skill.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
+    }
     else {
         if (!isNaN(target)) {
             //a single participant is the target of this skill
             participantsAffected.push(Settings.participants[target]);
+            //history system call
+            newSystemCall("Użycie umiejętności " + skill.name + " na " + Settings.participants[target].name);
         }
     }
 
@@ -326,7 +334,6 @@ function handleUseSkill(skill, target)
 
     //history system call
     newSystemCall("użycie umiejętności " + skill.name + " na " + target.name);
-    
 }
 
 /**

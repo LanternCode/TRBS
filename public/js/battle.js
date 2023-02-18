@@ -61,11 +61,11 @@ function startBattle()
         document.getElementById("startBattleButton").classList.toggle("hidden");
         document.getElementById("nextTurnButton").classList.toggle("hidden");
 
-        //Anounce history
+        //Announce history
         document.getElementById("systemCall").textContent = '';
-        newSystemCall("początek walki");
-        newSystemCall("nowa tura globalna: " + Settings.globalTurn);
-        newSystemCall(`teraz tura ${Settings.participants[Settings.localTurn].name}`);
+        newSystemCall("Początek walki");
+        newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
+        newSystemCall(`Teraz tura: ${Settings.participants[Settings.localTurn].name}`);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[0].name;
@@ -108,7 +108,7 @@ function endBattle(winner)
     document.getElementById("nowActsDesc").innerText = "-";
 
     //Update the battle state description
-    newSystemCall("walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
+    newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
 
     //Hide the next turn button, show the continue to battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
@@ -120,7 +120,7 @@ function endBattle(winner)
     //give players xp after the battle
     let levelUpCall = "\n";
     if(winner === "p"){
-        for (let player of participants.filter(participant => participant.type === "player")) {
+        for (let player of  Settings.participants.filter(participant => participant.type === "player")) {
             if(player.health > 0 && player.level !== 10){
                 //match the battle participant to their external definition
                 for(let playerDefinition of Settings.participantsDefinition.filter(p => p.type === "player")) {
