@@ -21,7 +21,9 @@ function nextTurn()
         {
             Settings.localTurn = 0;
             Settings.globalTurn++;
+
             document.getElementById("globalTurn").innerText = Settings.globalTurn;
+            newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
 
             //reduce skill cooldown for any skill by 1
             for (let i = 0; i < participants.length; ++i) {
@@ -55,11 +57,8 @@ function nextTurn()
         Settings.priorityTwo = true;
         Settings.priorityThree = true;
 
-        //reset system throw display
-        document.getElementById("systemThrow").innerText = "";
-
-        //reset system call display
-        newSystemCall("");
+        //announce the new turn in the history
+        newSystemCall("teraz tura " + participants[Settings.localTurn].name);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = participants[Settings.localTurn].name;
@@ -198,21 +197,21 @@ function handleRegAttack(target, attacker)
     {
         //target avoids being hit
         attack = 0;
-        document.getElementById("systemThrow").innerText = hitCheck + " (Unik)";
+        newSystemCall("rzut systemu: " + hitCheck + " (Unik)");
     }
     else if(hitCheck === target.dodge)
     {
         //target is taking half of the damage
         attack = Math.floor(attack / 2);
-        if(criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Atak Krytyczny, Połowiczny)";
-        else document.getElementById("systemThrow").innerText = hitCheck + " (Atak Połowiczny)";
+        if(criticalHit) newSystemCall("rzut systemu: " + hitCheck + " (Atak Krytyczny, Połowiczny)");
+        else  newSystemCall("rzut systemu: " + hitCheck + " (Atak Połowiczny)");
     }
     else
     {
         //target is taking the whole damage
-        if(criticalWeakPoint) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Słaby Punkt)";
-        else if (criticalHit) document.getElementById("systemThrow").innerText = hitCheck + " (Krytyczny Atak)";
-        else document.getElementById("systemThrow").innerText = hitCheck + " (Trafienie)";
+        if(criticalWeakPoint) newSystemCall("rzut systemu: " + hitCheck + " (Krytyczny Słaby Punkt)");
+        else if (criticalHit) newSystemCall("rzut systemu: " + hitCheck + " (Krytyczny Atak)");
+        else newSystemCall("rzut systemu: " + hitCheck + " (Trafienie)");
     }
 
     //reduce the attack by target's armor rating
@@ -226,7 +225,8 @@ function handleRegAttack(target, attacker)
         target.health -= attack;
     else target.health = 0;
 
-    if (attack > 0) newSystemCall("Zadano " + attack + " obrażeń!");
+    //history system call
+    if (attack > 0) newSystemCall(attacker.name + " zadaje " + attack + " obrażeń " + target.name + "!");
 
     Settings.priorityTwo = false;
 }
@@ -278,6 +278,9 @@ function handleUseItem(target, itemId)
     if(itemUsed){
         participants[Settings.localTurn].itemsOwned[itemId] -= 1;
         Settings.priorityThree = false;
+
+        //history system call
+        newSystemCall("użycie " + item.displayName + " na " + target.name);
     }
 }
 
@@ -320,6 +323,10 @@ function handleUseSkill(skill, target)
 
     //set the skill on cooldown
     participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
+
+    //history system call
+    newSystemCall("użycie umiejętności " + skill.name + " na " + target.name);
+    
 }
 
 /**
@@ -332,6 +339,8 @@ function handleUseSkill(skill, target)
  */
 function handleDebugAction(actionElement, target)
 {
+    newSystemCall("debug action: " + actionElement);
+
     switch(actionElement)
     {
         case "defeatParticipant":
@@ -407,7 +416,7 @@ function damageTarget(obj, target)
 }
 
 /**
- * This function updates the message sent to the user after a system call
+ * This function creates a battle  history item with the message sent to the user after a system call
  *
  * @function newSystemCall
  * @param {string} call - The new message to show to the user
@@ -415,7 +424,10 @@ function damageTarget(obj, target)
  */
 function newSystemCall(call)
 {
-    document.getElementById("systemCall").innerText = call;
+    let historyItem = document.createElement("li");
+    historyItem.innerText = call;
+
+    document.getElementById("systemCall").appendChild(historyItem);
 }
 
 export {nextTurn, act, newSystemCall, filterBySubtype};

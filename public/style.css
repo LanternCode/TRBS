@@ -122,3 +122,10 @@ input {
     background-color: white;
     border: 20px solid saddlebrown;
 }
+
+#systemCall {
+    height: 10em;
+    overflow-y: scroll;
+    background-color: #ccc;
+    max-width: 30em;
+}

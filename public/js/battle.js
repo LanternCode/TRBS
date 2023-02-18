@@ -57,12 +57,15 @@ function startBattle()
         //sort the array by speed to establish turn order
         participants.sort((a, b) => b.speed - a.speed);
 
-        //Update the battle state description
-        document.getElementById("battleStatus").innerText = "W trakcie!";
-
         //Hide the start battle button and show the next turn button
         document.getElementById("startBattleButton").classList.toggle("hidden");
         document.getElementById("nextTurnButton").classList.toggle("hidden");
+
+        //Anounce history
+        document.getElementById("systemCall").textContent = '';
+        newSystemCall("początek walki");
+        newSystemCall("nowa tura globalna: " + Settings.globalTurn);
+        newSystemCall(`teraz tura ${participants[Settings.localTurn].name}`);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = participants[0].name;
@@ -105,7 +108,7 @@ function endBattle(winner)
     document.getElementById("nowActsDesc").innerText = "-";
 
     //Update the battle state description
-    document.getElementById("battleStatus").innerText = "Zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!");
+    newSystemCall("walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
 
     //Hide the next turn button, show the continue to battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
@@ -192,9 +195,12 @@ function continueToBattle() {
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
 
-    // Hide the ontinue to battle button, show the start battle button
+    // Hide the continue to battle button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
+
+    // clear the battle history
+    document.getElementById("systemCall").textContent = '';
 
     //refresh cards to definitions
     refreshCardsInBattle(true);
