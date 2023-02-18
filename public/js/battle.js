@@ -63,9 +63,9 @@ function startBattle()
 
         //Anounce history
         document.getElementById("systemCall").textContent = '';
-        newSystemCall("początek walki");
-        newSystemCall("nowa tura globalna: " + Settings.globalTurn);
-        newSystemCall(`teraz tura ${Settings.participants[Settings.localTurn].name}`);
+        newSystemCall("Początek walki");
+        newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
+        newSystemCall(`Teraz tura: ${Settings.participants[Settings.localTurn].name}`);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[0].name;
@@ -108,7 +108,7 @@ function endBattle(winner)
     document.getElementById("nowActsDesc").innerText = "-";
 
     //Update the battle state description
-    newSystemCall("walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
+    newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
 
     //Hide the next turn button, show the continue to battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
