@@ -2,24 +2,25 @@ import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
 import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
-import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills} from "./db.js";
-
-window.act = act;
-window.startBattle = startBattle;
-window.continueToBattle = continueToBattle;
-window.nextTurn = nextTurn;
+import {Settings} from "./settings.js";
 
 const actionsList = document.getElementById("actionList");
-actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
-
 const actionElementsList = document.getElementById("actionElementsList");
-actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
-
 const addPlayerCardButton = document.getElementById("addPlayerCardButton");
-addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
-
 const addEnemyCardButton = document.getElementById("addEnemyCardButton");
+const actButton = document.getElementById("actButton");
+const startBattleButton = document.getElementById("startBattleButton");
+const continueToBattleButton = document.getElementById("continueToBattleButton");
+const nextTurnButton = document.getElementById("nextTurnButton");
+
+actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
+actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
+addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
 addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
+actButton.addEventListener("click", () => { act() }, false);
+startBattleButton.addEventListener("click", () => { startBattle() }, false);
+continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);
+nextTurnButton.addEventListener("click", () => { nextTurn() }, false);
 
 /**
  * A Participant
@@ -40,6 +41,8 @@ addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
  * @property {number} armor - Participant's armor rating
  * @property {number} [zone] - Participant's zone, only for enemies
  */
+await Settings.fetchPlayers();
+await Settings.fetchEnemies();
 
 /**
  * An Item
@@ -51,6 +54,7 @@ addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
  * @property {string} valueType - Item value type (flat or percentage)
  * @property {number} value - Item value (flat number or decimal percentage)
  */
+await Settings.fetchItems();
 
 /**
  * A Skill/Spell (for now they're the same thing)
@@ -70,82 +74,4 @@ addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
  * @property {string} [cost] - Skill/spell cost (not yet used anywhere)
  * @property {string} priority - Skill/spell priority required
  */
-
-/**
- * An object of objects with min and max values for participant generation
- * @type {{dodge: {min: number, max: number}, armor: {min: number, max: number}, zone: {min: number, max: number}, health: {min: number, max: number}, atk: {min: number, max: number}, speed: {min: number, max: number}}}
- */
-window.enemyStatLimits = {
-    health: {
-        min: 50,
-        max: 100
-    },
-    speed: {
-        min: 1,
-        max: 100
-    },
-    atk: {
-        min: 9,
-        max: 22
-    },
-    dodge: {
-        min: 6,
-        max: 11
-    },
-    zone: {
-        min: 1,
-        max: 10
-    },
-    armor: {
-        min: 0,
-        max: 9
-    }
-};
-
-/**
- * pre-defined item definition array
- * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
- */
-window.items = await getItems();
-
-/**
- *
- * @type {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},null,null]}
- */
-window.skills = await getSkills();
-
-/**
- * Pre-defined, empty participants array used outside the battle
- * @type {*[]}
- */
-window.participantsDefinition = [];
-/**
- * Pre-defined, empty participants array used during the battle
- * @type {*[]}
- */
-window.participants = [];
-
-/**
- * This function generates a random integer in the given range, inclusive.
- *
- * @generator
- * @function getRndInteger
- * @param {number} min - The beginning of the range
- * @param {number} max - The end of the range
- * @return {number} The number generated
- */
-window.getRndInteger = function(min, max) {
-    return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
-};
-
-/**
- * Fetch available players from the database
- * @type {[{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number}]}
- */
-window.availablePlayers = await getAvailablePlayers();
-
-/**
- * Fetch available enemies from the database
- * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
- */
-window.availableEnemies = await getAvailableEnemies();
+await Settings.fetchSkills();
