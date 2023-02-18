@@ -331,7 +331,9 @@ function handleUseSkill(skill, target)
 
     //set the skill on cooldown
     Settings.participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
-    
+
+    //history system call
+    newSystemCall("użycie umiejętności " + skill.name + " na " + target.name);
 }
 
 /**

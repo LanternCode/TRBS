@@ -61,7 +61,7 @@ function startBattle()
         document.getElementById("startBattleButton").classList.toggle("hidden");
         document.getElementById("nextTurnButton").classList.toggle("hidden");
 
-        //Anounce history
+        //Announce history
         document.getElementById("systemCall").textContent = '';
         newSystemCall("Początek walki");
         newSystemCall("Nowa tura globalna: " + Settings.globalTurn);

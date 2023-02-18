@@ -284,7 +284,6 @@ function insertCard(type, newParticipant, location = "table")
     if(location === "table")
         Settings.participantsDefinition = Settings.participantsDefinition.concat(newParticipant);
     else {
-        //TODO: Insert the new participant into the database
         if(type === "player") availablePlayers = availablePlayers.concat(newParticipant);
         else availableEnemies = availableEnemies.concat(newParticipant);
 
@@ -361,7 +360,7 @@ function generateNewEnemy()
     };
 
     for (let enemyStat of Object.keys(Settings.enemyStatLimits)) {
-        enemy[enemyStat] = getRndInteger(Settings.enemyStatLimits[enemyStat].min, Settings.enemyStatLimits[enemyStat].max);
+        enemy[enemyStat] = Settings.getRndInteger(Settings.enemyStatLimits[enemyStat].min, Settings.enemyStatLimits[enemyStat].max);
     }
     enemy.maxHealth = enemy.health;
 
@@ -466,7 +465,6 @@ function createSettingsCard(type)
      section.removeChild(card);
      //Remove the participant from the participants array and reduce the counter if removing from the table
      let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
-     //TODO: Remove the participant from the database if removing from the list
      if(location === "list") {
          dropParticipant(arrayOfChoice[pId], type);
          arrayOfChoice.splice(pId, 1);
@@ -503,6 +501,10 @@ function createSettingsCard(type)
      //get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //construct editable elements
+     let nameInput = document.createElement("input");
+     nameInput.type = "text";
+     nameInput.value = card.children[0].innerText.split("[")[0];
+     nameInput.dataset.originalValue = card.children[0].innerText.split("[")[0];
      let healthInput = document.createElement("input");
      healthInput.type = "text";
      healthInput.value = card.children[2].innerText;
@@ -524,6 +526,7 @@ function createSettingsCard(type)
      armorInput.value = card.children[10].innerText;
      armorInput.dataset.originalValue = card.children[10].innerText;
      //replace the text elements with text forms to allow editing
+     card.replaceChild(nameInput, card.children[0]);
      card.replaceChild(healthInput, card.children[2]);
      card.replaceChild(speedInput, card.children[4]);
      card.replaceChild(attackInput, card.children[6]);
@@ -567,7 +570,7 @@ function createSettingsCard(type)
      //get the location
      let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //get the new values
-     let newName = card.children[0].innerText.split("[")[0] + "[" + card.children[8].value + "]";
+     let newName = card.children[0].value;
      let newHealth = card.children[2].value;
      let newSpeed = card.children[4].value;
      let newAttack = card.children[6].value;
@@ -599,6 +602,7 @@ function createSettingsCard(type)
      //choose the array to update
      let arrayOfChoice = cLoc === "list" ? (cType === "player" ? availablePlayers : availableEnemies) : Settings.participantsDefinition;
      //update the details in the participants array
+     arrayOfChoice[pId].name = newName;
      arrayOfChoice[pId].maxHealth = parseInt(newHealth);
      arrayOfChoice[pId].health = parseInt(newHealth);
      arrayOfChoice[pId].speed = parseInt(newSpeed);
@@ -646,6 +650,8 @@ function createSettingsCard(type)
      //get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //construct text elements
+     let nameText = document.createElement("h4");
+     nameText.innerText = card.children[0].dataset.originalValue;
      let healthText = document.createElement("h4");
      healthText.innerText = card.children[2].dataset.originalValue;
      let speedText = document.createElement("h4");
@@ -658,6 +664,7 @@ function createSettingsCard(type)
      let armorText = document.createElement("h4");
      armorText.innerText = card.children[10].dataset.originalValue;
      //replace the form elements with text
+     card.replaceChild(nameText, card.children[0]);
      card.replaceChild(healthText, card.children[2]);
      card.replaceChild(speedText, card.children[4]);
      card.replaceChild(attackText, card.children[6]);
