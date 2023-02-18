@@ -58,7 +58,7 @@ function nextTurn()
         Settings.priorityThree = true;
 
         //announce the new turn in the history
-        newSystemCall("teraz tura " + participants[Settings.localTurn].name);
+        newSystemCall("teraz tura " +  Settings.participants[Settings.localTurn].name);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
@@ -299,14 +299,22 @@ function handleUseSkill(skill, target)
     let type = skill.type;
     let subtype = skill.subtype;
     //check if a special target was selected
-    if (target === "everyone")
+    if (target === "everyone"){
         participantsAffected = Settings.participants;
-    else if (target === "player" || target === "enemy")
+        //history system call
+        newSystemCall("użycie umiejętności " + skill.name + " na wszystkich");
+    }
+    else if (target === "player" || target === "enemy"){
         participantsAffected = Settings.participants.filter(p => p.type === target);
+        //history system call
+        newSystemCall("użycie umiejętności " + skill.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
+    }
     else {
         if (!isNaN(target)) {
             //a single participant is the target of this skill
             participantsAffected.push(Settings.participants[target]);
+            //history system call
+            newSystemCall("użycie umiejętności " + skill.name + " na " + Settings.participants[target].name);
         }
     }
 
@@ -322,10 +330,7 @@ function handleUseSkill(skill, target)
     }
 
     //set the skill on cooldown
-    participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
-
-    //history system call
-    newSystemCall("użycie umiejętności " + skill.name + " na " + target.name);
+    Settings.participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
     
 }
 
