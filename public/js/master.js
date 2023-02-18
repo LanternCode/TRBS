@@ -4,7 +4,6 @@ import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
 import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills} from "./db.js";
 
-window.addCard = addCard;
 window.act = act;
 window.startBattle = startBattle;
 window.continueToBattle = continueToBattle;
@@ -15,6 +14,12 @@ actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") 
 
 const actionElementsList = document.getElementById("actionElementsList");
 actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
+
+const addPlayerCardButton = document.getElementById("addPlayerCardButton");
+addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
+
+const addEnemyCardButton = document.getElementById("addEnemyCardButton");
+addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
 
 /**
  * A Participant
