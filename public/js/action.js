@@ -58,7 +58,7 @@ function nextTurn()
         Settings.priorityThree = true;
 
         //announce the new turn in the history
-        newSystemCall("Teraz tura " +  Settings.participants[Settings.localTurn].name);
+        newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
