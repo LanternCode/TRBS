@@ -52,10 +52,10 @@ function startBattle()
             elem.classList.toggle("hidden");
 
         //generate the local participants array to be used during the battle
-        participants = structuredClone(participantsDefinition);
+        Settings.participants = structuredClone(Settings.participantsDefinition);
 
         //sort the array by speed to establish turn order
-        participants.sort((a, b) => b.speed - a.speed);
+        Settings.participants.sort((a, b) => b.speed - a.speed);
 
         //Update the battle state description
         document.getElementById("battleStatus").innerText = "W trakcie!";
@@ -65,15 +65,15 @@ function startBattle()
         document.getElementById("nextTurnButton").classList.toggle("hidden");
 
         //Update the "acts now" label
-        document.getElementById("nowActsDesc").innerText = participants[0].name;
+        document.getElementById("nowActsDesc").innerText = Settings.participants[0].name;
 
         //Reset the targets list
         let targetSlot = document.getElementById("targetsList");
         targetSlot.innerHTML = '';
         //Reset participant's hp to its max value (for battle resets)
-        for(let i = 0; i < participants.length; ++i)
+        for(let i = 0; i < Settings.participants.length; ++i)
         {
-            participants[i].health = participants[i].maxHealth;
+            Settings.participants[i].health = Settings.participants[i].maxHealth;
         }
 
         //hide all sections at the start
@@ -120,7 +120,7 @@ function endBattle(winner)
         for (let player of participants.filter(participant => participant.type === "player")) {
             if(player.health > 0 && player.level !== 10){
                 //match the battle participant to their external definition
-                for(let playerDefinition of participantsDefinition.filter(p => p.type === "player")) {
+                for(let playerDefinition of Settings.participantsDefinition.filter(p => p.type === "player")) {
                     if(player.name === playerDefinition.name) {
                         playerDefinition.experience++;
                         if(playerDefinition.experience >= expRequired(playerDefinition.level))
@@ -163,8 +163,8 @@ function endBattle(winner)
 function isBattleOver()
 {
     //check if all enemies or all players are down
-    let playersDown = participants.filter(participant => participant.type === "player").every(p => p.health === 0);
-    let enemiesDown = participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
+    let playersDown = Settings.participants.filter(participant => participant.type === "player").every(p => p.health === 0);
+    let enemiesDown = Settings.participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
 
     if(playersDown) {
         endBattle("e");

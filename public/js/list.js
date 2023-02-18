@@ -119,12 +119,12 @@ function getAttackableTargets()
     //declare a list to store available targets
     let filteredList;
     //Apply filtering
-    if(participants[Settings.localTurn].type === "player")
+    if(Settings.participants[Settings.localTurn].type === "player")
     {
-        filteredList = participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
+        filteredList = Settings.participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
     }
     else {
-        filteredList = participants.filter(p => p.type === "player").filter(p => p.health > 0);
+        filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health > 0);
     }
     return filteredList;
 }
@@ -145,7 +145,7 @@ function createItemTargetList()
     //Get the item id from the list
     let itemId = parseInt(itemsList.value.split("-")[1]);
     //find the item in the items array to get its properties
-    let item = items.find(i => i.uiid === itemId);
+    let item = Settings.items.find(i => i.uiid === itemId);
     //declare a list to store available targets
     let filteredList = [];
     //based on the subtype of the item, find available targets
@@ -155,24 +155,24 @@ function createItemTargetList()
         //to restore hp the target must be alive - hp > 0
         case "restore":
         {
-            if(participants[Settings.localTurn].type === "player")
+            if(Settings.participants[Settings.localTurn].type === "player")
             {
-                filteredList = participants.filter(p => p.type === "player").filter(p => p.health > 0);
+                filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health > 0);
             }
             else {
-                filteredList = participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
+                filteredList = Settings.participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
             }
             break;
         }
         case "revive":
         {
             //to revive, the target must be dead - hp = 0
-            if(participants[Settings.localTurn].type === "player")
+            if(Settings.participants[Settings.localTurn].type === "player")
             {
-                filteredList = participants.filter(p => p.type === "player").filter(p => p.health === 0);
+                filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health === 0);
             }
             else {
-                filteredList = participants.filter(p => p.type === "enemy").filter(p => p.health === 0);
+                filteredList = Settings.participants.filter(p => p.type === "enemy").filter(p => p.health === 0);
             }
             break;
         }
@@ -198,7 +198,7 @@ function createSkillTargetList()
     //get the skill id
     let skillId = parseInt(skillsList.value.split("-")[1]);
     //find the skill in the skill list to get its properties
-    let skill = skills.find(s => s.usid === skillId);
+    let skill = Settings.skills.find(s => s.usid === skillId);
     //based on the properties of the skill, find available targets
     let subtype = skill.subtype;
     let range = skill.range;
@@ -211,7 +211,7 @@ function createSkillTargetList()
     //first filtering to determine which side to target (player, enemy, reversed)
     if(target_group === "reversed")
     {
-        if(participants[Settings.localTurn].type === "player")
+        if(Settings.participants[Settings.localTurn].type === "player")
             target_group = "enemy";
         else target_group = "player";
     }
@@ -221,7 +221,7 @@ function createSkillTargetList()
         return;
     }
     //individual filtering includes dead or alive participants based on the subtype of the skill
-    filteredList = participants.filter(p => p.type === target_group);
+    filteredList = Settings.participants.filter(p => p.type === target_group);
     filteredList = filterBySubtype(filteredList, subtype);
 
     prepareTargetSection(filteredList);
@@ -250,7 +250,7 @@ function createDebugTargetList()
     else {
         //for now the only other testing action is to defeat any participant
         //so proceed with the list of all participants
-        prepareTargetSection(participants);
+        prepareTargetSection(Settings.participants);
     }
 }
 
@@ -307,11 +307,11 @@ function prepareTargetSection(targetList, specialCase = '')
         targetListSection.appendChild(opt);
     }
     else {
-        for(let i = 0; i < participants.length; ++i)
+        for(let i = 0; i < Settings.participants.length; ++i)
         {
             for(let j = 0; j < targetList.length; ++j)
             {
-                if(participants[i] === targetList[j])
+                if(Settings.participants[i] === targetList[j])
                 {
                     //construct the option and insert it into the list
                     let opt = document.createElement('option');
@@ -349,14 +349,15 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz przedmiot:";
             //Check that this participant has access to items
-            if(Object.keys(participants[Settings.localTurn].itemsOwned).length < 1) return;
+            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "itemsOwned")) return;
+            if(Object.keys(Settings.participants[Settings.localTurn].itemsOwned).length < 1) return;
             //Then insert all list items
-            for (let itanz of Object.entries(participants[Settings.localTurn].itemsOwned))
+            for (let itanz of Object.entries(Settings.participants[Settings.localTurn].itemsOwned))
             {
                 let itemId = parseInt(itanz[0]);
                 let itemCount = itanz[1];
                 //find the item in the item list to get its name
-                let item = window.items.find(i => i.uiid === itemId);
+                let item = Settings.items.find(i => i.uiid === itemId);
                 if(item !== undefined && itemCount > 0) {
                     let opt = document.createElement('option');
                     opt.value = "item-" + item.uiid; //unique item id
@@ -370,15 +371,15 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz umiejętność:";
             //Check that this participant has access to skills
-            if(!Object.hasOwn(participants[Settings.localTurn], "skillsOwned")) return;
-            if(Object.keys(participants[Settings.localTurn].skillsOwned).length < 1) return;
+            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "skillsOwned")) return;
+            if(Object.keys(Settings.participants[Settings.localTurn].skillsOwned).length < 1) return;
             //Insert all skills
-            for (let skillz of Object.entries(participants[Settings.localTurn].skillsOwned))
+            for (let skillz of Object.entries(Settings.participants[Settings.localTurn].skillsOwned))
             {
                 let skillId = parseInt(skillz[0]);
                 let skillCooldown = skillz[1];
                 //find the skill in the skill list to get its priority
-                let skill = skills.find(s => s.usid === skillId);
+                let skill = Settings.skills.find(s => s.usid === skillId);
                 //create the list object
                 let opt = document.createElement('option');
                 opt.value = "skill-" + skillId;

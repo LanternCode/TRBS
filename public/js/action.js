@@ -17,20 +17,20 @@ function nextTurn()
         Settings.localTurn++;
 
         //check if this was the last local turn of the global turn
-        if(Settings.localTurn === participants.length)
+        if(Settings.localTurn === Settings.participants.length)
         {
             Settings.localTurn = 0;
             Settings.globalTurn++;
             document.getElementById("globalTurn").innerText = Settings.globalTurn;
 
             //reduce skill cooldown for any skill by 1
-            for (let i = 0; i < participants.length; ++i) {
+            for (let i = 0; i < Settings.participants.length; ++i) {
                 //check if participant has any skills
-                if(participants[i].hasOwnProperty("skillsOwned")) {
-                    Object.entries(participants[i].skillsOwned).forEach(
+                if(Settings.participants[i].hasOwnProperty("skillsOwned")) {
+                    Object.entries(Settings.participants[i].skillsOwned).forEach(
                         s => {
                             if(s[1] > 0)
-                                participants[i].skillsOwned[s[0]]--;
+                                Settings.participants[i].skillsOwned[s[0]]--;
                         }
                     );
                 }
@@ -39,10 +39,10 @@ function nextTurn()
 
         //if the member was dodging, disable their dodge once their turn starts again
         //this has to be disabled now in case a defeated member was revived
-        participants[Settings.localTurn].isDodging = 0;
+        Settings.participants[Settings.localTurn].isDodging = 0;
 
         //Check if the participant is alive, if not, start next turn
-        if(participants[Settings.localTurn].health === 0) nextTurn();
+        if(Settings.participants[Settings.localTurn].health === 0) nextTurn();
 
         //reset the action list
         adjustOptions("reset");
@@ -62,7 +62,7 @@ function nextTurn()
         newSystemCall("");
 
         //Update the "acts now" label
-        document.getElementById("nowActsDesc").innerText = participants[Settings.localTurn].name;
+        document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
     }
 }
 
@@ -89,7 +89,7 @@ function act()
             case "regAttack":
             {
                 if(Settings.priorityTwo === true)
-                    handleRegAttack(participants[target], participants[Settings.localTurn]);
+                    handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
                 else if(Settings.priorityTwo === false) newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
                 else newSystemCall("Nie wybrano żadnego celu.");
                 break;
@@ -104,7 +104,7 @@ function act()
             case "item":
             {
                 if(Settings.priorityThree === true && actionElement !== "" && target !== '')
-                    handleUseItem(participants[target], actionElementId);
+                    handleUseItem(Settings.participants[target], actionElementId);
                 else if (actionElement === "") newSystemCall("Nie wybrano żadnego przedmiotu.");
                 else if (target === '') newSystemCall("Nie wybrano żadnego celu.");
                 else newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
@@ -113,8 +113,8 @@ function act()
             case "skill":
             {
                 if(actionElement !== '' && target !== '') {
-                    let skill = skills.find(s => s.usid === actionElementId);
-                    let cooldownRemaining = participants[Settings.localTurn].skillsOwned[actionElementId];
+                    let skill = Settings.skills.find(s => s.usid === actionElementId);
+                    let cooldownRemaining = Settings.participants[Settings.localTurn].skillsOwned[actionElementId];
                     if (cooldownRemaining === 0) {
                         let priority = skill.priority;
                         let priorityClear = false;
@@ -137,7 +137,7 @@ function act()
             }
             case "debug":
             {
-                handleDebugAction(actionElement, participants[target]);
+                handleDebugAction(actionElement, Settings.participants[target]);
                 break;
             }
             default:
@@ -244,7 +244,7 @@ function handleRegAttack(target, attacker)
 function handleDodge(target = {})
 {
     if(target !== {})
-        participants[Settings.localTurn].isDodging = true;
+        Settings.participants[Settings.localTurn].isDodging = true;
     else target.isDodging = true;
     Settings.priorityTwo = false;
 }
@@ -263,7 +263,7 @@ function handleUseItem(target, itemId)
 {
     let itemUsed = true;
     //find the item in the item list
-    let item = items.find(i => i.uiid === itemId);
+    let item = Settings.items.find(i => i.uiid === itemId);
     //see if the target is dead or alive
     let targetAlive = target.health > 0;
     //use the healing item
@@ -276,7 +276,7 @@ function handleUseItem(target, itemId)
 
     //reduce participant's item count
     if(itemUsed){
-        participants[Settings.localTurn].itemsOwned[itemId] -= 1;
+        Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
         Settings.priorityThree = false;
     }
 }
@@ -297,13 +297,13 @@ function handleUseSkill(skill, target)
     let subtype = skill.subtype;
     //check if a special target was selected
     if (target === "everyone")
-        participantsAffected = participants;
+        participantsAffected = Settings.participants;
     else if (target === "player" || target === "enemy")
-        participantsAffected = participants.filter(p => p.type === target);
+        participantsAffected = Settings.participants.filter(p => p.type === target);
     else {
         if (!isNaN(target)) {
             //a single participant is the target of this skill
-            participantsAffected.push(participants[target]);
+            participantsAffected.push(Settings.participants[target]);
         }
     }
 
@@ -319,7 +319,7 @@ function handleUseSkill(skill, target)
     }
 
     //set the skill on cooldown
-    participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
+    Settings.participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
 }
 
 /**

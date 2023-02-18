@@ -277,7 +277,7 @@ function createCardTemplate(type, newParticipant)
 function insertCard(type, newParticipant, location = "table")
 {
     if(location === "table")
-        participantsDefinition = participantsDefinition.concat(newParticipant);
+        Settings.participantsDefinition = Settings.participantsDefinition.concat(newParticipant);
     else {
         //TODO: Insert the new participant into the database
         if(type === "player") availablePlayers = availablePlayers.concat(newParticipant);
@@ -287,7 +287,7 @@ function insertCard(type, newParticipant, location = "table")
     }
 
     let card = createCardTemplate(type, newParticipant);
-    card.id = "participant-" + (participantsDefinition.length-1);
+    card.id = "participant-" + (Settings.participantsDefinition.length-1);
 
     //append the card to the list or the correct side of the board
     if(location === "list") {
@@ -355,8 +355,8 @@ function generateNewEnemy()
         subtype: Math.random() < 0.5 ? "human" : "monster"
     };
 
-    for (let enemyStat of Object.keys(enemyStatLimits)) {
-        enemy[enemyStat] = getRndInteger(enemyStatLimits[enemyStat].min, enemyStatLimits[enemyStat].max);
+    for (let enemyStat of Object.keys(Settings.enemyStatLimits)) {
+        enemy[enemyStat] = getRndInteger(Settings.enemyStatLimits[enemyStat].min, Settings.enemyStatLimits[enemyStat].max);
     }
     enemy.maxHealth = enemy.health;
 
@@ -460,7 +460,7 @@ function createSettingsCard(type)
      let section = document.getElementById(sectionId);
      section.removeChild(card);
      //Remove the participant from the participants array and reduce the counter if removing from the table
-     let arrayOfChoice = location === "table" ? participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
+     let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
      //TODO: Remove the participant from the database if removing from the list
      if(location === "list") {
          dropParticipant(arrayOfChoice[pId], type);
@@ -592,7 +592,7 @@ function createSettingsCard(type)
      //get the participant id
      let pId = card.id.split('-')[1];
      //choose the array to update
-     let arrayOfChoice = cLoc === "list" ? (cType === "player" ? availablePlayers : availableEnemies) : participantsDefinition;
+     let arrayOfChoice = cLoc === "list" ? (cType === "player" ? availablePlayers : availableEnemies) : Settings.participantsDefinition;
      //update the details in the participants array
      arrayOfChoice[pId].maxHealth = parseInt(newHealth);
      arrayOfChoice[pId].health = parseInt(newHealth);
@@ -693,7 +693,7 @@ function refreshCardsInBattle(refreshDefs = false)
     let enemiesUpdated = 0;
 
     //choose the array to use for refreshing cards
-    let arrOfChoice = refreshDefs ? participantsDefinition : participants;
+    let arrOfChoice = refreshDefs ? Settings.participantsDefinition : Settings.participants;
 
     //find the correct battle slot
     for(let i = 0; i < arrOfChoice.length; ++i)
