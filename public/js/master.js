@@ -4,22 +4,23 @@ import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
 import {getAvailablePlayers, getAvailableEnemies, getItems, getSkills} from "./db.js";
 
-window.act = act;
-window.startBattle = startBattle;
-window.continueToBattle = continueToBattle;
-window.nextTurn = nextTurn;
-
 const actionsList = document.getElementById("actionList");
-actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
-
 const actionElementsList = document.getElementById("actionElementsList");
-actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
-
 const addPlayerCardButton = document.getElementById("addPlayerCardButton");
-addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
-
 const addEnemyCardButton = document.getElementById("addEnemyCardButton");
+const actButton = document.getElementById("actButton");
+const startBattleButton = document.getElementById("startBattleButton");
+const continueToBattleButton = document.getElementById("continueToBattleButton");
+const nextTurnButton = document.getElementById("nextTurnButton");
+
+actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
+actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
+addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
 addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
+actButton.addEventListener("click", () => { act() }, false);
+startBattleButton.addEventListener("click", () => { startBattle() }, false);
+continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);
+nextTurnButton.addEventListener("click", () => { nextTurn() }, false);
 
 /**
  * A Participant
