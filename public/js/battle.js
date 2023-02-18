@@ -65,7 +65,7 @@ function startBattle()
         document.getElementById("systemCall").textContent = '';
         newSystemCall("początek walki");
         newSystemCall("nowa tura globalna: " + Settings.globalTurn);
-        newSystemCall(`teraz tura ${participants[Settings.localTurn].name}`);
+        newSystemCall(`teraz tura ${Settings.participants[Settings.localTurn].name}`);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[0].name;

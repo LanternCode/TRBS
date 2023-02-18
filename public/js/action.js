@@ -58,7 +58,7 @@ function nextTurn()
         Settings.priorityThree = true;
 
         //announce the new turn in the history
-        newSystemCall("teraz tura " + participants[Settings.localTurn].name);
+        newSystemCall("teraz tura " + Settings.participants[Settings.localTurn].name);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
@@ -322,7 +322,7 @@ function handleUseSkill(skill, target)
     }
 
     //set the skill on cooldown
-    participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
+    Settings.participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
 
     //history system call
     newSystemCall("użycie umiejętności " + skill.name + " na " + target.name);
