@@ -50,6 +50,10 @@ async function addCard(type)
 function displayCardPicker(type)
 {
     let pickingOverlay = document.getElementById("pickingOverlay");
+    pickingOverlay.addEventListener("click", () => {
+        pickingOverlay.classList.add("hidden");
+        pickingOverlay.removeChild(pickingOverlay.firstChild);
+    });
 
     //insert participants of the 'type' into the card picker
     let selectSection = refreshCardList(type, true);
@@ -57,6 +61,7 @@ function displayCardPicker(type)
     //attach styles to the select section
     selectSection.classList.add("cardListFrame");
     selectSection.id = "listSection";
+    selectSection.addEventListener("click", (event) => {event.stopPropagation();} )
 
     //reveal the card picker
     pickingOverlay.appendChild(selectSection);
