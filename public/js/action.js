@@ -1,6 +1,6 @@
 import {endBattle, isBattleOver} from "./battle.js";
 import {adjustOptions, filterBySubtype} from "./list.js";
-import {refreshCardsInBattle} from "./card.js";
+import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 
 /**

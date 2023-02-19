@@ -1,7 +1,7 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
-import {refreshCardsInBattle} from "./card.js";
+import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {experienceUp} from "./db.js";
 
