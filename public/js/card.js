@@ -1,7 +1,7 @@
 import {newSystemCall} from "./action.js";
 import {expRequired, levelDown, levelUp} from "./level.js";
 import {Settings} from "./settings.js";
-import {insertParticipant, dropParticipant, updateParticipant, getAvailablePlayers, getAvailableEnemies} from "./db.js";
+import {insertParticipant, dropParticipant, updateParticipant} from "./db.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -21,7 +21,7 @@ async function addCard(type)
             return;
         }
         else {
-            window.availablePlayers = await getAvailablePlayers();
+            await Settings.fetchPlayers();
         }
     }
     else if(type === "enemy") {
@@ -30,12 +30,11 @@ async function addCard(type)
             return;
         }
         else {
-            window.availableEnemies = await getAvailableEnemies();
+            await Settings.fetchEnemies();
         }
     }
 
-
-    displayCardPicker(type);
+    await displayCardPicker(type);
 }
 
 /**
@@ -47,7 +46,7 @@ async function addCard(type)
  * @param {string} type participant type
  * @yields {Element} a Participant card added to the table
  */
-function displayCardPicker(type)
+async function displayCardPicker(type)
 {
     let pickingOverlay = document.getElementById("pickingOverlay");
     pickingOverlay.addEventListener("click", () => {
@@ -56,7 +55,7 @@ function displayCardPicker(type)
     });
 
     //insert participants of the 'type' into the card picker
-    let selectSection = refreshCardList(type, true);
+    let selectSection = await refreshCardList(type, true);
 
     //attach styles to the select section
     selectSection.classList.add("cardListFrame");
@@ -76,10 +75,10 @@ function displayCardPicker(type)
  * @param {boolean} firstUse whether to generate the list for the first time
  * @returns {HTMLElement | void} For the first time return a valid section element, void otherwise
  */
-function refreshCardList(cardType, firstUse = false)
+async function refreshCardList(cardType, firstUse = false)
 {
     //fetch or create the card picker selection list
-    let cardList = (cardType === "player" ? availablePlayers : availableEnemies);
+    let cardList = (cardType === "player" ? Settings.availablePlayers : Settings.availableEnemies);
     let selectSection;
     if(firstUse)
         selectSection = document.createElement('section');
@@ -95,12 +94,12 @@ function refreshCardList(cardType, firstUse = false)
         option.id = "participant-" + i;
         let btnPickCard = document.createElement('button');
         btnPickCard.innerText = "Wybierz!";
-        btnPickCard.addEventListener("click", function() {
+        btnPickCard.addEventListener("click", async function() {
             if(cardType === "player") {
-                addPlayer(index);
+                await addPlayer(index);
             }
             else if (cardType === "enemy") {
-                addEnemy(index);
+                await addEnemy(index);
             }
         }, false);
         option.classList.add("clickOnMe");
@@ -110,7 +109,7 @@ function refreshCardList(cardType, firstUse = false)
     }
 
     //create the settings card and append it at the end
-    let settings = createSettingsCard(cardType);
+    let settings = await createSettingsCard(cardType);
     selectSection.appendChild(settings);
 
     if (firstUse)
@@ -279,15 +278,16 @@ function createCardTemplate(type, newParticipant)
  * @param {string} location where to add the card (table/list)
  * @yields {Element} a valid participant card <section> element
  */
-function insertCard(type, newParticipant, location = "table")
+async function insertCard(type, newParticipant, location = "table")
 {
     if(location === "table")
         Settings.participantsDefinition = Settings.participantsDefinition.concat(newParticipant);
     else {
-        if(type === "player") availablePlayers = availablePlayers.concat(newParticipant);
-        else availableEnemies = availableEnemies.concat(newParticipant);
+        if(type === "player") Settings.availablePlayers = Settings.availablePlayers.concat(newParticipant);
+        else Settings.availableEnemies = Settings.availableEnemies.concat(newParticipant);
 
-        insertParticipant(newParticipant, type);
+        let participantId = await insertParticipant(newParticipant, type);
+        newParticipant._id = participantId;
     }
 
     let card = createCardTemplate(type, newParticipant);
@@ -312,17 +312,17 @@ function insertCard(type, newParticipant, location = "table")
  * @param {int} index player position in the array
  * @returns {Boolean} true on success, false on failure
  */
-function addPlayer(index)
+async function addPlayer(index)
 {
     //check if the player is available and if not, return
-    if(availablePlayers[index].inUse) {
+    if(Settings.availablePlayers[index].inUse) {
         newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
     else {
         Settings.playerCount++;
-        availablePlayers[index].inUse = true;
-        insertCard("player", structuredClone(availablePlayers[index]));
+        Settings.availablePlayers[index].inUse = true;
+        await insertCard("player", structuredClone(Settings.availablePlayers[index]));
         return true;
     }
 }
@@ -334,13 +334,13 @@ function addPlayer(index)
  * @param {int} index enemy position in the array
  * @return {void} calls insertCard function on call
  */
-function addEnemy(index)
+async function addEnemy(index)
 {
     Settings.enemyCount++;
     Settings.addedEnemiesCount++;
-    let newEnemy = structuredClone(availableEnemies[index]);
+    let newEnemy = structuredClone(Settings.availableEnemies[index]);
     newEnemy.name = newEnemy.name + " " + Settings.addedEnemiesCount;
-    insertCard("enemy", newEnemy);
+    await insertCard("enemy", newEnemy);
 }
 
 /**
@@ -408,7 +408,7 @@ function generateNewPlayer()
  * @param {string} type card type (to inherit styles)
  * @yields {HTMLElement} valid section element
  */
-function createSettingsCard(type)
+async function createSettingsCard(type)
 {
     let card = document.createElement("section");
     card.className = type === "player" ? "playerSection" : "enemySection";
@@ -417,11 +417,11 @@ function createSettingsCard(type)
     let addParticipantButton = document.createElement("button");
     addParticipantButton.className = "cardPickerButton";
     addParticipantButton.innerText = "+";
-    addParticipantButton.onclick = function(){
+    addParticipantButton.onclick = async function(){
         let newParticipant;
         if(type === "player") newParticipant = generateNewPlayer();
         else newParticipant = generateNewEnemy();
-        insertCard(type, newParticipant, "list");
+        await insertCard(type, newParticipant, "list");
         refreshCardList(type);
     };
     let closeListH3 = document.createElement("h3");
@@ -464,7 +464,7 @@ function createSettingsCard(type)
      let section = document.getElementById(sectionId);
      section.removeChild(card);
      //Remove the participant from the participants array and reduce the counter if removing from the table
-     let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? availablePlayers : availableEnemies);
+     let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? Settings.availablePlayers : Settings.availableEnemies);
      if(location === "list") {
          dropParticipant(arrayOfChoice[pId], type);
          arrayOfChoice.splice(pId, 1);
@@ -475,7 +475,7 @@ function createSettingsCard(type)
          let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
          //if they're a player - also update their inUse property
          if(location === "table") {
-             availablePlayers.filter(p => p.UID === removedPlayer.UID)[0].inUse = false;
+             Settings.availablePlayers.filter(p => p._id === removedPlayer._id)[0].inUse = false;
              Settings.playerCount--;
          }
      }
@@ -500,10 +500,12 @@ function createSettingsCard(type)
      let card = e.parentNode;
      //get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
+     //get the location
+     let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //construct editable elements
      let nameInput = document.createElement("input");
      nameInput.type = "text";
-     nameInput.value = card.children[0].innerText.split("[")[0];
+     nameInput.value = card.children[0].innerText.split(" [")[0];
      nameInput.dataset.originalValue = card.children[0].innerText.split("[")[0];
      let healthInput = document.createElement("input");
      healthInput.type = "text";
@@ -541,17 +543,20 @@ function createSettingsCard(type)
          card.replaceChild(zoneInput, card.children[12]);
      }
      else {
-         card.children[12].classList.toggle("hidden");
-         card.children[14].classList.toggle("hidden");
+         card.children[12].classList.add("hidden");
+         card.children[14].classList.add("hidden");
      }
      //players and enemies have different button placement
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
-     //hide the edit button
-     card.children[buttonsStartHere].classList.toggle("hidden");
+     //hide the edit and pick buttons
+     card.children[buttonsStartHere].classList.add("hidden");
      //enable the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.toggle("hidden");
-     card.children[buttonsStartHere+2].classList.toggle("hidden");
-     card.children[buttonsStartHere+3].classList.toggle("hidden");
+     card.children[buttonsStartHere+1].classList.remove("hidden");
+     card.children[buttonsStartHere+2].classList.remove("hidden");
+     card.children[buttonsStartHere+3].classList.remove("hidden");
+     if(cLoc === "list") {
+         card.children[buttonsStartHere+4].classList.add("hidden");
+     }
  }
 
  /**
@@ -576,9 +581,10 @@ function createSettingsCard(type)
      let newAttack = card.children[6].value;
      let newDodge = card.children[8].value;
      let newArmor = card.children[10].value;
+     let newNameWithDodge = newName + " [" + newDodge + "]";
      //construct text elements
      let nameText = document.createElement("h3");
-     nameText.innerText = newName;
+     nameText.innerText = newNameWithDodge;
      let healthText = document.createElement("h4");
      healthText.innerText = newHealth;
      let speedText = document.createElement("h4");
@@ -600,7 +606,7 @@ function createSettingsCard(type)
      //get the participant id
      let pId = card.id.split('-')[1];
      //choose the array to update
-     let arrayOfChoice = cLoc === "list" ? (cType === "player" ? availablePlayers : availableEnemies) : Settings.participantsDefinition;
+     let arrayOfChoice = cLoc === "list" ? (cType === "player" ? Settings.availablePlayers : Settings.availableEnemies) : Settings.participantsDefinition;
      //update the details in the participants array
      arrayOfChoice[pId].name = newName;
      arrayOfChoice[pId].maxHealth = parseInt(newHealth);
@@ -619,20 +625,20 @@ function createSettingsCard(type)
          arrayOfChoice[pId].zone = newZone;
      }
      else {
-         card.children[12].classList.toggle("hidden");
-         card.children[14].classList.toggle("hidden");
+         card.children[12].classList.add("hidden");
+         card.children[14].classList.add("hidden");
      }
      //players and enemies have different button placement
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
-     //enable the edit button
-     card.children[buttonsStartHere].classList.toggle("hidden");
+     //enable the edit and pick buttons
+     card.children[buttonsStartHere].classList.remove("hidden");
      //hide the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.toggle("hidden");
-     card.children[buttonsStartHere+2].classList.toggle("hidden");
-     card.children[buttonsStartHere+3].classList.toggle("hidden");
-
+     card.children[buttonsStartHere+1].classList.add("hidden");
+     card.children[buttonsStartHere+2].classList.add("hidden");
+     card.children[buttonsStartHere+3].classList.add("hidden");
      if(cLoc === "list") {
         updateParticipant(arrayOfChoice[pId], cType);
+        card.children[buttonsStartHere+4].classList.remove("hidden");
      }
  }
 
@@ -649,9 +655,11 @@ function createSettingsCard(type)
      let card = e.parentNode;
      //get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
+     //get the location
+     let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //construct text elements
      let nameText = document.createElement("h4");
-     nameText.innerText = card.children[0].dataset.originalValue;
+     nameText.innerText = card.children[0].dataset.originalValue + " [" + card.children[8].dataset.originalValue + "]";
      let healthText = document.createElement("h4");
      healthText.innerText = card.children[2].dataset.originalValue;
      let speedText = document.createElement("h4");
@@ -678,17 +686,20 @@ function createSettingsCard(type)
          card.replaceChild(zoneText, card.children[12]);
      }
      else {
-         card.children[12].classList.toggle("hidden");
-         card.children[14].classList.toggle("hidden");
+         card.children[12].classList.add("hidden");
+         card.children[14].classList.add("hidden");
      }
      //players and enemies have different button placement
      let buttonsStartHere = cType === "enemy" ? 13 : 17;
-     //enable the edit button
-     card.children[buttonsStartHere].classList.toggle("hidden");
+     //enable the edit and pick buttons
+     card.children[buttonsStartHere].classList.remove("hidden");
      //hide the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.toggle("hidden");
-     card.children[buttonsStartHere+2].classList.toggle("hidden");
-     card.children[buttonsStartHere+3].classList.toggle("hidden");
+     card.children[buttonsStartHere+1].classList.add("hidden");
+     card.children[buttonsStartHere+2].classList.add("hidden");
+     card.children[buttonsStartHere+3].classList.add("hidden");
+     if(cLoc === "list") {
+         card.children[buttonsStartHere+4].classList.remove("hidden");
+     }
  }
 
 /**

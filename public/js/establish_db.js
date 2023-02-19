@@ -33,7 +33,6 @@ async function createPlayers(client) {
         const playerDocuments =
             [
                 {
-                    UID:  0,
                     name: 'Karim',
                     maxHealth: 100,
                     health: 100,
@@ -50,7 +49,6 @@ async function createPlayers(client) {
                     inUse: false
                 },
                 {
-                    UID:  1,
                     name: 'Antonio',
                     maxHealth: 80,
                     health: 80,
@@ -67,7 +65,6 @@ async function createPlayers(client) {
                     inUse: false
                 },
                 {
-                    UID:  2,
                     name: 'Dion',
                     maxHealth: 90,
                     health: 90,
@@ -84,7 +81,6 @@ async function createPlayers(client) {
                     inUse: false
                 },
                 {
-                    UID:  3,
                     name: 'Astrid',
                     maxHealth: 80,
                     health: 80,
@@ -104,7 +100,6 @@ async function createPlayers(client) {
 
 
         await collection.insertMany(playerDocuments);
-        //console.log(`A document was inserted with the _id: ${result.insertedId}`);
         console.log("Successfully migrated: players");
     } catch { console.log("Failed migration: players"); }
 }

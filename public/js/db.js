@@ -79,9 +79,10 @@ async function getSkills()
  * @param participant the object to insert
  * @param type participant type (player/enemy)
  */
-function insertParticipant(participant, type)
+async function insertParticipant(participant, type)
 {
-    makeRequest("PUT", base_url + "/participants/" + JSON.stringify(participant) + "/" + type );
+    let insertedParticipantId = await makeRequest("PUT", base_url + "/participants/" + JSON.stringify(participant) + "/" + type );
+    return insertedParticipantId;
 }
 
 /**

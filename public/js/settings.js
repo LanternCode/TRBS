@@ -122,9 +122,9 @@ class Settings {
     static debuggingEnabled() {
         return this.debugging;
     }
-    static createAnonymous() {
-        //let name = gender == "male" ? "John Doe" : "Jane Doe";
-        //return new Person(name);
+
+    static createSettingsInstance() {
+        //return new Settings();
     }
 
     static async fetchItems() {
