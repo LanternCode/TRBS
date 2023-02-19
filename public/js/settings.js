@@ -106,18 +106,6 @@ class Settings {
             max: 9
         }
     };
-    /**
-     * This function generates a random integer in the given range, inclusive.
-     *
-     * @generator
-     * @function getRndInteger
-     * @param {number} min - The beginning of the range
-     * @param {number} max - The end of the range
-     * @return {number} The number generated
-     */
-    static getRndInteger = function(min, max) {
-        return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
-    };
 
     static debuggingEnabled() {
         return this.debugging;

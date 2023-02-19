@@ -5,13 +5,14 @@ import { connectToCluster, migrateAll } from './public/js/establish_db.js';
 const app = express();
 config();
 
-app.use(express.static("public"));
+await migrateAll();
+let mc = await connectToCluster();
 
+app.use(express.static("public"));
 app.listen(3000);
 
-await migrateAll();
 
-let mc = await connectToCluster();
+
 
 app.get('/players/', async (req, res, next) => {
     const players = await mc.db("TRBS").collection("player").find({}, {projection:{ _id: 0 }}).toArray();

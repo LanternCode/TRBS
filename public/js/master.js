@@ -1,6 +1,6 @@
 import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
-import {addCard} from "./card.js";
+import { addCardInit } from "./cardPicker.js";
 import {adjustOptions} from "./list.js";
 import {Settings} from "./settings.js";
 
@@ -15,8 +15,8 @@ const nextTurnButton = document.getElementById("nextTurnButton");
 
 actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
 actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
-addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
-addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
+addPlayerCardButton.addEventListener("click", () => { addCardInit("player") }, false);
+addEnemyCardButton.addEventListener("click", () => { addCardInit("enemy") }, false);
 actButton.addEventListener("click", () => { act() }, false);
 startBattleButton.addEventListener("click", () => { startBattle() }, false);
 continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);
@@ -41,8 +41,6 @@ nextTurnButton.addEventListener("click", () => { nextTurn() }, false);
  * @property {number} armor - Participant's armor rating
  * @property {number} [zone] - Participant's zone, only for enemies
  */
-await Settings.fetchPlayers();
-await Settings.fetchEnemies();
 
 /**
  * An Item
