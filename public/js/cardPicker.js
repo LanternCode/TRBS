@@ -3,6 +3,7 @@ import { insertParticipant } from "./db.js";
 import { generateNewEnemy, generateNewPlayer } from "./utils.js";
 import { Settings } from "./settings.js";
 import { addPlayer, addEnemy } from "./table.js";
+import {createCardTemplate} from "./card.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -16,7 +17,7 @@ import { addPlayer, addEnemy } from "./table.js";
 async function addCardInit(type)
 {
     initCardPicker(type)
-    .then(() => displayCardPicker(type) );
+    .then(() => displayCardPicker(type));
 }
 
 /**
@@ -211,4 +212,4 @@ async function createSettingsCard(type)
     return card;
 }
 
-export { addCardInit, insertCard, refreshCardList };
+export { addCardInit, insertCard, refreshCardList, createSettingsCard };

@@ -1,5 +1,6 @@
-import {insertCard} from "./cardPicker";
+import {insertCard} from "./cardPicker.js";
 import {Settings} from "./settings.js";
+import {expRequired} from "./level.js";
 /**
  * This function adds a player card from the list into the table
  *

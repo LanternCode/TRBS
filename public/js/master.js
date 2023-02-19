@@ -1,8 +1,8 @@
 import {nextTurn, act} from "./action.js";
 import {startBattle, continueToBattle} from "./battle.js";
-import {addCard} from "./card.js";
 import {adjustOptions} from "./list.js";
 import {Settings} from "./settings.js";
+import {addCardInit} from "./cardPicker.js";
 
 const actionsList = document.getElementById("actionList");
 const actionElementsList = document.getElementById("actionElementsList");
@@ -15,8 +15,8 @@ const nextTurnButton = document.getElementById("nextTurnButton");
 
 actionsList.addEventListener("change", () =>  { adjustOptions("actionElements") }, false);
 actionElementsList.addEventListener("change", () => { adjustOptions("targets") }, false);
-addPlayerCardButton.addEventListener("click", () => { addCard("player") }, false);
-addEnemyCardButton.addEventListener("click", () => { addCard("enemy") }, false);
+addPlayerCardButton.addEventListener("click", () => { addCardInit("player") }, false);
+addEnemyCardButton.addEventListener("click", () => { addCardInit("enemy") }, false);
 actButton.addEventListener("click", () => { act() }, false);
 startBattleButton.addEventListener("click", () => { startBattle() }, false);
 continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);

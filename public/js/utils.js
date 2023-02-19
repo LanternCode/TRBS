@@ -7,9 +7,11 @@
  * @param {number} max - The end of the range
  * @return {number} The number generated
  */
+import {Settings} from "./settings.js";
+
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
-};
+}
 
 /**
  * This function returns a random item of the two given

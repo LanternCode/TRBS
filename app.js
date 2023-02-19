@@ -79,11 +79,11 @@ app.put('/updateParticipant/:participant/:type', async (req, res, next) => {
  * API Call - Increase player experience by 1 (called after battle ends with player victory)
  */
 app.put('/grantExperience/:player', async (req, res, next) => {
-    let participant = JSON.parse(req.params.participant);
+    let participant = JSON.parse(req.params.player);
     participant._id = new ObjectId(participant._id);
     await mc.db("TRBS").collection("player").updateOne(
         { "_id" : participant._id },
-        { $set: {"experience": (parseInt(JSON.parse(req.params.player).experience) + 1)} }
+        { $set: {"experience": (parseInt(participant.experience) + 1)} }
     );
     res.sendStatus("200");
 });
