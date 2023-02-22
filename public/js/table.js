@@ -1,8 +1,9 @@
 import {insertCard} from "./cardPicker.js";
 import {Settings} from "./settings.js";
 import {expRequired} from "./level.js";
+import {newSystemCall} from "./action.js";
 /**
- * This function adds a player card from the list into the table
+ * This function adds a player card from the list into the table if the limit has not been reached
  *
  * @function addPlayer
  * @param {int} index player position in the array
@@ -15,6 +16,10 @@ async function addPlayer(index)
         newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
+    else if(Settings.playerCount === 4) {
+        newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
+        return false;
+    }
     else {
         Settings.playerCount++;
         Settings.availablePlayers[index].inUse = true;
@@ -23,9 +28,8 @@ async function addPlayer(index)
     }
 }
 
-
 /**
- * This function adds an enemy card from the list into the table
+ * This function adds an enemy card from the list into the table if the limit has not been reached
  *
  * @function addEnemy
  * @param {int} index enemy position in the array
@@ -33,11 +37,17 @@ async function addPlayer(index)
  */
 async function addEnemy(index)
 {
-    Settings.enemyCount++;
-    Settings.addedEnemiesCount++;
-    let newEnemy = structuredClone(Settings.availableEnemies[index]);
-    newEnemy.name = newEnemy.name + " " + Settings.addedEnemiesCount;
-    await insertCard("enemy", newEnemy);
+    if(Settings.enemyCount === 9) {
+        newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
+        return false;
+    }
+    else {
+        Settings.enemyCount++;
+        Settings.addedEnemiesCount++;
+        let newEnemy = structuredClone(Settings.availableEnemies[index]);
+        newEnemy.name = newEnemy.name + " " + Settings.addedEnemiesCount;
+        await insertCard("enemy", newEnemy);
+    }
 }
 
 

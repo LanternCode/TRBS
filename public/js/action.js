@@ -434,7 +434,7 @@ function damageTarget(obj, target)
 }
 
 /**
- * This function creates a battle  history item with the message sent to the user after a system call
+ * This function creates a battle history item with the message sent to the user after a system call
  *
  * @function newSystemCall
  * @param {string} call - The new message to show to the user

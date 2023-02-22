@@ -22,8 +22,7 @@ async function addCardInit(type)
 }
 
 /**
- * This function checks if new participants can be added into battle and if so,
- * prepares the card picker. Called by pressing the plus button on the left.
+ * This function prepares the card picker. Called by pressing the plus button on the left.
  *
  * @generator
  * @function initCardPicker
@@ -32,24 +31,11 @@ async function addCardInit(type)
  */
 async function initCardPicker(type)
 {
-    //check if more participants can be added onto the table
-    if(type === "player"){
-        if(Settings.playerCount === 4) {
-            newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
-            return false;
-        }
-        else {
-            await Settings.fetchPlayers();
-        }
+    if(type === "player") {
+        await Settings.fetchPlayers();
     }
     else if(type === "enemy") {
-        if(Settings.enemyCount === 9) {
-            newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
-            return false;
-        }
-        else {
-             await Settings.fetchEnemies();
-        }
+        await Settings.fetchEnemies();
     }
 
     return true;
