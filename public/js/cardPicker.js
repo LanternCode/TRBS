@@ -16,8 +16,9 @@ import {createCardTemplate} from "./card.js";
  */
 async function addCardInit(type)
 {
-    initCardPicker(type)
-    .then(() => displayCardPicker(type));
+    let success = await initCardPicker(type);
+    if(success) displayCardPicker(type);
+    // .then((result) => { if (result) displayCardPicker(type) } );
 }
 
 /**
@@ -35,7 +36,7 @@ async function initCardPicker(type)
     if(type === "player"){
         if(Settings.playerCount === 4) {
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
-            return;
+            return false;
         }
         else {
             await Settings.fetchPlayers();
@@ -44,12 +45,14 @@ async function initCardPicker(type)
     else if(type === "enemy") {
         if(Settings.enemyCount === 9) {
             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
-            return;
+            return false;
         }
         else {
              await Settings.fetchEnemies();
         }
     }
+
+    return true;
 }
 
 /**
@@ -72,13 +75,26 @@ async function displayCardPicker(type)
     //insert participants of the 'type' into the card picker
     let selectSection = await refreshCardList(type, true);
 
+    let cardPickerWrap = document.createElement("div");
+    cardPickerWrap.classList.add("cardPickerWrap");
+
     //attach styles to the select section
     selectSection.classList.add("cardListFrame");
     selectSection.id = "listSection";
     selectSection.addEventListener("click", (event) => {event.stopPropagation();} )
 
+    let closeListButton = document.createElement("button");
+    closeListButton.addEventListener("click", () => {
+        pickingOverlay.classList.add("hidden");
+        pickingOverlay.removeChild(pickingOverlay.firstChild);
+    });
+    closeListButton.innerHTML = "&times;";
+    closeListButton.classList.add("closeListButton");
+    cardPickerWrap.appendChild(closeListButton);
+
     //reveal the card picker
-    pickingOverlay.appendChild(selectSection);
+    cardPickerWrap.appendChild(selectSection);
+    pickingOverlay.appendChild(cardPickerWrap);
     pickingOverlay.classList.remove("hidden");
 }
 
@@ -140,6 +156,10 @@ async function refreshCardList(cardType, firstUse = false)
         selectSection.innerHTML = "";
     }
 
+    //create the settings card and append it at the end
+    let settings = await createSettingsCard(cardType);
+    selectSection.appendChild(settings);
+
     //insert each available participant into the list
     for (let i = 0; i < cardList.length; i++) {
         let index = i;
@@ -161,10 +181,6 @@ async function refreshCardList(cardType, firstUse = false)
         selectSection.appendChild(option);
     }
 
-    //create the settings card and append it at the end
-    let settings = await createSettingsCard(cardType);
-    selectSection.appendChild(settings);
-
     if (firstUse)
         return selectSection;
 }
@@ -183,31 +199,23 @@ async function createSettingsCard(type)
     let card = document.createElement("section");
     card.className = type === "player" ? "playerSection" : "enemySection";
     let addParticipantH3 = document.createElement("h3");
-    addParticipantH3.innerText = type === "player" ? "Dodaj Gracza:" : "Dodaj Przeciwnika:";
-    let addParticipantButton = document.createElement("button");
-    addParticipantButton.className = "cardPickerButton";
-    addParticipantButton.innerText = "+";
-    addParticipantButton.onclick = async function(){
+    addParticipantH3.innerText = "+"; // type === "player" ? "Dodaj Gracza:" : "Dodaj Przeciwnika:";
+    // let addParticipantButton = document.createElement("button");
+    // addParticipantButton.className = "cardPickerButton";
+    // addParticipantButton.innerText = "+";
+    // addParticipantButton.onclick = async function(){
+
+    card.classList.add("clickOnMe");
+    card.onclick = async function(){
         let newParticipant;
         if(type === "player") newParticipant = generateNewPlayer();
         else newParticipant = generateNewEnemy();
         await insertCard(type, newParticipant, "list");
         refreshCardList(type);
     };
-    let closeListH3 = document.createElement("h3");
-    closeListH3.innerText = "Zamknij listę:";
-    let closeListButton = document.createElement("button");
-    closeListButton.className = "cardPickerButton";
-    closeListButton.innerText = "✖";
-    closeListButton.onclick = function(){
-        pickingOverlay.classList.add("hidden");
-        pickingOverlay.removeChild(pickingOverlay.firstChild);
-    };
 
     card.appendChild(addParticipantH3);
-    card.appendChild(addParticipantButton);
-    card.appendChild(closeListH3);
-    card.appendChild(closeListButton);
+    // card.appendChild(addParticipantButton);
 
     return card;
 }

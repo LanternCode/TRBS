@@ -8,6 +8,10 @@ input {
     width: 100px;
 }
 
+button {
+    cursor: pointer;
+}
+
 /* Section of enemies */
 
 #enemySlots {
@@ -27,6 +31,8 @@ input {
     float: left;
     background-color: #FFB6A7;
     margin: 10px;
+
+    border-radius: 0.4em;
 }
 
 #enemyAddSection {
@@ -52,6 +58,8 @@ input {
   float: left;
   background-color: #AEFFA7;
   margin: 10px;
+
+  border-radius: 0.4em;
 }
 
 #playerAddSection {
@@ -83,7 +91,7 @@ input {
     background-color: #FFF1C7;
 }
 
-#pickingOverlay{
+#pickingOverlay {
     position: fixed;
     left: 0;
     top: 0;
@@ -95,20 +103,20 @@ input {
     height: 100vh;
 }
 
-.clickOnMe{
+.clickOnMe {
     cursor: pointer;
     transition: 0.2s ease-in opacity;
 }
 
-.clickOnMe:hover{
+.clickOnMe:hover {
     opacity: 0.8;
 }
 
-.inlineBlockDisp {
+.inlineBlockDisp  {
     display: inline-block;
 }
 
-.blockDisp {
+.blockDisp  {
     display: block;
 }
 
@@ -118,9 +126,33 @@ input {
 }
 
 .cardListFrame {
-    padding: 50px;
+    padding: 2em;
     background-color: white;
-    border: 20px solid saddlebrown;
+    border: 3px solid saddlebrown;
+    border-radius: 1em;
+    overflow: hidden;
+    height: 60vh;
+    width: 80vw;
+    overflow: scroll;
+}
+
+.cardPickerWrap {
+    position: relative;
+}
+
+.cardPickerWrap>.closeListButton {
+    font-size: 1em;
+    position: absolute;
+    top: -0.5em;
+    right: -0.5em;
+    background-color: white;
+    border-radius: 100%;
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    display: block;
+    border: 3px solid saddlebrown;
+    box-sizing: border-box;
 }
 
 #systemCall {
