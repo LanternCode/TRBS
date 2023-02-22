@@ -16,8 +16,9 @@ import {createCardTemplate} from "./card.js";
  */
 async function addCardInit(type)
 {
-    initCardPicker(type)
-    .then(() => displayCardPicker(type));
+    let success = await initCardPicker(type);
+    if(success) displayCardPicker(type);
+    // .then((result) => { if (result) displayCardPicker(type) } );
 }
 
 /**
@@ -35,7 +36,7 @@ async function initCardPicker(type)
     if(type === "player"){
         if(Settings.playerCount === 4) {
             newSystemCall("Nie udało się dodać nowego gracza ponieważ limit to 4.");
-            return;
+            return false;
         }
         else {
             await Settings.fetchPlayers();
@@ -44,12 +45,14 @@ async function initCardPicker(type)
     else if(type === "enemy") {
         if(Settings.enemyCount === 9) {
             newSystemCall("Nie udało się dodać nowego przeciwnika ponieważ limit to 9.");
-            return;
+            return false;
         }
         else {
              await Settings.fetchEnemies();
         }
     }
+
+    return true;
 }
 
 /**
