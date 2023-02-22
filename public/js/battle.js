@@ -17,7 +17,7 @@ function startBattle()
     let participantsOK = Settings.playerCount > 0 && Settings.enemyCount > 0;
 
     //Check that no cards are being edited
-    let cardsOK = document.getElementsByTagName("input").length === 0;
+    let cardsOK = document.getElementsByTagName("input").length < 2;
 
     if(participantsOK && cardsOK)
     {

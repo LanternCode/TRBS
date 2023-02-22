@@ -20,6 +20,7 @@ function adjustOptions(filter) {
     let actionElementsSection = document.getElementById("actionElementsSection");
     let actionElementsList = document.getElementById("actionElementsList");
     let targetSection = document.getElementById("sectionTarget");
+    let inputSection = document.getElementById("sectionInput");
 
     //filter specifies which section needs to update once an action was picked
     if(filter === "actionElements") {
@@ -28,6 +29,7 @@ function adjustOptions(filter) {
             case "regAttack":
             {
                 hideSection(actionElementsSection);
+                hideSection(inputSection);
                 prepareTargetSection(getAttackableTargets());
                 showSection(targetSection);
                 break;
@@ -36,11 +38,13 @@ function adjustOptions(filter) {
             {
                 hideSection(actionElementsSection);
                 hideSection(targetSection);
+                hideSection(inputSection);
                 break;
             }
             case "item":
             {
                 hideSection(targetSection);
+                hideSection(inputSection);
                 createActionElementsList("itemsList");
                 showSection(actionElementsSection);
                 break;
@@ -48,6 +52,7 @@ function adjustOptions(filter) {
             case "skill":
             {
                 hideSection(targetSection);
+                hideSection(inputSection);
                 createActionElementsList("skillsList");
                 showSection(actionElementsSection);
                 break;
@@ -55,6 +60,7 @@ function adjustOptions(filter) {
             case "debug":
             {
                 hideSection(targetSection);
+                hideSection(inputSection);
                 createActionElementsList("debugList");
                 showSection(actionElementsSection);
                 break;
@@ -87,8 +93,8 @@ function adjustOptions(filter) {
             }
             case "debug":
             {
+                hideSection(inputSection);
                 createDebugTargetList();
-                showSection(targetSection);
                 break;
             }
             default:
@@ -103,6 +109,7 @@ function adjustOptions(filter) {
         //reset simply hides all sections and resets the action choice
         hideSection(actionElementsSection);
         hideSection(targetSection);
+        hideSection(inputSection);
         actionList.value = "";
     }
 }
@@ -236,21 +243,28 @@ function createSkillTargetList()
  */
 function createDebugTargetList()
 {
-    //get the debug actions list
+    //get the debug actions list and targets section
     let debugList = document.getElementById("actionElementsList");
+    let targetSection = document.getElementById("sectionTarget");
     //check if an action was selected, otherwise exit
     if (debugList.value === '') return;
-    //get the skill id
-    //let actionName = debugList.value.splice("-")[1];
+    //get the debug action
     let actionName = debugList.value;
     //check if the action targets literally everyone - if so, job done
     if(["winBattle", "loseBattle"].includes(actionName)) {
         prepareTargetSection([], "everyone");
+        showSection(targetSection);
+    }
+    else if(actionName === "setNextRoll") {
+        //We'll not be setting targets here, instead we'll call an input section handler
+        setupInputSection();
+        hideSection(targetSection);
     }
     else {
         //for now the only other testing action is to defeat any participant
         //so proceed with the list of all participants
         prepareTargetSection(Settings.participants);
+        showSection(targetSection);
     }
 }
 
@@ -401,13 +415,34 @@ function createActionElementsList(listName)
             let debugOption3 = document.createElement('option');
             debugOption3.value = "loseBattle";
             debugOption3.innerText = "[D] Przegraj walkę";
+            let debugOption4 = document.createElement('option');
+            debugOption4.value = "setNextRoll";
+            debugOption4.innerText = "[D] Ustaw Następny Rzut";
             list.appendChild(debugOption1);
             list.appendChild(debugOption2);
             list.appendChild(debugOption3);
+            list.appendChild(debugOption4);
             break;
         }
     }
 
+}
+
+/**
+ * This function resets and shows the input section that allows the user
+ * to manually input a number in range 1-100. Used in debugging only.
+ *
+ * @function setupInputSection
+ * @returns void
+ */
+function setupInputSection()
+{
+    let manualInputText = document.getElementById("manualInput");
+    //first reset the input field
+    manualInputText.innerText = "";
+    //now show the input field
+    let inputSection = document.getElementById("sectionInput");
+    showSection(inputSection);
 }
 
 /**

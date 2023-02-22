@@ -130,6 +130,21 @@ class Settings {
     static async fetchEnemies() {
         this.availableEnemies = await getAvailableEnemies();
     }
+
+    /**
+     * If this value is set to anything but zero, it will be used for the next system roll.
+     * The getter and setter for the property are located below.
+     *
+     * @property nextRollValue
+     * @type {number}
+     */
+    nextRollValue = 0;
+    static get getNextRollValue() {
+        return this.nextRollValue;
+    }
+    static set setNextRollValue(value) {
+        this.nextRollValue = value;
+    }
 }
 
 export {Settings};

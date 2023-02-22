@@ -2,6 +2,7 @@ import {endBattle, isBattleOver} from "./battle.js";
 import {adjustOptions, filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
+import {handleSystemRoll} from "./utils.js";
 
 /**
  * This function ends the current local/global turn
@@ -184,8 +185,8 @@ function handleRegAttack(target, attacker)
     }
 
     //players roll from 1-20, enemies from 1-100
-    let maxRoll = participantType === "enemy" ? 100 : 20;
-    let hitCheck = Math.floor(Math.random() * maxRoll) + 1;
+    let maxRoll = participantType === "enemy" ? "d100" : "d20";
+    let hitCheck = handleSystemRoll(maxRoll);
 
     //critical attacks double or increase the damage, check if they happened
     let criticalWeakPoint = hitCheck === 100;
@@ -346,7 +347,7 @@ function handleUseSkill(skill, target)
  */
 function handleDebugAction(actionElement, target)
 {
-    newSystemCall("debug action: " + actionElement);
+    newSystemCall("Debug action: " + actionElement);
 
     switch(actionElement)
     {
@@ -367,6 +368,19 @@ function handleDebugAction(actionElement, target)
         {
             endBattle("e");
             break;
+        }
+        case "setNextRoll":
+        {
+            let valueInserted = document.getElementById("manualInput").value;
+            let valueParsed = parseInt(valueInserted);
+            if(Number.isInteger(valueParsed)) {
+                if(valueParsed > 0 && valueParsed < 101) {
+                    Settings.setNextRollValue = valueParsed;
+                    newSystemCall("Next roll value set to: " + valueParsed);
+                }
+                else newSystemCall("Debug input value must be an integer between 1 and 100!");
+            }
+            else newSystemCall("Debug input value must be a number!");
         }
         default:
         {

@@ -1,3 +1,5 @@
+import {Settings} from "./settings.js";
+
 /**
  * This function generates a random integer in the given range, inclusive.
  *
@@ -7,8 +9,6 @@
  * @param {number} max - The end of the range
  * @return {number} The number generated
  */
-import {Settings} from "./settings.js";
-
 function getRndInteger(min, max) {
     return Math.floor(Math.random() * (++max-min) ) + min; // + 1 for max to be included
 }
@@ -111,4 +111,33 @@ function generateNewPlayer()
     return player;
 }
 
-export { generateNewEnemy, generateNewPlayer };
+/**
+ * This function handles a d100 or d20 roll and overwrites it if the appropriate debug option is enabled
+ *
+ * @generator
+ * @function handleSystemRoll
+ * @param {string} diceType d100 for 1-100 rolls, anything else for 1-20 rolls
+ * @returns {number} a roll in range 1-20 or 1-100
+ */
+function handleSystemRoll(diceType)
+{
+    let hitCheck;
+    let maxRoll = diceType === "d100" ? 100 : 20;
+    let definedDebugRoll = Settings.getNextRollValue;
+    let overwriteRoll = definedDebugRoll > 0;
+    if (overwriteRoll && maxRoll === 100) {
+        hitCheck = definedDebugRoll;
+        Settings.setNextRollValue = 0;
+    }
+    else if (overwriteRoll && definedDebugRoll < 21) {
+        hitCheck = definedDebugRoll;
+        Settings.setNextRollValue = 0;
+    }
+    else {
+        hitCheck = Math.floor(Math.random() * maxRoll) + 1;
+    }
+
+    return hitCheck;
+}
+
+export { generateNewEnemy, generateNewPlayer, handleSystemRoll };
