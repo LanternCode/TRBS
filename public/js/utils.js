@@ -140,4 +140,19 @@ function handleSystemRoll(diceType)
     return hitCheck;
 }
 
-export { generateNewEnemy, generateNewPlayer, handleSystemRoll };
+/**
+ * This function creates a battle history item with the message sent to the user after a system call
+ *
+ * @function newSystemCall
+ * @param {string} call - The new message to show to the user
+ * @return {void}
+ */
+function newSystemCall(call)
+{
+    let historyItem = document.createElement("li");
+    historyItem.innerText = call;
+
+    document.getElementById("systemCall").appendChild(historyItem);
+}
+
+export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall };

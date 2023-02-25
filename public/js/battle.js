@@ -1,4 +1,4 @@
-import {newSystemCall} from "./action.js";
+import {newSystemCall} from "./utils.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
@@ -72,11 +72,20 @@ function startBattle()
 
         //Reset the targets list
         let targetSlot = document.getElementById("targetsList");
-        targetSlot.innerHTML = '';
+        let battleOrder = document.getElementById("battleOrder");
+        targetSlot.textContent = '';
+        battleOrder.textContent = '';
+
         //Reset participant's hp to its max value (for battle resets)
         for(let i = 0; i < Settings.participants.length; ++i)
         {
             Settings.participants[i].health = Settings.participants[i].maxHealth;
+
+            // show participants order
+            let participantIndicator = document.createElement("li");
+            participantIndicator.innerText = Settings.participants[i].name;
+            if(i === 0) participantIndicator.classList.add("current");
+            battleOrder.appendChild(participantIndicator);
         }
 
         //hide all sections at the start
@@ -200,7 +209,7 @@ function continueToBattle() {
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
     // clear the battle history
-    document.getElementById("systemCall").textContent = '';
+    document.getElementById("systemCall").textContent = '<hr>';
 
     //refresh cards to definitions
     refreshCardsInBattle(true);

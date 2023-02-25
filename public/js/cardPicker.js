@@ -1,9 +1,9 @@
-import { newSystemCall } from "./action.js";
 import { insertParticipant } from "./db.js";
 import { generateNewEnemy, generateNewPlayer } from "./utils.js";
 import { Settings } from "./settings.js";
 import { addPlayer, addEnemy } from "./table.js";
 import {createCardTemplate} from "./card.js";
+import { newSystemCall } from "./utils.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -53,10 +53,6 @@ async function initCardPicker(type)
 async function displayCardPicker(type)
 {
     let pickingOverlay = document.getElementById("pickingOverlay");
-    pickingOverlay.addEventListener("click", () => {
-        pickingOverlay.classList.add("hidden");
-        pickingOverlay.removeChild(pickingOverlay.firstChild);
-    });
 
     //insert participants of the 'type' into the card picker
     let selectSection = await refreshCardList(type, true);
@@ -70,10 +66,15 @@ async function displayCardPicker(type)
     selectSection.addEventListener("click", (event) => {event.stopPropagation();} )
 
     let closeListButton = document.createElement("button");
-    closeListButton.addEventListener("click", () => {
+
+    pickingOverlay.addEventListener("click", closePickingOverlay);
+    closeListButton.addEventListener("click", (event) => {
+        event.stopPropagation();
         pickingOverlay.classList.add("hidden");
-        pickingOverlay.removeChild(pickingOverlay.firstChild);
-    });
+        pickingOverlay.removeChild( pickingOverlay.children[0]);
+        pickingOverlay.removeEventListener("click", closePickingOverlay);
+    }); 
+
     closeListButton.innerHTML = "&times;";
     closeListButton.classList.add("closeListButton");
     cardPickerWrap.appendChild(closeListButton);
@@ -82,6 +83,20 @@ async function displayCardPicker(type)
     cardPickerWrap.appendChild(selectSection);
     pickingOverlay.appendChild(cardPickerWrap);
     pickingOverlay.classList.remove("hidden");
+}
+
+/**
+ * This function closes the card picker after clicking aside
+ *
+ * @generator
+ * @function closePickingOverlay
+ * @param {event} event event listener's event
+ */
+function closePickingOverlay(event) {
+    event.stopPropagation();
+    event.currentTarget.classList.add("hidden");
+    event.currentTarget.removeChild( event.currentTarget.children[0]);
+    event.currentTarget.removeEventListener("click", closePickingOverlay);
 }
 
 /**
@@ -132,6 +147,8 @@ async function insertCard(type, newParticipant, location = "table")
  */
 async function refreshCardList(cardType, firstUse = false)
 {
+    firstUse = true;
+
     //fetch or create the card picker selection list
     let cardList = (cardType === "player" ? Settings.availablePlayers : Settings.availableEnemies);
     let selectSection;

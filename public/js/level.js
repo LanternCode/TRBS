@@ -1,4 +1,4 @@
-import {newSystemCall} from "./action.js";
+import {newSystemCall} from "./utils.js";
 import {updateParticipant} from "./db.js";
 
 /**

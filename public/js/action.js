@@ -2,8 +2,7 @@ import {endBattle, isBattleOver} from "./battle.js";
 import {adjustOptions, filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {handleSystemRoll} from "./utils.js";
-
+import {handleSystemRoll, newSystemCall} from "./utils.js";
 /**
  * This function ends the current local/global turn
  *
@@ -16,6 +15,9 @@ function nextTurn()
     if(!isBattleOver()){
         //update the local turn counter
         Settings.localTurn++;
+
+        let battleOrder = document.getElementById("battleOrder");
+        battleOrder.textContent = '';
 
         //check if this was the last local turn of the global turn
         if(Settings.localTurn === Settings.participants.length)
@@ -38,6 +40,14 @@ function nextTurn()
                     );
                 }
             }
+        }
+
+        for (let i = 0; i < Settings.participants.length; ++i) {
+            // update the battle order indicator
+            let participantIndicator = document.createElement("li");
+            participantIndicator.innerText = Settings.participants[i].name;
+            if(i === Settings.localTurn) participantIndicator.classList.add("current");
+            battleOrder.appendChild(participantIndicator);
         }
 
         //if the member was dodging, disable their dodge once their turn starts again
@@ -433,19 +443,5 @@ function damageTarget(obj, target)
     }
 }
 
-/**
- * This function creates a battle history item with the message sent to the user after a system call
- *
- * @function newSystemCall
- * @param {string} call - The new message to show to the user
- * @return {void}
- */
-function newSystemCall(call)
-{
-    let historyItem = document.createElement("li");
-    historyItem.innerText = call;
 
-    document.getElementById("systemCall").appendChild(historyItem);
-}
-
-export {nextTurn, act, newSystemCall, filterBySubtype};
+export {nextTurn, act, filterBySubtype};

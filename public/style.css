@@ -161,3 +161,7 @@ button {
     background-color: #ccc;
     max-width: 30em;
 }
+
+.current {
+    color: red;
+}

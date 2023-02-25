@@ -1,7 +1,7 @@
 import {insertCard} from "./cardPicker.js";
 import {Settings} from "./settings.js";
 import {expRequired} from "./level.js";
-import {newSystemCall} from "./action.js";
+import {newSystemCall} from "./utils.js";
 /**
  * This function adds a player card from the list into the table if the limit has not been reached
  *
