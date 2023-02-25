@@ -1,6 +1,8 @@
 import {expRequired, levelDown, levelUp} from "./level.js";
 import {Settings} from "./settings.js";
 import { dropParticipant, updateParticipant} from "./db.js";
+import {refreshCardList} from "./cardPicker.js";
+import {refreshCardsInBattle} from "./table.js";
 
 /**
  * This function constructs a participant card template
