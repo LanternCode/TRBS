@@ -210,6 +210,7 @@ function continueToBattle() {
 
     // clear the battle history
     document.getElementById("systemCall").textContent = '';
+    document.getElementById("battleOrder").textContent = '';
 
     //refresh cards to definitions
     refreshCardsInBattle(true);
