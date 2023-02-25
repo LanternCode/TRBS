@@ -167,6 +167,8 @@ class Status {
 
     /**
      * This function takes a status and checks if it is valid. Prints an error message if invalid.
+     *
+     * @function validate
      * @param {Object} status a status object to validate
      * @returns {boolean} true if the status is valid, false otherwise
      */
@@ -182,7 +184,6 @@ class Status {
             if(!defaultLengthOK) {
                 errorMessage += "Nie podano czasu trwania statusu (length)\n";
             }
-            else status.length = status.defaultLength;
         }
         //then check if strength is defined
         let strengthOK = status.strength > 0;
@@ -193,7 +194,6 @@ class Status {
             if(!defaultStrengthOK) {
                 errorMessage += "Nie podano siły statusu (strength)\n";
             }
-            else status.strength = status.defaultStrength;
         }
         //name, displayName and description must all be defined
         let nameOK = (typeof status.name === 'string') && status.name.length > 0;
@@ -231,10 +231,133 @@ class Status {
         }
         else return true;
     }
-    applyStatus(participant, status) {
+
+    /**
+     * This function returns the matching status of a participant, or false if not found
+     *
+     * @function getParticipantStatus
+     * @param {object} participant the participant to check
+     * @param {object} status the status to check
+     * @returns {boolean|*} status if found, false otherwise
+     */
+    static getParticipantStatus(participant, status) {
+        let statusList = participant.statusesApplied;
+        if (statusList.length === 0) return false;
+        else {
+            //for every status the player is affected by, compare it
+            for(let i = 0; i < statusList.length; ++i) {
+                if(statusList[i].name === status.name) return statusList[i];
+            }
+        }
+        //if the status is not found, return false
+        return false;
+    }
+
+    /**
+     * This function checks whether the given participant is already affected by the given status
+     *
+     * @function isParticipantAffected
+     * @param {object} participant the participant to check
+     * @param {object} status the status to check
+     * @returns {boolean} true if affected, false otherwise
+     */
+    static isParticipantAffected(participant, status) {
+        let result = this.getPlayerStatus(participant, status);
+        if (result === false) return false;
+        else return result.name === status.name;
+    }
+
+    /**
+     * This function takes two statues and compares their "power". The stronger status is returned.
+     *
+     * @function compareStatusPower
+     * @param {object} currentStatus the first (currently applied) status to compare
+     * @param {object} newStatus the second (replacing the current) status to compare
+     * @returns {object}
+     */
+    static compareStatusPower(currentStatus, newStatus) {
+        //to calculate the "objective" status power, we'll multiply the strength by the length
+        let firstStatusPower = currentStatus.strength * currentStatus.length;
+        let secondStatusPower = newStatus.strength * newStatus.length;
+        //if the values are the same, assume the user wanted the replacement and return the new status
+        return firstStatusPower > secondStatusPower ? currentStatus : (firstStatusPower === secondStatusPower ? newStatus : newStatus);
+    }
+
+    /**
+     * This function checks if length and strength are defined and if not, it applies the default values
+     *
+     * @function applyDefaultValues
+     * @param {object} status the status to apply the values to
+     * @returns {object} the status, after update
+     */
+    static applyDefaultValues(status) {
+        //first check the length is specified
+        let lengthDefined = status.length > 0;
+        if(!lengthDefined) {
+            status.length = status.defaultLength;
+        }
+        //then check if strength is defined
+        let strengthDefined = status.strength > 0;
+        if(!strengthDefined) {
+            status.strength = status.defaultStrength;
+        }
+        //return the updates status
+        return status;
+    }
+
+    /**
+     * This function takes an existing status, drops it and inserts a replacement
+     *
+     * @function replaceParticipantStatus
+     * @param {object} participant the participant who "owns" the status
+     * @param {object} statusToReplace the status to drop
+     * @param {object} replacementStatus the status to insert
+     */
+    static replaceParticipantStatus(participant, statusToReplace, replacementStatus) {
+        let statuses = participant.statusesApplied;
+        this.voidStatus(statuses, statusToReplace);
+        statuses.push(replacementStatus);
+    }
+
+    /**
+     * This function takes a list of participant statuses and voids the given one
+     *
+     * @function voidStatus
+     * @param {array} participantStatuses the array of participant statuses
+     * @param {object} statusToVoid the status to find and void
+     */
+    static voidStatus(participantStatuses, statusToVoid) {
+        let statusPosition = participantStatuses.indexOf(statusToVoid);
+        participantStatuses.splice(statusPosition, 1);
+    }
+
+    /**
+     * This function takes a participant and a status, and then applies the status on that participant
+     *
+     * @function applyStatus
+     * @param {object} participant the target of the status
+     * @param {object} status the status object
+     */
+    static applyStatus(participant, status) {
         //before you apply the status, validate it
         let statusValid = Status.validate(status);
-        if(statusValid) participant.statusesApplied.push(status);
+        //apply defaultLength and defaultStrength where required
+        let statusUpdated = Status.applyDefaultValues(status);
+        //if the status is valid, check that the participant is not already affected by it
+        let participantAlreadyAffected = Status.isParticipantAffected(participant, statusUpdated);
+        if(participantAlreadyAffected) {
+            //if the participant is already affected, fetch the participant's version of the status
+            let participantAffectedBy = Status.getParticipantStatus(participant, statusUpdated);
+            //check which status is stronger by comparing their strengths and lengths
+            let strongerStatus = Status.compareStatusPower(participantAffectedBy, statusUpdated);
+            //replace the previous status with the new status if it is stronger
+            if(statusUpdated === strongerStatus) {
+                Status.replaceParticipantStatus(participant, statusUpdated, strongerStatus);
+            }
+        }
+        else {
+            participant.statusesApplied.push(statusUpdated);
+        }
     }
 }
 
