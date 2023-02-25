@@ -41,6 +41,7 @@ nextTurnButton.addEventListener("click", () => { nextTurn() }, false);
  * @property {number} [level] - Participant's level, only for players
  * @property {number} armor - Participant's armor rating
  * @property {number} [zone] - Participant's zone, only for enemies
+ * @property {array} statusesApplied - Array of statuses applied on the participant
  */
 await Settings.fetchEnemies();
 

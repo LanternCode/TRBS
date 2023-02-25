@@ -456,7 +456,7 @@ function setupInputSection()
  */
 function filterBySubtype(arrayToFilter, subtype)
 {
-    if (["restore", "damaging"].includes(subtype)) {
+    if (["restore", "damage"].includes(subtype)) {
         arrayToFilter = arrayToFilter.filter(p => p.health > 0);
     }
     else if (subtype === "revive") {

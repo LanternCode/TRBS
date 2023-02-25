@@ -5,16 +5,18 @@
  * @property {string} name - internal name of the status
  * @property {string} displayName - the name of the status seen by the user
  * @property {string} description - the description of the status effect visible to the user
- * @property {string} effectiveAt - whether the status is applied as the start or end of the turn (start/end)
- * @property {string} effectiveTurn - whether the status is applied at the local, global or throughout turn (local/global/persistent)
+ * @property {string} effectiveAt - whether the status is applied as the start, end or throughout the turn (start/end/throughout)
+ * @property {string} effectiveTurn - whether the status is applied at the local or global turn (local/global)
  * @property {string} type - status type (supportive/offensive/special)
- * @property {string} subtype - status subtype (restore/damaging/revive/boost)
+ * @property {string} subtype - status subtype (restore/damage/revive/boost)
  * @property {number} defaultLength - if length is not specified, the defaultLength will be used
  * @property {number} length - how many turns the status will last
  * @property {number} defaultStrength - if strength is not specified, the defaultStrength will be used
  * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.) or how many uses it has
- * @property {object} statsAffectedList - list of statsAffected objects that list which statistics were affected and how much
+ * @property {array} statsAffectedList - list of statsAffected objects that list which statistics were affected and how much
  */
+import {newSystemCall} from "./utils";
+
 class Status {
     constructor(ustid) {
         this.ustid = ustid;
@@ -162,6 +164,78 @@ class Status {
     set statsAffectedList(value) {
         this.statsAffectedList = value;
     }
+
+    /**
+     * This function takes a status and checks if it is valid. Prints an error message if invalid.
+     * @param {Object} status a status object to validate
+     * @returns {boolean} true if the status is valid, false otherwise
+     */
+    static validate(status) {
+        //define a string to store the error message
+        let errorMessage = "";
+        //first check the length is specified
+        let lengthOK = status.length > 0;
+        //if length is not defined, check if defaultLength is defined
+        if(!lengthOK) {
+            let defaultLengthOK = status.defaultLength > 0;
+            //if defaultLength is not defined, the status is invalid
+            if(!defaultLengthOK) {
+                errorMessage += "Nie podano czasu trwania statusu (length)\n";
+            }
+            else status.length = status.defaultLength;
+        }
+        //then check if strength is defined
+        let strengthOK = status.strength > 0;
+        //strength must be defined for non-special statuses
+        if(!strengthOK) {
+            let defaultStrengthOK = status.defaultStrength > 0;
+            //if defaultStrength is not defined, the status is invalid
+            if(!defaultStrengthOK) {
+                errorMessage += "Nie podano siły statusu (strength)\n";
+            }
+            else status.strength = status.defaultStrength;
+        }
+        //name, displayName and description must all be defined
+        let nameOK = (typeof status.name === 'string') && status.name.length > 0;
+        let displayNameOK = (typeof status.displayName === 'string') && status.displayName.length > 0;
+        let descriptionOK = (typeof status.description === 'string') && status.description.length > 0;
+        if(!nameOK || !displayNameOK || !descriptionOK) {
+            if(!nameOK) errorMessage += "Nie podano wewnętrznej nazwy statusu (name)\n";
+            if(!displayNameOK) errorMessage += "Nie podano wyświetlanej nazwy statusu (displayName)\n";
+            if(!descriptionOK) errorMessage += "Nie podano opisu statusu (description)\n";
+        }
+        //effectiveAt, effectiveTurn, type and subtype must be specified and have one of the pre-defined values
+        let effectiveAtOK = (typeof status.effectiveAt === 'string') && ["start", "end", "throughout"].includes(status.effectiveAt);
+        let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global"].includes(status.effectiveTurn);
+        let typeOK = (typeof status.type === 'string') && ["supportive", "offensive", "special"].includes(status.type);
+        let subtypeOK = (typeof status.subtype === 'string') && ["restore", "damage", "revive", "boost"].includes(status.subtype);
+        if(!effectiveAtOK || !effectiveTurnOK || !typeOK || !subtypeOK) {
+            if(!effectiveAtOK) errorMessage += "Podano niepoprawny momentu działania statusu (effectiveAt)\n";
+            if(!effectiveTurnOK) errorMessage += "Podano niepoprawny moment redukcji czasu działania statusu (effectiveTurn)\n";
+            if(!typeOK) errorMessage += "Podano niepoprawny typ statusu (type)\n";
+            if(!subtypeOK) errorMessage += "Podano niepoprawny podtyp statusu (subtype)\n";
+        }
+        //statsAffectedList must match the specification of the object, so the object's validation method is used
+        let statsAffectedListOK = true;
+        for(let i = 0; i < status.statsAffectedList.length; ++i) {
+            let statsAffectedListElementOK = statsAffected.validate(status.statsAffectedList[i]);
+            statsAffectedListOK = statsAffectedListElementOK === true ? statsAffectedListOK : false;
+            if(!statsAffectedListElementOK) errorMessage += "Wskazane zmiany statystyk nr. "+i+" przez status są niepoprawne (statsAffectedList["+i+"])\n";
+        }
+        if(!statsAffectedListOK) {
+            errorMessage += "Wskazane zmiany statystyk przez status są niepoprawne (statsAffectedList)\n";
+        }
+        if(errorMessage !== "") {
+            newSystemCall(errorMessage);
+            return false;
+        }
+        else return true;
+    }
+    applyStatus(participant, status) {
+        //before you apply the status, validate it
+        let statusValid = Status.validate(status);
+        if(statusValid) participant.statusesApplied.push(status);
+    }
 }
 
 /**
@@ -196,6 +270,12 @@ class statsAffected {
     }
     set setVal(value) {
         this.val = value;
+    }
+    static validate(statsAffectedObject) {
+        let statOK = (typeof statsAffectedObject.stat === 'string') && ["strength", "speed", "agility", "cleverness", "appearance", "dodge", "attack", "maxHealth"].includes(statsAffectedObject.stat);
+        let valOK = (typeof statsAffectedObject.val === 'number') && statsAffectedObject.val !== 0;
+        if(statOK && valOK) return true;
+        else return false;
     }
 }
 
