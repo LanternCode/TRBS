@@ -209,7 +209,7 @@ function continueToBattle() {
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
     // clear the battle history
-    document.getElementById("systemCall").textContent = '<hr>';
+    document.getElementById("systemCall").textContent = '';
 
     //refresh cards to definitions
     refreshCardsInBattle(true);
