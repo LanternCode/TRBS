@@ -165,3 +165,22 @@ button {
 .current {
     color: red;
 }
+
+#battleOrder{
+    display: flex;
+    list-style: none;
+}
+
+#battleOrder>li::after{
+    content:  "\2192";
+    padding: 0 1ex;
+    color: black;
+}
+
+#battleOrder>li:last-of-type:after{
+    content: "";
+}
+
+#battleOrder>li {
+    padding: 1ex 0;
+}
