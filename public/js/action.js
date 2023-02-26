@@ -3,6 +3,7 @@ import {adjustOptions, filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {handleSystemRoll, newSystemCall} from "./utils.js";
+import {Status} from "./status.js";
 /**
  * This function ends the current local/global turn
  *
@@ -40,6 +41,9 @@ function nextTurn()
                     );
                 }
             }
+
+            //Progress statuses effective at the end of the global turn
+            Status.advanceGlobalStatuses();
         }
 
         for (let i = 0; i < Settings.participants.length; ++i) {
@@ -400,37 +404,45 @@ function handleDebugAction(actionElement, target)
  * This function restores hp to a given target
  *
  * @function restoreHp
- * @param {Object} obj The {@link item} or {@link SkillSpell} used when restoring hp
+ * @param {Object} obj The {@link item} or {@link SkillSpell} or {@link Status} used when restoring hp
  * @param {Participant} target participant receiving hp
  * @return {void}
  */
 function restoreHp(obj, target)
 {
+    //statuses use property strength instead of value
+    let statusObject = obj instanceof Status;
+    let propertyName = statusObject ? "strength" : "value";
+
     if(obj.valueType === "flat"){
-        if(target.health + obj.value > target.maxHealth)
+        if(target.health + obj[propertyName] > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += obj.value;
+        else target.health += obj[propertyName];
     }
     else {
-        if(target.health + (target.maxHealth * obj.value) > target.maxHealth)
+        if(target.health + (target.maxHealth * obj[propertyName]) > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += (target.maxHealth * obj.value);
+        else target.health += (target.maxHealth * obj[propertyName]);
     }
 }
 
 /**
- * This function damages a given target using an item or a skill
+ * This function damages a given target
  *
  * @function damageTarget
- * @param {Object} obj The {@link item} or {@link SkillSpell} used when attacking
+ * @param {Object} obj The {@link item} or {@link SkillSpell} or {@link Status} used when attacking
  * @param {Participant} target participant losing hp
  * @return {void}
  */
 function damageTarget(obj, target)
 {
-    let dmg = parseInt(obj.value);
+    //statuses use property strength instead of value
+    let statusObject = obj instanceof Status;
+    let propertyName = statusObject ? "strength" : "value";
+
+    let dmg = parseInt(obj[propertyName]);
     //damages participant by a flat value
-    if(obj.valueType === "flat"){
+    if (obj.valueType === "flat") {
         if(target.health - dmg > 0)
             target.health -= dmg;
         else target.health = 0;
@@ -444,4 +456,4 @@ function damageTarget(obj, target)
 }
 
 
-export {nextTurn, act, filterBySubtype};
+export {nextTurn, act, filterBySubtype, restoreHp, damageTarget};

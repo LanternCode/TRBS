@@ -1,3 +1,7 @@
+import {newSystemCall} from "./utils.js";
+import {Settings} from "./settings.js";
+import {damageTarget, restoreHp} from "./action.js";
+
 /**
  * A status
  * @typedef {Object} Status
@@ -5,18 +9,18 @@
  * @property {string} name - internal name of the status
  * @property {string} displayName - the name of the status seen by the user
  * @property {string} description - the description of the status effect visible to the user
- * @property {string} effectiveAt - whether the status is applied as the start, end or throughout the turn (start/end/throughout)
- * @property {string} effectiveTurn - whether the status is applied at the local or global turn (local/global)
+ * @property {string} effectiveAt - whether the status is applied as the start or end of the local turn (start/end)
+ * @property {string} effectiveTurn - whether the status is applied at the local, global or throughout turn (local/global/persistent)
  * @property {string} type - status type (supportive/offensive/special)
- * @property {string} subtype - status subtype (restore/damage/revive/boost)
+ * @property {string} subtype - status subtype (restore/damage/revive/statModifier)
+ * @property {string} strengthType - the strength can be "flat" or "percentage" (10 damage vs. 10% of hp)
  * @property {number} defaultLength - if length is not specified, the defaultLength will be used
  * @property {number} length - how many turns the status will last
  * @property {number} defaultStrength - if strength is not specified, the defaultStrength will be used
  * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.) or how many uses it has
- * @property {array} statsAffectedList - list of statsAffected objects that list which statistics were affected and how much
+ * @property {array} statsAffectedList - list of StatsAffected objects that list which statistics were affected and how much
+ * @property {boolean} statusClearable - true if the status can be voided by in-game actions, false otherwise
  */
-import {newSystemCall} from "./utils";
-
 class Status {
     constructor(ustid) {
         this.ustid = ustid;
@@ -110,6 +114,17 @@ class Status {
         this.subtype = value;
     }
     /**
+     * @property strengthType
+     * @type {string}
+     */
+    strengthType = "";
+    get getStrengthType() {
+        return this.strengthType;
+    }
+    set setStrengthType(value) {
+        this.strengthType = value;
+    }
+    /**
      * @property defaultLength
      * @type {number}
      */
@@ -158,11 +173,22 @@ class Status {
      * @type {object}
      */
     statsAffectedList = {};
-    get statsAffectedList() {
+    get getStatsAffectedList() {
         return this.statsAffectedList;
     }
-    set statsAffectedList(value) {
+    set setStatsAffectedList(value) {
         this.statsAffectedList = value;
+    }
+    /**
+     * @property statusClearable
+     * @type {boolean}
+     */
+    statusClearable = {};
+    get getStatusClearable() {
+        return this.statusClearable;
+    }
+    set setStatusClearable(value) {
+        this.statusClearable = value;
     }
 
     /**
@@ -205,10 +231,10 @@ class Status {
             if(!descriptionOK) errorMessage += "Nie podano opisu statusu (description)\n";
         }
         //effectiveAt, effectiveTurn, type and subtype must be specified and have one of the pre-defined values
-        let effectiveAtOK = (typeof status.effectiveAt === 'string') && ["start", "end", "throughout"].includes(status.effectiveAt);
-        let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global"].includes(status.effectiveTurn);
+        let effectiveAtOK = (typeof status.effectiveAt === 'string') && ["start", "end"].includes(status.effectiveAt);
+        let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.effectiveTurn);
         let typeOK = (typeof status.type === 'string') && ["supportive", "offensive", "special"].includes(status.type);
-        let subtypeOK = (typeof status.subtype === 'string') && ["restore", "damage", "revive", "boost"].includes(status.subtype);
+        let subtypeOK = (typeof status.subtype === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.subtype);
         if(!effectiveAtOK || !effectiveTurnOK || !typeOK || !subtypeOK) {
             if(!effectiveAtOK) errorMessage += "Podano niepoprawny momentu działania statusu (effectiveAt)\n";
             if(!effectiveTurnOK) errorMessage += "Podano niepoprawny moment redukcji czasu działania statusu (effectiveTurn)\n";
@@ -218,7 +244,7 @@ class Status {
         //statsAffectedList must match the specification of the object, so the object's validation method is used
         let statsAffectedListOK = true;
         for(let i = 0; i < status.statsAffectedList.length; ++i) {
-            let statsAffectedListElementOK = statsAffected.validate(status.statsAffectedList[i]);
+            let statsAffectedListElementOK = StatsAffected.validate(status.statsAffectedList[i]);
             statsAffectedListOK = statsAffectedListElementOK === true ? statsAffectedListOK : false;
             if(!statsAffectedListElementOK) errorMessage += "Wskazane zmiany statystyk nr. "+i+" przez status są niepoprawne (statsAffectedList["+i+"])\n";
         }
@@ -262,7 +288,7 @@ class Status {
      * @returns {boolean} true if affected, false otherwise
      */
     static isParticipantAffected(participant, status) {
-        let result = this.getPlayerStatus(participant, status);
+        let result = this.getParticipantStatus(participant, status);
         if (result === false) return false;
         else return result.name === status.name;
     }
@@ -328,6 +354,8 @@ class Status {
      */
     static voidStatus(participantStatuses, statusToVoid) {
         let statusPosition = participantStatuses.indexOf(statusToVoid);
+        //if the status had any stat modifiers, these must be cancelled first
+        this.cancelStatModifiers(participantStatuses[statusPosition]);
         participantStatuses.splice(statusPosition, 1);
     }
 
@@ -352,22 +380,91 @@ class Status {
             let strongerStatus = Status.compareStatusPower(participantAffectedBy, statusUpdated);
             //replace the previous status with the new status if it is stronger
             if(statusUpdated === strongerStatus) {
+                //cancel all current stat modifiers from that status
+                StatsAffected.cancelStatModifiers(participant, statusUpdated);
+                //apply the status and any stat modifiers
                 Status.replaceParticipantStatus(participant, statusUpdated, strongerStatus);
+                let statsAffectedList = strongerStatus.getStatsAffectedList;
+                for(let i = 0; i < statsAffectedList.length; ++i) {
+                    StatsAffected.applyStatModifier(participant, statsAffectedList[i]);
+                }
             }
         }
         else {
+            //apply the status and any stat modifiers
             participant.statusesApplied.push(statusUpdated);
+            let statsAffectedList = statusUpdated.getStatsAffectedList;
+            for(let i = 0; i < statsAffectedList.length; ++i) {
+                StatsAffected.applyStatModifier(participant, statsAffectedList[i]);
+            }
+        }
+    }
+
+    /**
+     * This function inflicts the effects of the status on the participant
+     *
+     * @function advanceStatus
+     * @param {object} participant the participant who is the target of the status effect
+     * @param {number} statusPos the position of the status in the statusesApplied array
+     */
+    static advanceStatus(participant, statusPos) {
+        let status = participant.statusesApplied[statusPos];
+        //if the participant is dead, only type revive status can be applied
+        if(participant.health === 0 && status.subtype === "revive") {
+            //check if the status can be used now
+            if(status.length === 0) {
+                //revive the participant and void the status
+                restoreHp(status, participant);
+                newSystemCall("Uczestnik " + participant.name + " powrócił do życia za sprawą statusu " + status.getDisplayName);
+            }
+        }
+        else if (participant.health > 0) {
+            if (status.subtype === "restore") {
+                restoreHp(status, participant);
+                newSystemCall("Uczestnik " + participant.name + " odzyskał zdrowie za sprawą statusu " + status.getDisplayName);
+            }
+            else if (status.subtype === "damage") {
+                damageTarget(status, participant);
+                newSystemCall("Uczestnik " + participant.name + " stracił zdrowie za sprawą statusu " + status.getDisplayName);
+            }
+        }
+    }
+
+    /**
+     * This function advances each status of each participant at the end of the global turn
+     *
+     * @function advanceGlobalStatuses
+     */
+    static advanceGlobalStatuses() {
+        //Search through every participant's statuses
+        for (let i = 0; i < Settings.participants.length; ++i) {
+            let participantStatuses = Settings.participants[i].statusesApplied;
+            for (let j = 0; j < participantStatuses.length; j++) {
+                //Find only the global statuses
+                if (participantStatuses[j].effectiveTurn === "global") {
+                    //first reduce the length by 1
+                    participantStatuses[j].length--;
+                    //inflict the status effect on the participant
+                    this.advanceStatus(Settings.participants[i], j);
+                    //void the status if length dropped to 0 but first cancel any stat modifiers
+                    if (participantStatuses[j].length === 0) {
+                        newSystemCall("Uczestnik " + Settings.participants[i].name + " nie jest już celem statusu " + participantStatuses[j].getDisplayName);
+                        StatsAffected.cancelStatModifiers(Settings.participants[i], participantStatuses[j]);
+                        this.voidStatus(Settings.participants[i], participantStatuses[j]);
+                    }
+                }
+            }
         }
     }
 }
 
 /**
  * An object that shows which stats were affected by an action and how much
- * @typedef {Object} statsAffected
+ * @typedef {Object} StatsAffected
  * @property {string} stat - the name of the statistic
  * @property {number} val - the strength of the effect
  */
-class statsAffected {
+class StatsAffected {
     constructor(stat, val) {
         this.stat = stat;
         this.val = val;
@@ -394,12 +491,50 @@ class statsAffected {
     set setVal(value) {
         this.val = value;
     }
+
+    /**
+     * This function validates a statsAffected object instance
+     *
+     * @param statsAffectedObject the instance to validate
+     * @returns {boolean} true if valid, false otherwise
+     */
     static validate(statsAffectedObject) {
         let statOK = (typeof statsAffectedObject.stat === 'string') && ["strength", "speed", "agility", "cleverness", "appearance", "dodge", "attack", "maxHealth"].includes(statsAffectedObject.stat);
         let valOK = (typeof statsAffectedObject.val === 'number') && statsAffectedObject.val !== 0;
-        if(statOK && valOK) return true;
-        else return false;
+        return statOK && valOK;
+    }
+
+    /**
+     * This function applies a stat modifier on a participant. The stat can't fall below 1.
+     *
+     * @function applyStatModifier
+     * @param {object} participant the participating affected by a stat modifier
+     * @param {object} statModifier the stat modifier, object of type StatsAffected
+     */
+    static applyStatModifier(participant, statModifier) {
+        let currentStatValue = participant[statModifier.getStat];
+        let updatedStatValue = currentStatValue + statModifier.getVal;
+        let finalStatValue = updatedStatValue > 0 ? updatedStatValue : 1;
+        participant[statModifier.getStat] = finalStatValue;
+    }
+
+    /**
+     * This function removes a stat modifier from a participant. The stat can't fall below 1.
+     *
+     * @function cancelStatModifiers
+     * @param {object} participant the participant to remove the modifiers from
+     * @param {object} status the status that has the stat modifiers to remove
+     */
+    static cancelStatModifiers(participant, status) {
+        let statsAffected = status.getStatsAffectedList;
+        for(let i = 0; i < statsAffected.length; ++i) {
+            let statModifier = statsAffected[i];
+            let currentStatValue = participant[statModifier.getStat];
+            let updatedStatValue = currentStatValue - statModifier.getVal;
+            let finalStatValue = updatedStatValue < 1 ? 1 : updatedStatValue;
+            participant[statModifier.getStat] = finalStatValue;
+        }
     }
 }
 
-export {Status, statsAffected}
+export {Status, StatsAffected}

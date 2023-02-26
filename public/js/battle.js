@@ -90,12 +90,10 @@ function startBattle()
 
         //hide all sections at the start
         adjustOptions("reset");
-
-        //prepare cards
         refreshCardsInBattle();
     }
     else {
-        //show a message on screen saying why you cannot start the battle now
+        //The battle cannot be started now
         let call = "Nie udało się rozpocząć walki ponieważ";
         if(!participantsOK) call += " w walce musi brać udział minimum 1 gracz i przeciwnik";
         if(!participantsOK && !cardsOK) call += " |oraz|";
@@ -154,12 +152,6 @@ function endBattle(winner)
     //announce the level-ups
     if(levelUpCall !== "\n")
         newSystemCall(levelUpCall);
-
-    // //display experience labels
-    // for (let elem of document.getElementsByClassName("experienceValue"))
-    //     elem.classList.toggle("hidden");
-    // for (let elem of document.getElementsByClassName("experienceLabel"))
-    //     elem.classList.toggle("hidden");
 
     for (let elem of document.getElementsByClassName("displayAfterBattle")) {
         elem.classList.remove("hidden");
