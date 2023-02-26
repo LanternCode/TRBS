@@ -46,7 +46,8 @@ async function createPlayers(client) {
                     skillsOwned: {"3": 0},
                     level: 1,
                     armor: 0,
-                    inUse: false
+                    inUse: false,
+                    statusesApplied: []
                 },
                 {
                     name: 'Antonio',
@@ -62,7 +63,8 @@ async function createPlayers(client) {
                     skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
                     level: 1,
                     armor: 0,
-                    inUse: false
+                    inUse: false,
+                    statusesApplied: []
                 },
                 {
                     name: 'Dion',
@@ -78,7 +80,8 @@ async function createPlayers(client) {
                     skillsOwned: {"5": 0, "2": 0},
                     level: 1,
                     armor: 0,
-                    inUse: false
+                    inUse: false,
+                    statusesApplied: []
                 },
                 {
                     name: 'Astrid',
@@ -94,7 +97,8 @@ async function createPlayers(client) {
                     skillsOwned: {"4": 0, "0": 0, "1": 0},
                     level: 1,
                     armor: 0,
-                    inUse: false
+                    inUse: false,
+                    statusesApplied: []
                 }
             ];
 
@@ -134,7 +138,8 @@ async function createEnemies(client) {
                         "3": 1,
                         "4": 0,
                         "5": 1
-                    }
+                    },
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 2",
@@ -147,7 +152,8 @@ async function createEnemies(client) {
                     "dodge": 8,
                     "zone": 5,
                     "armor": 8,
-                    "maxHealth": 59
+                    "maxHealth": 59,
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 3",
@@ -160,7 +166,8 @@ async function createEnemies(client) {
                     "dodge": 6,
                     "zone": 1,
                     "armor": 5,
-                    "maxHealth": 55
+                    "maxHealth": 55,
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 4",
@@ -173,7 +180,8 @@ async function createEnemies(client) {
                     "dodge": 10,
                     "zone": 1,
                     "armor": 0,
-                    "maxHealth": 50
+                    "maxHealth": 50,
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 5",
@@ -193,7 +201,8 @@ async function createEnemies(client) {
                         "3": 0,
                         "4": 1,
                         "5": 1
-                    }
+                    },
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 6",
@@ -213,7 +222,8 @@ async function createEnemies(client) {
                         "3": 0,
                         "4": 1,
                         "5": 1
-                    }
+                    },
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 7",
@@ -226,7 +236,8 @@ async function createEnemies(client) {
                     "dodge": 10,
                     "zone": 7,
                     "armor": 3,
-                    "maxHealth": 87
+                    "maxHealth": 87,
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 8",
@@ -246,7 +257,8 @@ async function createEnemies(client) {
                         "3": 1,
                         "4": 0,
                         "5": 1
-                    }
+                    },
+                    "statusesApplied": []
                 },
                 {
                     "name": "Przeciwnik 9",
@@ -259,7 +271,8 @@ async function createEnemies(client) {
                     "dodge": 9,
                     "zone": 7,
                     "armor": 2,
-                    "maxHealth": 59
+                    "maxHealth": 59,
+                    "statusesApplied": []
                 }
             ];
         await collection.insertMany(enemyDocuments);

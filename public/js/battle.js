@@ -4,6 +4,7 @@ import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {experienceUp} from "./db.js";
+import {Status} from "./status.js";
 
 /**
  * This function starts or resets a battle
@@ -81,7 +82,7 @@ function startBattle()
         {
             Settings.participants[i].health = Settings.participants[i].maxHealth;
 
-            // show participants order
+            //show participants order
             let participantIndicator = document.createElement("li");
             participantIndicator.innerText = Settings.participants[i].name;
             if(i === 0) participantIndicator.classList.add("current");
@@ -99,6 +100,82 @@ function startBattle()
         if(!participantsOK && !cardsOK) call += " |oraz|";
         if(!cardsOK) call += " obecnie trwa edytowanie karty gracza lub przeciwnika";
         newSystemCall(call);
+    }
+}
+
+/**
+ * This function ends the current local/global turn
+ *
+ * @function startNextTurn
+ * @return {void}
+ */
+function startNextTurn()
+{
+    //check if the battle is over and end it if so, else continue
+    if(!isBattleOver()){
+        //update the local turn counter
+        Settings.localTurn++;
+
+        let battleOrder = document.getElementById("battleOrder");
+        battleOrder.textContent = '';
+
+        //check if this was the last local turn of the global turn
+        if(Settings.localTurn === Settings.participants.length)
+        {
+            Settings.localTurn = 0;
+            Settings.globalTurn++;
+
+            document.getElementById("globalTurn").innerText = Settings.globalTurn;
+            newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
+
+            //reduce skill cooldown for any skill by 1
+            for (let i = 0; i < Settings.participants.length; ++i) {
+                //check if participant has any skills
+                if(Settings.participants[i].hasOwnProperty("skillsOwned")) {
+                    Object.entries(Settings.participants[i].skillsOwned).forEach(
+                        s => {
+                            if(s[1] > 0)
+                                Settings.participants[i].skillsOwned[s[0]]--;
+                        }
+                    );
+                }
+            }
+
+            //Progress statuses effective at the end of the global turn
+            Status.advanceGlobalStatuses();
+        }
+
+        for (let i = 0; i < Settings.participants.length; ++i) {
+            // update the battle order indicator
+            let participantIndicator = document.createElement("li");
+            participantIndicator.innerText = Settings.participants[i].name;
+            if(i === Settings.localTurn) participantIndicator.classList.add("current");
+            battleOrder.appendChild(participantIndicator);
+        }
+
+        //if the member was dodging, disable their dodge once their turn starts again
+        //this has to be disabled now in case a defeated member was revived
+        Settings.participants[Settings.localTurn].isDodging = 0;
+
+        //Check if the participant is alive, if not, start next turn
+        if(Settings.participants[Settings.localTurn].health === 0) startNextTurn();
+
+        //reset the action list
+        adjustOptions("reset");
+
+        //reset the available action flags
+        let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
+        let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
+        priorityTwoActionFlag.classList.remove("disabled");
+        priorityThreeActionFlag.classList.remove("disabled");
+        Settings.priorityTwo = true;
+        Settings.priorityThree = true;
+
+        //announce the new turn in the history
+        newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
+
+        //Update the "acts now" label
+        document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
     }
 }
 
@@ -196,11 +273,11 @@ function continueToBattle() {
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
 
-    // Hide the continue to battle button, show the start battle button
+    //hide the continue to battle button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
-    // clear the battle history
+    //clear the battle history
     document.getElementById("systemCall").textContent = '';
     document.getElementById("battleOrder").textContent = '';
 
@@ -208,4 +285,4 @@ function continueToBattle() {
     refreshCardsInBattle(true);
 }
 
-export {startBattle, endBattle, isBattleOver, continueToBattle};
+export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn};

@@ -1,5 +1,5 @@
-import {nextTurn, act} from "./action.js";
-import {startBattle, continueToBattle} from "./battle.js";
+import {act} from "./action.js";
+import {startBattle, continueToBattle, startNextTurn} from "./battle.js";
 import {adjustOptions} from "./list.js";
 import {Settings} from "./settings.js";
 import {addCardInit} from "./cardPicker.js";
@@ -20,7 +20,7 @@ addEnemyCardButton.addEventListener("click", () => { addCardInit("enemy") }, fal
 actButton.addEventListener("click", () => { act() }, false);
 startBattleButton.addEventListener("click", () => { startBattle() }, false);
 continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);
-nextTurnButton.addEventListener("click", () => { nextTurn() }, false);
+nextTurnButton.addEventListener("click", () => { startNextTurn() }, false);
 
 /**
  * A Participant

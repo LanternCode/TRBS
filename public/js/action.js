@@ -1,84 +1,9 @@
 import {endBattle, isBattleOver} from "./battle.js";
-import {adjustOptions, filterBySubtype} from "./list.js";
+import {filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {handleSystemRoll, newSystemCall} from "./utils.js";
 import {Status} from "./status.js";
-/**
- * This function ends the current local/global turn
- *
- * @function nextTurn
- * @return {void}
- */
-function nextTurn()
-{
-    //check if the battle is over and end it if so, else continue
-    if(!isBattleOver()){
-        //update the local turn counter
-        Settings.localTurn++;
-
-        let battleOrder = document.getElementById("battleOrder");
-        battleOrder.textContent = '';
-
-        //check if this was the last local turn of the global turn
-        if(Settings.localTurn === Settings.participants.length)
-        {
-            Settings.localTurn = 0;
-            Settings.globalTurn++;
-
-            document.getElementById("globalTurn").innerText = Settings.globalTurn;
-            newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
-
-            //reduce skill cooldown for any skill by 1
-            for (let i = 0; i < Settings.participants.length; ++i) {
-                //check if participant has any skills
-                if(Settings.participants[i].hasOwnProperty("skillsOwned")) {
-                    Object.entries(Settings.participants[i].skillsOwned).forEach(
-                        s => {
-                            if(s[1] > 0)
-                                Settings.participants[i].skillsOwned[s[0]]--;
-                        }
-                    );
-                }
-            }
-
-            //Progress statuses effective at the end of the global turn
-            Status.advanceGlobalStatuses();
-        }
-
-        for (let i = 0; i < Settings.participants.length; ++i) {
-            // update the battle order indicator
-            let participantIndicator = document.createElement("li");
-            participantIndicator.innerText = Settings.participants[i].name;
-            if(i === Settings.localTurn) participantIndicator.classList.add("current");
-            battleOrder.appendChild(participantIndicator);
-        }
-
-        //if the member was dodging, disable their dodge once their turn starts again
-        //this has to be disabled now in case a defeated member was revived
-        Settings.participants[Settings.localTurn].isDodging = 0;
-
-        //Check if the participant is alive, if not, start next turn
-        if(Settings.participants[Settings.localTurn].health === 0) nextTurn();
-
-        //reset the action list
-        adjustOptions("reset");
-
-        //reset the available action flags
-        let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
-        let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
-        priorityTwoActionFlag.classList.remove("disabled");
-        priorityThreeActionFlag.classList.remove("disabled");
-        Settings.priorityTwo = true;
-        Settings.priorityThree = true;
-
-        //announce the new turn in the history
-        newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
-
-        //Update the "acts now" label
-        document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
-    }
-}
 
 /**
  * This function handles user actions
@@ -406,7 +331,7 @@ function handleDebugAction(actionElement, target)
  * @function restoreHp
  * @param {Object} obj The {@link item} or {@link SkillSpell} or {@link Status} used when restoring hp
  * @param {Participant} target participant receiving hp
- * @return {void}
+ * @return {number} the amount of health restored (to show in history)
  */
 function restoreHp(obj, target)
 {
@@ -414,16 +339,24 @@ function restoreHp(obj, target)
     let statusObject = obj instanceof Status;
     let propertyName = statusObject ? "strength" : "value";
 
+    //store the health of the target before the health is restored
+    let currentHealth = target.health;
+
     if(obj.valueType === "flat"){
-        if(target.health + obj[propertyName] > target.maxHealth)
+        if(currentHealth + obj[propertyName] > target.maxHealth)
             target.health = target.maxHealth;
         else target.health += obj[propertyName];
     }
     else {
-        if(target.health + (target.maxHealth * obj[propertyName]) > target.maxHealth)
+        if(currentHealth + (target.maxHealth * obj[propertyName]) > target.maxHealth)
             target.health = target.maxHealth;
         else target.health += (target.maxHealth * obj[propertyName]);
     }
+
+    //calculate the effect of the healing to display
+    let restoredHealth = target.health - currentHealth;
+
+    return restoredHealth;
 }
 
 /**
@@ -432,10 +365,13 @@ function restoreHp(obj, target)
  * @function damageTarget
  * @param {Object} obj The {@link item} or {@link SkillSpell} or {@link Status} used when attacking
  * @param {Participant} target participant losing hp
- * @return {void}
+ * @return {number} the amount of damage dealt
  */
 function damageTarget(obj, target)
 {
+    //store the health of the target before the attack
+    let currentHealth = target.health;
+
     //statuses use property strength instead of value
     let statusObject = obj instanceof Status;
     let propertyName = statusObject ? "strength" : "value";
@@ -453,7 +389,11 @@ function damageTarget(obj, target)
             target.health -= (target.maxHealth * dmg);
         else target.health = 0;
     }
+
+    //calculate the effect of the healing to display
+    let damageDealt = currentHealth - target.health;
+
+    return damageDealt;
 }
 
-
-export {nextTurn, act, filterBySubtype, restoreHp, damageTarget};
+export {act, filterBySubtype, restoreHp, damageTarget};

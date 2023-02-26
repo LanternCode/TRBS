@@ -369,6 +369,7 @@ class Status {
     static applyStatus(participant, status) {
         //before you apply the status, validate it
         let statusValid = Status.validate(status);
+        if (!statusValid) return;
         //apply defaultLength and defaultStrength where required
         let statusUpdated = Status.applyDefaultValues(status);
         //if the status is valid, check that the participant is not already affected by it
@@ -414,18 +415,18 @@ class Status {
             //check if the status can be used now
             if(status.length === 0) {
                 //revive the participant and void the status
-                restoreHp(status, participant);
-                newSystemCall("Uczestnik " + participant.name + " powrócił do życia za sprawą statusu " + status.getDisplayName);
+                let restored = restoreHp(status, participant);
+                newSystemCall("Uczestnik "+participant.name+" powrócił do życia za sprawą statusu "+status.getDisplayName + " z "+restored+" punktami zdrowia!");
             }
         }
         else if (participant.health > 0) {
             if (status.subtype === "restore") {
-                restoreHp(status, participant);
-                newSystemCall("Uczestnik " + participant.name + " odzyskał zdrowie za sprawą statusu " + status.getDisplayName);
+                let restored = restoreHp(status, participant);
+                newSystemCall("Uczestnik " + participant.name + " odzyskał "+restored+ " zdrowia za sprawą statusu " + status.getDisplayName);
             }
             else if (status.subtype === "damage") {
-                damageTarget(status, participant);
-                newSystemCall("Uczestnik " + participant.name + " stracił zdrowie za sprawą statusu " + status.getDisplayName);
+                let damaged = damageTarget(status, participant);
+                newSystemCall("Uczestnik " + participant.name + " stracił "+damaged+" zdrowia za sprawą statusu " + status.getDisplayName);
             }
         }
     }

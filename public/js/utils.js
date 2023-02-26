@@ -68,6 +68,7 @@ function generateNewEnemy()
         name: "Przeciwnik",
         isDodging: 0,
         type: "enemy",
+        statusesApplied: [],
         subtype: Math.random() < 0.5 ? "human" : "monster"
     };
 
@@ -105,7 +106,8 @@ function generateNewPlayer()
         skillsOwned: {"3": 0},
         level: 1,
         armor: 2,
-        inUse: false
+        inUse: false,
+        statusesApplied: []
     };
 
     return player;
