@@ -202,11 +202,7 @@ async function createSettingsCard(type)
     let card = document.createElement("section");
     card.className = type === "player" ? "playerSection" : "enemySection";
     let addParticipantH3 = document.createElement("h3");
-    addParticipantH3.innerText = "+"; // type === "player" ? "Dodaj Gracza:" : "Dodaj Przeciwnika:";
-    // let addParticipantButton = document.createElement("button");
-    // addParticipantButton.className = "cardPickerButton";
-    // addParticipantButton.innerText = "+";
-    // addParticipantButton.onclick = async function(){
+    addParticipantH3.innerText = "+";
 
     card.classList.add("clickOnMe");
     card.onclick = async function(){
@@ -218,8 +214,6 @@ async function createSettingsCard(type)
     };
 
     card.appendChild(addParticipantH3);
-    // card.appendChild(addParticipantButton);
-
     return card;
 }
 
