@@ -1,4 +1,4 @@
-import {getAvailableEnemies, getAvailablePlayers, getItems, getSkills} from "./db.js";
+import {getAvailableEnemies, getAvailablePlayers, getItems, getSkills, getStatuses} from "./db.js";
 
 /**
  * A special class that stores most parameters of the system
@@ -129,6 +129,10 @@ class Settings {
 
     static async fetchEnemies() {
         this.availableEnemies = await getAvailableEnemies();
+    }
+
+    static async fetchStatuses() {
+        this.statuses = await getStatuses();
     }
 
     /**

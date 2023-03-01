@@ -438,6 +438,174 @@ async function createSkills(client) {
     } catch { console.log("Failed migration: skills"); }
 }
 
+async function createStatuses(client) {
+    try {
+        const database = client.db("TRBS");
+        const collection = database.collection("status");
+        // create a document to insert
+        const statusDocuments = [
+            {
+                ustid: 0,
+                name: "poison",
+                displayName: "Zatrucie",
+                description: "Na końcu tury uczestnika zadaje obrażenia domeny zatrucia",
+                effectiveAt: "end",
+                effectiveTurn: "local",
+                type: "offensive",
+                subtype: "damage",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 8,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true
+            },
+            {
+                ustid: 1,
+                name: "burn",
+                displayName: "Podpalenie",
+                description: "Na początku tury uczestnika zadaje obrażenia domeny ognia",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "offensive",
+                subtype: "damage",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 9,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true
+            },
+            {
+                ustid: 2,
+                name: "bleed",
+                displayName: "Krwawienie",
+                description: "Na końcu tury uczestnik wykrwawia się i otrzymuje obrażenia",
+                effectiveAt: "end",
+                effectiveTurn: "local",
+                type: "offensive",
+                subtype: "damage",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 10,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true
+            },
+            {
+                ustid: 3,
+                name: "slow",
+                displayName: "Spowolnienie",
+                description: "Szybkość uczestnika jest zmniejszona",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "offensive",
+                subtype: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "speed",
+                        val: -15
+                    }
+                ],
+                statusClearable: true
+            },
+            {
+                ustid: 4,
+                name: "speedBoost",
+                displayName: "Przyspieszenie",
+                description: "Szybkość uczestnika jest zwiększona",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "supportive",
+                subtype: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "speed",
+                        val: 25
+                    }
+                ],
+                statusClearable: true
+            },
+            {
+                ustid: 5,
+                name: "damageBoost",
+                displayName: "Zwiększony Atak",
+                description: "Atak uczestnika jest zwiększony",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "supportive",
+                subtype: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "attack",
+                        val: 6
+                    }
+                ],
+                statusClearable: true
+            },
+            {
+                ustid: 6,
+                name: "dodgeBoost",
+                displayName: "Zwiększony Unik",
+                description: "Unik uczestnika jest zwiększony",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "supportive",
+                subtype: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "dodge",
+                        val: 5
+                    }
+                ],
+                statusClearable: true
+            },
+            {
+                ustid: 7,
+                name: "regeneration",
+                displayName: "Regeneracja",
+                description: "Na początku tury uczestnik odzyskuje zdrowie",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "supportive",
+                subtype: "restore",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 15,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true
+            }
+        ];
+        await collection.insertMany(statusDocuments);
+        console.log("Successfully migrated: statuses");
+    } catch { console.log("Failed migration: statuses"); }
+}
+
 /**
  * This function creates all collections in the database
  * @returns {Promise<void>}
@@ -456,10 +624,12 @@ export async function migrateAll()
     let enemyCollectionExists = collectionNames.includes("enemy");
     let itemCollectionExists = collectionNames.includes("item");
     let skillCollectionExists = collectionNames.includes("skill");
+    let statusCollectionExists = collectionNames.includes("status");
     //if the collection does not exist, migrate it
     if(!playerCollectionExists) await createPlayers(mongoClient);
     if(!enemyCollectionExists) await createEnemies(mongoClient);
     if(!itemCollectionExists) await createItems(mongoClient);
     if(!skillCollectionExists) await createSkills(mongoClient);
+    if(!statusCollectionExists) await createStatuses(mongoClient);
     await mongoClient.close()
 }

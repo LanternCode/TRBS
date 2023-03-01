@@ -76,3 +76,5 @@ await Settings.fetchItems();
  * @property {string} priority - Skill/spell priority required
  */
 await Settings.fetchSkills();
+
+await Settings.fetchStatuses();

@@ -28,7 +28,7 @@ function makeRequest(method, url, body = null) {
  * This function obtains the players list
  *
  * @function getAvailablePlayers
- * @returns {[{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {"1": number, "2": number, "3": number, "4": number, "5": number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number}]}
+ * @returns {Promise<any>}
  */
  async function getAvailablePlayers()
  {
@@ -40,7 +40,7 @@ function makeRequest(method, url, body = null) {
  * This function obtains the enemies list
  *
  * @function getAvailableEnemies
- * @return {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
+ * @returns {Promise<any>}
  */
 async function getAvailableEnemies()
 {
@@ -49,10 +49,10 @@ async function getAvailableEnemies()
 }
 
 /**
-* This function obtains the items list
-*
-* @function getItems
- * @return {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
+ * This function obtains the items list
+ *
+ * @function getItems
+ * @returns {Promise<any>}
  */
 async function getItems()
 {
@@ -61,14 +61,26 @@ async function getItems()
 }
 
 /**
-* This function obtains the skills list
-*
-* @function getSkills
- * @return {[{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},{targetGroup: string, subtype: string, valueType: string, name: string, cooldown: number, range: string, type: string, priority: number, value: number, usid: number},null,null]}
+ * This function obtains the skills list
+ *
+ * @function getSkills
+ * @returns {Promise<any>}
  */
 async function getSkills()
 {
     let result = await makeRequest("GET", base_url + "/skills/");
+    return JSON.parse(result);
+}
+
+/**
+ * This function obtains the status list
+ *
+ * @function getStatuses
+ * @returns {Promise<any>}
+ */
+async function getStatuses()
+{
+    let result = await makeRequest("GET", base_url + "/statuses/");
     return JSON.parse(result);
 }
 
@@ -86,6 +98,19 @@ async function insertParticipant(participant, type)
 }
 
 /**
+ * This function inserts a status into the collection
+ *
+ * @function insertStatus
+ * @param {object} status the object to insert
+ * @return {string} the generated _id of the status
+ */
+async function insertStatus(status)
+{
+    let insertedStatusId = await makeRequest("PUT", base_url + "/statuses/" + JSON.stringify(status) + "/");
+    return insertedStatusId;
+}
+
+/**
  * This function removes a participant from its corresponding collection
  *
  * @function dropParticipant
@@ -95,6 +120,17 @@ async function insertParticipant(participant, type)
 function dropParticipant(participant, type)
 {
     makeRequest("DELETE", base_url + "/dropParticipant/" + JSON.stringify(participant) + "/" + type );
+}
+
+/**
+ * This function removes a status from the database
+ *
+ * @function dropStatus
+ * @param {object} status The status object
+ */
+function dropStatus(status)
+{
+    makeRequest("DELETE", base_url + "/dropStatus/" + JSON.stringify(status) + "/");
 }
 
 /**
@@ -111,6 +147,17 @@ function updateParticipant(participant, type)
 }
 
 /**
+ * This function updates a named status
+ *
+ * @function updateStatus
+ * @param {object} status The status object to update
+ */
+function updateStatus(status)
+{
+    makeRequest("PUT", base_url + "/updateStatus/" + JSON.stringify(status) + "/");
+}
+
+/**
  * This function updates the player's experience in the collection
  *
  * @function experienceUp
@@ -121,4 +168,4 @@ function experienceUp(player)
     makeRequest("PUT", base_url + "/grantExperience/" + JSON.stringify(player) );
 }
 
-export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant, dropParticipant, updateParticipant, experienceUp};
+export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp};
