@@ -126,18 +126,19 @@ button {
 }
 
 .cardListFrame {
-    padding: 2em;
-    background-color: white;
-    border: 3px solid saddlebrown;
-    border-radius: 1em;
-    overflow: hidden;
-    height: 60vh;
-    width: 80vw;
+    height: 100%;
+    width: 100%;
     overflow: scroll;
 }
 
 .cardPickerWrap {
     position: relative;
+    padding: 2em;
+    background-color: white;
+    border: 3px solid saddlebrown;
+    border-radius: 1em;
+    height: 60vh;
+    width: 80vw;
 }
 
 .cardPickerWrap>.closeListButton {
