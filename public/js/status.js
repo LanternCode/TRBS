@@ -202,39 +202,39 @@ class Status {
         //define a string to store the error message
         let errorMessage = "";
         //first check the length is specified
-        let lengthOK = status.length > 0;
+        let lengthOK = status.getLength > 0;
         //if length is not defined, check if defaultLength is defined
         if(!lengthOK) {
-            let defaultLengthOK = status.defaultLength > 0;
+            let defaultLengthOK = status.getDefaultLength > 0;
             //if defaultLength is not defined, the status is invalid
             if(!defaultLengthOK) {
                 errorMessage += "Nie podano czasu trwania statusu (length)\n";
             }
         }
         //then check if strength is defined
-        let strengthOK = status.strength > 0;
+        let strengthOK = status.getStrength > 0;
         //strength must be defined for non-special statuses
         if(!strengthOK) {
-            let defaultStrengthOK = status.defaultStrength > 0;
+            let defaultStrengthOK = status.getDefaultStrength > 0;
             //if defaultStrength is not defined, the status is invalid
             if(!defaultStrengthOK) {
                 errorMessage += "Nie podano siły statusu (strength)\n";
             }
         }
         //name, displayName and description must all be defined
-        let nameOK = (typeof status.name === 'string') && status.name.length > 0;
-        let displayNameOK = (typeof status.displayName === 'string') && status.displayName.length > 0;
-        let descriptionOK = (typeof status.description === 'string') && status.description.length > 0;
+        let nameOK = (typeof status.getName === 'string') && status.getName.length > 0;
+        let displayNameOK = (typeof status.getDisplayName === 'string') && status.getDisplayName.length > 0;
+        let descriptionOK = (typeof status.getDescription === 'string') && status.getDescription.length > 0;
         if(!nameOK || !displayNameOK || !descriptionOK) {
             if(!nameOK) errorMessage += "Nie podano wewnętrznej nazwy statusu (name)\n";
             if(!displayNameOK) errorMessage += "Nie podano wyświetlanej nazwy statusu (displayName)\n";
             if(!descriptionOK) errorMessage += "Nie podano opisu statusu (description)\n";
         }
         //effectiveAt, effectiveTurn, type and subtype must be specified and have one of the pre-defined values
-        let effectiveAtOK = (typeof status.effectiveAt === 'string') && ["start", "end"].includes(status.effectiveAt);
-        let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.effectiveTurn);
-        let typeOK = (typeof status.type === 'string') && ["supportive", "offensive", "special"].includes(status.type);
-        let subtypeOK = (typeof status.subtype === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.subtype);
+        let effectiveAtOK = (typeof status.getEffectiveAt === 'string') && ["start", "end"].includes(status.getEffectiveAt);
+        let effectiveTurnOK = (typeof status.getEffectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.getEffectiveTurn);
+        let typeOK = (typeof status.getType === 'string') && ["supportive", "offensive", "special"].includes(status.getType);
+        let subtypeOK = (typeof status.getSubtype === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.getSubtype);
         if(!effectiveAtOK || !effectiveTurnOK || !typeOK || !subtypeOK) {
             if(!effectiveAtOK) errorMessage += "Podano niepoprawny momentu działania statusu (effectiveAt)\n";
             if(!effectiveTurnOK) errorMessage += "Podano niepoprawny moment redukcji czasu działania statusu (effectiveTurn)\n";
@@ -243,8 +243,8 @@ class Status {
         }
         //statsAffectedList must match the specification of the object, so the object's validation method is used
         let statsAffectedListOK = true;
-        for(let i = 0; i < status.statsAffectedList.length; ++i) {
-            let statsAffectedListElementOK = StatsAffected.validate(status.statsAffectedList[i]);
+        for(let i = 0; i < status.getStatsAffectedList.length; ++i) {
+            let statsAffectedListElementOK = StatsAffected.validate(status.getStatsAffectedList[i]);
             statsAffectedListOK = statsAffectedListElementOK === true ? statsAffectedListOK : false;
             if(!statsAffectedListElementOK) errorMessage += "Wskazane zmiany statystyk nr. "+i+" przez status są niepoprawne (statsAffectedList["+i+"])\n";
         }
@@ -272,7 +272,7 @@ class Status {
         else {
             //for every status the player is affected by, compare it
             for(let i = 0; i < statusList.length; ++i) {
-                if(statusList[i].name === status.name) return statusList[i];
+                if(statusList[i].getName === status.getName) return statusList[i];
             }
         }
         //if the status is not found, return false
@@ -290,7 +290,7 @@ class Status {
     static isParticipantAffected(participant, status) {
         let result = this.getParticipantStatus(participant, status);
         if (result === false) return false;
-        else return result.name === status.name;
+        else return result.getName === status.getName;
     }
 
     /**
@@ -303,8 +303,8 @@ class Status {
      */
     static compareStatusPower(currentStatus, newStatus) {
         //to calculate the "objective" status power, we'll multiply the strength by the length
-        let firstStatusPower = currentStatus.strength * currentStatus.length;
-        let secondStatusPower = newStatus.strength * newStatus.length;
+        let firstStatusPower = currentStatus.getStrength * currentStatus.getLength;
+        let secondStatusPower = newStatus.getStrength * newStatus.getLength;
         //if the values are the same, assume the user wanted the replacement and return the new status
         return firstStatusPower > secondStatusPower ? currentStatus : (firstStatusPower === secondStatusPower ? newStatus : newStatus);
     }
@@ -318,14 +318,14 @@ class Status {
      */
     static applyDefaultValues(status) {
         //first check the length is specified
-        let lengthDefined = status.length > 0;
+        let lengthDefined = status.getLength > 0;
         if(!lengthDefined) {
-            status.length = status.defaultLength;
+            status.setLength = status.getDefaultLength;
         }
         //then check if strength is defined
-        let strengthDefined = status.strength > 0;
+        let strengthDefined = status.getStrength > 0;
         if(!strengthDefined) {
-            status.strength = status.defaultStrength;
+            status.setStrength = status.getDefaultStrength;
         }
         //return the updates status
         return status;
@@ -357,6 +357,26 @@ class Status {
         //if the status had any stat modifiers, these must be cancelled first
         this.cancelStatModifiers(participantStatuses[statusPosition]);
         participantStatuses.splice(statusPosition, 1);
+    }
+
+    /**
+     * This function voids all clearable statuses of a participant
+     * Used mostly on death or use of Cleansing Potion item
+     *
+     * @function voidParticipantStatuses
+     * @param {object} participant the participant whom statuses will be voided
+     */
+    static voidParticipantStatuses(participant) {
+        let participantStatuses = participant.statusesApplied;
+        for (let i = 0; i < participantStatuses.length; i++) {
+            //Find only the statuses that can be cleared
+            if (participantStatuses[i].getStatusClearable === true) {
+                //void the status but first cancel any stat modifiers
+                newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].getDisplayName);
+                StatsAffected.cancelStatModifiers(participant, participantStatuses[i]);
+                this.voidStatus(participantStatuses, participantStatuses[i]);
+            }
+        }
     }
 
     /**
@@ -411,10 +431,9 @@ class Status {
     static advanceStatus(participant, statusPos) {
         let status = participant.statusesApplied[statusPos];
         //if the participant is dead, only type revive status can be applied
-        if(participant.health === 0 && status.subtype === "revive") {
+        if(participant.health === 0 && status.getSubtype === "revive") {
             //check if the status can be used now
-            if(status.length === 0) {
-                //revive the participant and void the status
+            if(status.getLength === 0) {
                 let restored = restoreHp(status, participant);
                 newSystemCall("Uczestnik "+participant.name+" powrócił do życia za sprawą statusu "+status.getDisplayName + " z "+restored+" punktami zdrowia!");
             }
@@ -432,7 +451,7 @@ class Status {
     }
 
     /**
-     * This function advances each status of each participant at the end of the global turn
+     * This function advances each status of each participant effective at global turn
      *
      * @function advanceGlobalStatuses
      */
@@ -442,17 +461,44 @@ class Status {
             let participantStatuses = Settings.participants[i].statusesApplied;
             for (let j = 0; j < participantStatuses.length; j++) {
                 //Find only the global statuses
-                if (participantStatuses[j].effectiveTurn === "global") {
+                if (participantStatuses[j].getEffectiveTurn === "global") {
                     //first reduce the length by 1
-                    participantStatuses[j].length--;
+                    participantStatuses[j].setLength = participantStatuses[i].getLength - 1;
                     //inflict the status effect on the participant
                     this.advanceStatus(Settings.participants[i], j);
                     //void the status if length dropped to 0 but first cancel any stat modifiers
-                    if (participantStatuses[j].length === 0) {
+                    if (participantStatuses[j].getLength === 0) {
                         newSystemCall("Uczestnik " + Settings.participants[i].name + " nie jest już celem statusu " + participantStatuses[j].getDisplayName);
                         StatsAffected.cancelStatModifiers(Settings.participants[i], participantStatuses[j]);
                         this.voidStatus(Settings.participants[i], participantStatuses[j]);
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * This function advances each status of the current participant effective at start/end of the local turn
+     *
+     * @function advanceLocalStatuses
+     * @param {string} effectiveAt apply the statuses at "start" or "end" of the local turn
+     */
+    static advanceLocalStatuses(effectiveAt) {
+        //Search through current participant's statuses
+        let participant = Settings.participants[Settings.localTurn];
+        let participantStatuses = participant.statusesApplied;
+        for (let i = 0; i < participantStatuses.length; ++i) {
+            //Find only the local statuses effective at the start or end of turn
+            if (participantStatuses[i].getEffectiveTurn === "local" && participantStatuses[i].getEffectiveAt === effectiveAt) {
+                //first reduce the length by 1
+                participantStatuses[i].setLength = participantStatuses[i].getLength - 1;
+                //inflict the status effect on the participant
+                this.advanceStatus(participant, i);
+                //void the status if length dropped to 0 but first cancel any stat modifiers
+                if (participantStatuses[i].length === 0) {
+                    newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].getDisplayName);
+                    StatsAffected.cancelStatModifiers(participant, participantStatuses[i]);
+                    this.voidStatus(participant, participantStatuses[i]);
                 }
             }
         }
