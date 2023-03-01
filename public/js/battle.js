@@ -113,13 +113,16 @@ function startNextTurn()
 {
     //check if the battle is over and end it if so, else continue
     if(!isBattleOver()){
-        //update the local turn counter
+        //Advance all statuses with effects at the end of local turn
+        Status.advanceLocalStatuses("end");
+
+        //Update the local turn counter
         Settings.localTurn++;
 
         let battleOrder = document.getElementById("battleOrder");
         battleOrder.textContent = '';
 
-        //check if this was the last local turn of the global turn
+        //Check if this was the last local turn of the global turn
         if(Settings.localTurn === Settings.participants.length)
         {
             Settings.localTurn = 0;
@@ -128,9 +131,9 @@ function startNextTurn()
             document.getElementById("globalTurn").innerText = Settings.globalTurn;
             newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
 
-            //reduce skill cooldown for any skill by 1
+            //Reduce skill cooldown for any skill by 1
             for (let i = 0; i < Settings.participants.length; ++i) {
-                //check if participant has any skills
+                //Check if participant has any skills
                 if(Settings.participants[i].hasOwnProperty("skillsOwned")) {
                     Object.entries(Settings.participants[i].skillsOwned).forEach(
                         s => {
@@ -146,24 +149,30 @@ function startNextTurn()
         }
 
         for (let i = 0; i < Settings.participants.length; ++i) {
-            // update the battle order indicator
+            //Update the battle order indicator
             let participantIndicator = document.createElement("li");
             participantIndicator.innerText = Settings.participants[i].name;
             if(i === Settings.localTurn) participantIndicator.classList.add("current");
             battleOrder.appendChild(participantIndicator);
         }
 
-        //if the member was dodging, disable their dodge once their turn starts again
-        //this has to be disabled now in case a defeated member was revived
+        //If the member was dodging, disable their dodge once their turn starts again
+        //This has to be disabled now in case a defeated member was revived
         Settings.participants[Settings.localTurn].isDodging = 0;
 
-        //Check if the participant is alive, if not, start next turn
-        if(Settings.participants[Settings.localTurn].health === 0) startNextTurn();
+        //Check if the participant is alive, if not, void all their non-special statuses and start next turn
+        if(Settings.participants[Settings.localTurn].health === 0) {
+            Status.voidParticipantStatuses(Settings.participants[Settings.localTurn]);
+            startNextTurn();
+        }
 
-        //reset the action list
+        //Turn has changed - Advance all statuses with effects at the start of local turn
+        Status.advanceLocalStatuses("start");
+
+        //Reset the action list
         adjustOptions("reset");
 
-        //reset the available action flags
+        //Reset the available action flags
         let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
         let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
         priorityTwoActionFlag.classList.remove("disabled");
@@ -171,7 +180,7 @@ function startNextTurn()
         Settings.priorityTwo = true;
         Settings.priorityThree = true;
 
-        //announce the new turn in the history
+        //Announce the new turn in the history
         newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
 
         //Update the "acts now" label
