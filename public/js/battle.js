@@ -185,6 +185,8 @@ function startNextTurn()
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
+
+        refreshCardsInBattle();
     }
 }
 

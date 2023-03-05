@@ -267,6 +267,19 @@ function handleUseSkill(skill, target)
             restoreHp(skill, p);
         else if (type === "offensive")
             damageTarget(skill, p);
+
+        //apply statuses of the skill
+        if(Object.keys(skill.statusesApplied || {}).length > 0) {
+            for(let s of skill.statusesApplied) {
+                let status = s;
+                let statusReady = (typeof s) === "object";
+                if(!statusReady) {
+                    //fetch the full status based on the name
+                    status = Settings.statuses.filter(st => st.name === s);
+                }
+                Status.applyStatus(p, status[0]);
+            }
+        }
     }
 
     //set the skill on cooldown
@@ -336,27 +349,25 @@ function handleDebugAction(actionElement, target)
 function restoreHp(obj, target)
 {
     //statuses use property strength instead of value
-    let statusObject = obj instanceof Status;
+    let statusObject = Object.hasOwn(obj, "strength");
     let propertyName = statusObject ? "strength" : "value";
+    let typePropertyName = statusObject ? "strengthType" : "valueType";
 
     //store the health of the target before the health is restored
-    let currentHealth = target.health;
+    let startingHealth = target.health;
 
-    if(obj.valueType === "flat"){
-        if(currentHealth + obj[propertyName] > target.maxHealth)
+    if(obj[typePropertyName] === "flat"){
+        if(target.health + obj[propertyName] > target.maxHealth)
             target.health = target.maxHealth;
         else target.health += obj[propertyName];
     }
     else {
-        if(currentHealth + (target.maxHealth * obj[propertyName]) > target.maxHealth)
+        if(target.health + (target.maxHealth * obj[propertyName]) > target.maxHealth)
             target.health = target.maxHealth;
         else target.health += (target.maxHealth * obj[propertyName]);
     }
 
-    //calculate the effect of the healing to display
-    let restoredHealth = target.health - currentHealth;
-
-    return restoredHealth;
+    return target.health - startingHealth;
 }
 
 /**
@@ -369,16 +380,16 @@ function restoreHp(obj, target)
  */
 function damageTarget(obj, target)
 {
-    //store the health of the target before the attack
-    let currentHealth = target.health;
-
     //statuses use property strength instead of value
-    let statusObject = obj instanceof Status;
+    let statusObject = Object.hasOwn(obj, "strength");
     let propertyName = statusObject ? "strength" : "value";
+    let typePropertyName = statusObject ? "strengthType" : "valueType";
 
+    let startingHealth = target.health;
     let dmg = parseInt(obj[propertyName]);
+
     //damages participant by a flat value
-    if (obj.valueType === "flat") {
+    if (obj[typePropertyName] === "flat") {
         if(target.health - dmg > 0)
             target.health -= dmg;
         else target.health = 0;
@@ -390,10 +401,7 @@ function damageTarget(obj, target)
         else target.health = 0;
     }
 
-    //calculate the effect of the healing to display
-    let damageDealt = currentHealth - target.health;
-
-    return damageDealt;
+    return startingHealth - target.health;
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};

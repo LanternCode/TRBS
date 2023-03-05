@@ -20,6 +20,7 @@ import {damageTarget, restoreHp} from "./action.js";
  * @property {array} statsAffectedList - list of StatsAffected objects that list which statistics were affected and how much
  * @property {boolean} statusClearable - true if the status can be voided by in-game actions, false otherwise
  * @property {boolean} lastUntilCleared - true if the status lasts indefinitely (until cleared), false otherwise
+ * @property {boolean} useDefaultStrengthSource - true to use a default stat to take strength from (level/zone), false otherwise
  */
 class Status {
     constructor(ustid) {
@@ -159,9 +160,9 @@ class Status {
     }
     /**
      * @property statsAffectedList
-     * @type {object}
+     * @type {array}
      */
-    statsAffectedList = {};
+    statsAffectedList = [];
     get getStatsAffectedList() {
         return this.statsAffectedList;
     }
@@ -172,7 +173,7 @@ class Status {
      * @property statusClearable
      * @type {boolean}
      */
-    statusClearable = {};
+    statusClearable = false;
     get getStatusClearable() {
         return this.statusClearable;
     }
@@ -183,12 +184,23 @@ class Status {
      * @property lastUntilCleared
      * @type {boolean}
      */
-    lastUntilCleared = {};
+    lastUntilCleared = false;
     get getLastUntilCleared() {
         return this.lastUntilCleared;
     }
     set setLastUntilCleared(value) {
         this.lastUntilCleared = value;
+    }
+    /**
+     * @property useDefaultStrengthSource
+     * @type {boolean}
+     */
+    useDefaultStrengthSource = false;
+    get getUseDefaultStrengthSource() {
+        return this.useDefaultStrengthSource;
+    }
+    set setUseDefaultStrengthSource(value) {
+        this.useDefaultStrengthSource = value;
     }
 
     /**
@@ -202,55 +214,60 @@ class Status {
         //define a string to store the error message
         let errorMessage = "";
         //first check the length is specified (or lasts until cleared)
-        let lengthOK = status.getLength > 0 || status.getLastUntilCleared;
+        let lengthOK = status.length > 0 || status.lastUntilCleared;
         //if length is not defined, check if defaultLength is defined
         if(!lengthOK) {
-            let defaultLengthOK = status.getDefaultLength > 0;
+            let defaultLengthOK = status.defaultLength > 0;
             //if defaultLength is not defined, the status is invalid
             if(!defaultLengthOK) {
                 errorMessage += "Nie podano czasu trwania statusu (length)\n";
             }
         }
         //then check if strength is defined
-        let strengthOK = status.getStrength > 0;
+        let strengthOK = status.strength > 0;
         //strength must be defined for non-persistent statuses
-        if(!strengthOK && status.getEffectiveTurn !== "persistent") {
-            let defaultStrengthOK = status.getDefaultStrength > 0;
-            //if defaultStrength is not defined, the status is invalid
-            if(!defaultStrengthOK) {
+        if(!strengthOK && status.effectiveTurn !== "persistent") {
+            //default strength must be > 0
+            let defaultStrengthOK = status.defaultStrength > 0;
+            //default strength source must be defined
+            let defaultStrengthSourceOK = status.useDefaultStrengthSource;
+            //if defaultStrength is not defined and useSource is false, the status is invalid
+            if(!defaultStrengthOK && !defaultStrengthSourceOK) {
                 errorMessage += "Nie podano siły statusu (strength)\n";
             }
         }
         //name, displayName and description must all be defined
-        let nameOK = (typeof status.getName === 'string') && status.getName.length > 0;
-        let displayNameOK = (typeof status.getDisplayName === 'string') && status.getDisplayName.length > 0;
-        let descriptionOK = (typeof status.getDescription === 'string') && status.getDescription.length > 0;
+        let nameOK = (typeof status.name === 'string') && status.name.length > 0;
+        let displayNameOK = (typeof status.displayName === 'string') && status.displayName.length > 0;
+        let descriptionOK = (typeof status.description === 'string') && status.description.length > 0;
         if(!nameOK || !displayNameOK || !descriptionOK) {
             if(!nameOK) errorMessage += "Nie podano wewnętrznej nazwy statusu (name)\n";
             if(!displayNameOK) errorMessage += "Nie podano wyświetlanej nazwy statusu (displayName)\n";
             if(!descriptionOK) errorMessage += "Nie podano opisu statusu (description)\n";
         }
         //effectiveAt, effectiveTurn and type must be specified and have one of the pre-defined values
-        let effectiveTurnOK = (typeof status.getEffectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.getEffectiveTurn);
-        let typeOK = (typeof status.getType === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.getType);
+        let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.effectiveTurn);
+        let typeOK = (typeof status.type === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.type);
         let effectiveAtOK = false;
         if(effectiveTurnOK) {
             //global turns do not require effectiveAt, local must be "start" or "end", persistent needs a correct listener
-            let effAt = status.getEffectiveAt;
-            let allowedValues = effAt === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath"]
-                : (effAt === "local" ? ["start", "end"]
+            let effAt = status.effectiveAt;
+            let effTurn = status.effectiveTurn;
+            let allowedValues = effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath"]
+                : (effTurn === "local" ? ["start", "end"]
                     : "");
-            effectiveAtOK = effAt === "global" ? true : ((typeof effAt === 'string') && allowedValues.includes(effAt));
+            effectiveAtOK = effTurn === "global" ? true : ((typeof effTurn === 'string') && allowedValues.includes(effAt));
         }
         if(!effectiveAtOK || !effectiveTurnOK || !typeOK) {
             if(!effectiveAtOK) errorMessage += "Podano niepoprawny momentu działania statusu (effectiveAt)\n";
             if(!effectiveTurnOK) errorMessage += "Podano niepoprawny moment redukcji czasu działania statusu (effectiveTurn)\n";
             if(!typeOK) errorMessage += "Podano niepoprawny typ statusu (type)\n";
         }
+        status.statsAffectedList = typeof status.statsAffectedList == "undefined" ? [] : status.statsAffectedList;
         //statsAffectedList must match the specification of the object, so the object's validation method is used
         let statsAffectedListOK = true;
-        for(let i = 0; i < status.getStatsAffectedList.length; ++i) {
-            let statsAffectedListElementOK = StatsAffected.validate(status.getStatsAffectedList[i]);
+        for(let i = 0; i < status.statsAffectedList.length; ++i) {
+            let statsAffectedListElementOK = StatsAffected.validate(status.statsAffectedList[i]);
             statsAffectedListOK = statsAffectedListElementOK === true ? statsAffectedListOK : false;
             if(!statsAffectedListElementOK) errorMessage += "Wskazane zmiany statystyk nr. "+i+" przez status są niepoprawne (statsAffectedList["+i+"])\n";
         }
@@ -279,7 +296,7 @@ class Status {
         else {
             //for every status the player is affected by, compare it
             for(let i = 0; i < statusList.length; ++i) {
-                if(statusList[i].getName === status.getName) return statusList[i];
+                if(statusList[i].name === status.name) return statusList[i];
             }
         }
         //if the status is not found, return false
@@ -297,7 +314,7 @@ class Status {
     static isParticipantAffected(participant, status) {
         let result = this.getParticipantStatus(participant, status);
         if (result === false) return false;
-        else return result.getName === status.getName;
+        else return result.name === status.name;
     }
 
     /**
@@ -310,8 +327,8 @@ class Status {
      */
     static compareStatusPower(currentStatus, newStatus) {
         //to calculate the "objective" status power, we'll multiply the strength by the length
-        let firstStatusPower = currentStatus.getStrength * currentStatus.getLength;
-        let secondStatusPower = newStatus.getStrength * newStatus.getLength;
+        let firstStatusPower = currentStatus.strength * currentStatus.length;
+        let secondStatusPower = newStatus.strength * newStatus.length;
         //if the values are the same, assume the user wanted the replacement and return the new status
         return firstStatusPower > secondStatusPower ? currentStatus : (firstStatusPower === secondStatusPower ? newStatus : newStatus);
     }
@@ -325,14 +342,22 @@ class Status {
      */
     static applyDefaultValues(status) {
         //first check the length is specified
-        let lengthDefined = status.getLength > 0;
+        let lengthDefined = status.length > 0;
         if(!lengthDefined) {
-            status.setLength = status.getDefaultLength;
+            status.length = status.defaultLength;
         }
         //then check if strength is defined
-        let strengthDefined = status.getStrength > 0;
+        let strengthDefined = status.strength > 0;
         if(!strengthDefined) {
-            status.setStrength = status.getDefaultStrength;
+            //if not, check if default strength source is to be used
+            let useDefaultStrengthSource = status.useDefaultStrengthSource;
+            if(useDefaultStrengthSource) {
+                //use the default strength source
+                let pType = Settings.participants[Settings.localTurn].type;
+                let defaultStrSrc = pType === "player" ? "level" : "zone";
+                status.strength = Settings.participants[Settings.localTurn][defaultStrSrc];
+            } //else use default strength
+            else status.strength = status.defaultStrength;
         }
         //return the updates status
         return status;
@@ -353,16 +378,17 @@ class Status {
     }
 
     /**
-     * This function takes a list of participant statuses and voids the given one
+     * This function takes a participant and voids the given status and all its modifiers
      *
      * @function voidStatus
-     * @param {array} participantStatuses the array of participant statuses
+     * @param {object} participant the participant who is affected by the status
      * @param {object} statusToVoid the status to find and void
      */
-    static voidStatus(participantStatuses, statusToVoid) {
+    static voidStatus(participant, statusToVoid) {
+        let participantStatuses = participant.statusesApplied;
         let statusPosition = participantStatuses.indexOf(statusToVoid);
         //if the status had any stat modifiers, these must be cancelled first
-        this.cancelStatModifiers(participantStatuses[statusPosition]);
+        StatsAffected.cancelStatModifiers(participant, participantStatuses[statusPosition]);
         participantStatuses.splice(statusPosition, 1);
     }
 
@@ -377,11 +403,10 @@ class Status {
         let participantStatuses = participant.statusesApplied;
         for (let i = 0; i < participantStatuses.length; i++) {
             //Find only the statuses that can be cleared
-            if (participantStatuses[i].getStatusClearable === true) {
-                //void the status but first cancel any stat modifiers
-                newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].getDisplayName);
-                StatsAffected.cancelStatModifiers(participant, participantStatuses[i]);
-                this.voidStatus(participantStatuses, participantStatuses[i]);
+            if (participantStatuses[i].statusClearable === true) {
+                //void the status
+                newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].displayName);
+                this.voidStatus(participant, participantStatuses[i]);
             }
         }
     }
@@ -432,21 +457,21 @@ class Status {
     static advanceStatus(participant, statusPos) {
         let status = participant.statusesApplied[statusPos];
         //if the participant is dead, only type revive status can be applied
-        if(participant.health === 0 && status.getType === "revive") {
+        if(participant.health === 0 && status.type === "revive") {
             //check if the status can be used now
-            if(status.getLength === 0) {
+            if(status.length === 0) {
                 let restored = restoreHp(status, participant);
-                newSystemCall("Uczestnik "+participant.name+" powrócił do życia za sprawą statusu "+status.getDisplayName + " z "+restored+" punktami zdrowia!");
+                newSystemCall("Uczestnik "+participant.name+" powrócił do życia za sprawą statusu "+status.displayName + " z "+restored+" punktami zdrowia!");
             }
         }
         else if (participant.health > 0) {
-            if (status.getType === "restore") {
+            if (status.type === "restore") {
                 let restored = restoreHp(status, participant);
-                newSystemCall("Uczestnik " + participant.name + " odzyskał "+restored+ " zdrowia za sprawą statusu " + status.getDisplayName);
+                newSystemCall("Uczestnik " + participant.name + " odzyskał "+restored+ " zdrowia za sprawą statusu " + status.displayName);
             }
-            else if (status.getType === "damage") {
+            else if (status.type === "damage") {
                 let damaged = damageTarget(status, participant);
-                newSystemCall("Uczestnik " + participant.name + " stracił "+damaged+" zdrowia za sprawą statusu " + status.getDisplayName);
+                newSystemCall("Uczestnik " + participant.name + " stracił "+damaged+" zdrowia za sprawą statusu " + status.displayName);
             }
         }
     }
@@ -462,15 +487,14 @@ class Status {
             let participantStatuses = Settings.participants[i].statusesApplied;
             for (let j = 0; j < participantStatuses.length; j++) {
                 //Find only the global statuses
-                if (participantStatuses[j].getEffectiveTurn === "global") {
+                if (participantStatuses[j].effectiveTurn === "global") {
                     //first reduce the length by 1
-                    participantStatuses[j].setLength = participantStatuses[i].getLength - 1;
+                    participantStatuses[j].length = participantStatuses[i].length - 1;
                     //inflict the status effect on the participant
                     this.advanceStatus(Settings.participants[i], j);
-                    //void the status if length dropped to 0 but first cancel any stat modifiers
-                    if (participantStatuses[j].getLength === 0) {
-                        newSystemCall("Uczestnik " + Settings.participants[i].name + " nie jest już celem statusu " + participantStatuses[j].getDisplayName);
-                        StatsAffected.cancelStatModifiers(Settings.participants[i], participantStatuses[j]);
+                    //void the status if length dropped to 0
+                    if (participantStatuses[j].length === 0) {
+                        newSystemCall("Uczestnik " + Settings.participants[i].name + " nie jest już celem statusu " + participantStatuses[j].displayName);
                         this.voidStatus(Settings.participants[i], participantStatuses[j]);
                     }
                 }
@@ -490,15 +514,14 @@ class Status {
         let participantStatuses = participant.statusesApplied;
         for (let i = 0; i < participantStatuses.length; ++i) {
             //Find only the local statuses effective at the start or end of turn
-            if (participantStatuses[i].getEffectiveTurn === "local" && participantStatuses[i].getEffectiveAt === effectiveAt) {
+            if (participantStatuses[i].effectiveTurn === "local" && participantStatuses[i].effectiveAt === effectiveAt) {
                 //first reduce the length by 1
-                participantStatuses[i].setLength = participantStatuses[i].getLength - 1;
+                participantStatuses[i].length = participantStatuses[i].length - 1;
                 //inflict the status effect on the participant
                 this.advanceStatus(participant, i);
-                //void the status if length dropped to 0 but first cancel any stat modifiers
-                if (participantStatuses[i].getLength === 0) {
-                    newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].getDisplayName);
-                    StatsAffected.cancelStatModifiers(participant, participantStatuses[i]);
+                //void the status if length dropped to 0
+                if (participantStatuses[i].length === 0) {
+                    newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].displayName);
                     this.voidStatus(participant, participantStatuses[i]);
                 }
             }
@@ -523,7 +546,7 @@ class StatsAffected {
      * @property stat
      * @type {string}
      */
-    stat = {};
+    stat = "";
     get getStat() {
         return this.stat;
     }
@@ -534,7 +557,7 @@ class StatsAffected {
      * @property stat
      * @type {string}
      */
-    valType = {};
+    valType = "";
     get getValType() {
         return this.valType;
     }
@@ -545,7 +568,7 @@ class StatsAffected {
      * @property val
      * @type {number}
      */
-    val = {};
+    val = 0;
     get getVal() {
         return this.val;
     }
@@ -561,11 +584,11 @@ class StatsAffected {
      */
     static validate(statsAffectedObject) {
         let statNames = ["strength", "speed", "agility", "cleverness", "appearance", "dodge", "attack", "maxHealth"];
-        let statOK = (typeof statsAffectedObject.getStat === 'string') && statNames.includes(statsAffectedObject.getStat);
-        let valTypeOK = (typeof statsAffectedObject.getValType === 'string') && ["flat", "percentage"].includes(statsAffectedObject.getValType);
+        let statOK = (typeof statsAffectedObject.stat === 'string') && statNames.includes(statsAffectedObject.stat);
+        let valTypeOK = (typeof statsAffectedObject.valType === 'string') && ["flat", "percentage"].includes(statsAffectedObject.valType);
         if(valTypeOK) {
-            let valType = statsAffectedObject.getValType;
-            let val = statsAffectedObject.getVal;
+            let valType = statsAffectedObject.valType;
+            let val = statsAffectedObject.val;
             let valOK = valType === "flat" ? ((typeof val === 'number') && val !== 0) : ((typeof val === 'number') && val > 0 && val <= 1);
             return statOK && valTypeOK && valOK;
         }
@@ -580,14 +603,14 @@ class StatsAffected {
      * @param {object} status the status with stat modifiers to apply
      */
     static applyStatusStatModifiers(participant, status) {
-        let statusStatModifiers = status.getStatsAffectedList;
+        let statusStatModifiers = status.statsAffectedList;
         for(let i = 0; i < statusStatModifiers.length; ++i) {
             //apply the stat modifier
             let valApplied = this.applyStatModifier(participant, statusStatModifiers[i]);
             //convert the percentage type to a flat value to properly add it back to the participant later
-            if(statusStatModifiers[i].getValType === "percentage") {
-                statusStatModifiers[i].setValType = "flat";
-                statusStatModifiers[i].setVal = valApplied;
+            if(statusStatModifiers[i].valType === "percentage") {
+                statusStatModifiers[i].valType = "flat";
+                statusStatModifiers[i].val = valApplied;
             }
         }
     }
@@ -601,11 +624,11 @@ class StatsAffected {
      * @return {number} value applied to a stat
      */
     static applyStatModifier(participant, statModifier) {
-        let currentStatValue = participant[statModifier.getStat];
-        let valToApply = statModifier.getValType === "flat" ? statModifier.getVal : (currentStatValue * statModifier.getVal);
+        let currentStatValue = participant[statModifier.stat];
+        let valToApply = statModifier.valType === "flat" ? statModifier.val : (currentStatValue * statModifier.val);
         let updatedStatValue = currentStatValue + valToApply;
         let finalStatValue = updatedStatValue > 0 ? updatedStatValue : 1;
-        participant[statModifier.getStat] = finalStatValue;
+        participant[statModifier.stat] = finalStatValue;
         return valToApply;
     }
 
@@ -617,13 +640,12 @@ class StatsAffected {
      * @param {object} status the status that has the stat modifiers to remove
      */
     static cancelStatModifiers(participant, status) {
-        let statsAffected = status.getStatsAffectedList;
-        for(let i = 0; i < statsAffected.length; ++i) {
+        for(let i = 0; i < Object.keys(status.statsAffectedList || {}).length; ++i) {
             let statModifier = statsAffected[i];
-            let currentStatValue = participant[statModifier.getStat];
-            let updatedStatValue = currentStatValue - statModifier.getVal;
+            let currentStatValue = participant[statModifier.stat];
+            let updatedStatValue = currentStatValue - statModifier.val;
             let finalStatValue = updatedStatValue < 1 ? 1 : updatedStatValue;
-            participant[statModifier.getStat] = finalStatValue;
+            participant[statModifier.stat] = finalStatValue;
         }
     }
 }

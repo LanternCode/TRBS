@@ -502,15 +502,16 @@ async function createStatuses(client) {
                 description: "Na końcu tury uczestnika zadaje obrażenia domeny zatrucia",
                 effectiveAt: "end",
                 effectiveTurn: "local",
-                type: "offensive",
-                subtype: "damage",
+                type: "damage",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
                 defaultStrength: 8,
                 strength: 0,
                 statsAffectedList: [],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: true,
             },
             {
                 ustid: 1,
@@ -519,15 +520,16 @@ async function createStatuses(client) {
                 description: "Na początku tury uczestnika zadaje obrażenia domeny ognia",
                 effectiveAt: "start",
                 effectiveTurn: "local",
-                type: "offensive",
-                subtype: "damage",
+                type: "damage",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
                 defaultStrength: 9,
                 strength: 0,
                 statsAffectedList: [],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: true,
             },
             {
                 ustid: 2,
@@ -536,15 +538,16 @@ async function createStatuses(client) {
                 description: "Na końcu tury uczestnik wykrwawia się i otrzymuje obrażenia",
                 effectiveAt: "end",
                 effectiveTurn: "local",
-                type: "offensive",
-                subtype: "damage",
+                type: "damage",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
                 defaultStrength: 10,
                 strength: 0,
                 statsAffectedList: [],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: true,
             },
             {
                 ustid: 3,
@@ -553,8 +556,7 @@ async function createStatuses(client) {
                 description: "Szybkość uczestnika jest zmniejszona",
                 effectiveAt: "end",
                 effectiveTurn: "global",
-                type: "offensive",
-                subtype: "statModifier",
+                type: "statModifier",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
@@ -566,7 +568,9 @@ async function createStatuses(client) {
                         val: -15
                     }
                 ],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
             },
             {
                 ustid: 4,
@@ -575,8 +579,7 @@ async function createStatuses(client) {
                 description: "Szybkość uczestnika jest zwiększona",
                 effectiveAt: "end",
                 effectiveTurn: "global",
-                type: "supportive",
-                subtype: "statModifier",
+                type: "statModifier",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
@@ -588,7 +591,9 @@ async function createStatuses(client) {
                         val: 25
                     }
                 ],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
             },
             {
                 ustid: 5,
@@ -597,8 +602,7 @@ async function createStatuses(client) {
                 description: "Atak uczestnika jest zwiększony",
                 effectiveAt: "end",
                 effectiveTurn: "global",
-                type: "supportive",
-                subtype: "statModifier",
+                type: "statModifier",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
@@ -610,7 +614,9 @@ async function createStatuses(client) {
                         val: 6
                     }
                 ],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
             },
             {
                 ustid: 6,
@@ -619,8 +625,7 @@ async function createStatuses(client) {
                 description: "Unik uczestnika jest zwiększony",
                 effectiveAt: "end",
                 effectiveTurn: "global",
-                type: "supportive",
-                subtype: "statModifier",
+                type: "statModifier",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
@@ -632,7 +637,9 @@ async function createStatuses(client) {
                         val: 5
                     }
                 ],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
             },
             {
                 ustid: 7,
@@ -641,15 +648,16 @@ async function createStatuses(client) {
                 description: "Na początku tury uczestnik odzyskuje zdrowie",
                 effectiveAt: "start",
                 effectiveTurn: "local",
-                type: "supportive",
-                subtype: "restore",
+                type: "restore",
                 strengthType: "flat",
                 defaultLength: 3,
                 length: 0,
                 defaultStrength: 15,
                 strength: 0,
                 statsAffectedList: [],
-                statusClearable: true
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
             }
         ];
         await collection.insertMany(statusDocuments);

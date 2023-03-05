@@ -10,7 +10,7 @@ class Settings {
      * @property debuggingEnabled
      * @type {boolean}
      */
-    static debuggingEnabled = "";
+    static debuggingEnabled = true;
     static get getDebuggingEnabled() {
         return this.debuggingEnabled;
     }
