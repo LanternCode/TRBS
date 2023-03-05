@@ -82,7 +82,7 @@ function act()
             default:
             {
                 //only print errors to the console when debugging is enabled
-                if(Settings.debuggingEnabled())
+                if(Settings.getDebuggingEnabled)
                     console.log("An error has occured, the following value was passed as action: ", action);
             }
         }

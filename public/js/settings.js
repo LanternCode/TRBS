@@ -7,10 +7,16 @@ class Settings {
     constructor() {
     }
     /**
-     * Whether debugging is enabled or not
+     * @property debuggingEnabled
      * @type {boolean}
      */
-    static debugging = true;
+    static debuggingEnabled = "";
+    static get getDebuggingEnabled() {
+        return this.debuggingEnabled;
+    }
+    static set setDebuggingEnabled(value) {
+        this.debuggingEnabled = value;
+    }
     /**
      * Pre-defined priority 2 flag
      * @type {boolean}
@@ -106,10 +112,6 @@ class Settings {
             max: 9
         }
     };
-
-    static debuggingEnabled() {
-        return this.debugging;
-    }
 
     static createSettingsInstance() {
         //return new Settings();
