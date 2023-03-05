@@ -85,7 +85,7 @@ function refreshCardsInBattle(refreshDefs = false)
         battleSlot.children[0].innerText = arrOfChoice[i].name + " [" + arrOfChoice[i].dodge + "]";
         battleSlot.children[2].innerText = arrOfChoice[i].health;
         battleSlot.children[4].innerText = arrOfChoice[i].speed;
-        battleSlot.children[6].innerText = arrOfChoice[i].atk;
+        battleSlot.children[6].innerText = arrOfChoice[i].attack;
         battleSlot.children[8].innerText = arrOfChoice[i].dodge;
         battleSlot.children[10].innerText = arrOfChoice[i].armor;
 

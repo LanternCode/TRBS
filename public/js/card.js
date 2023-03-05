@@ -38,7 +38,7 @@ function createCardTemplate(type, newParticipant)
     speedLabel.innerText = "Szybkość:";
     speedValue.innerText = newParticipant.speed;
     attackLabel.innerText = "Atak:";
-    attackValue.innerText = newParticipant.atk;
+    attackValue.innerText = newParticipant.attack;
     dodgeLabel.innerText = "Unik:";
     dodgeLabel.classList.add("outOfBattleElem");
     dodgeValue.innerText = newParticipant.dodge;
@@ -325,7 +325,7 @@ function createCardTemplate(type, newParticipant)
      arrayOfChoice[pId].maxHealth = parseInt(newHealth);
      arrayOfChoice[pId].health = parseInt(newHealth);
      arrayOfChoice[pId].speed = parseInt(newSpeed);
-     arrayOfChoice[pId].atk = parseInt(newAttack);
+     arrayOfChoice[pId].attack = parseInt(newAttack);
      arrayOfChoice[pId].dodge = parseInt(newDodge);
      arrayOfChoice[pId].armor = parseInt(newArmor);
      //players and enemies may have dedicated elements only they can access

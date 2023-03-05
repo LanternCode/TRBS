@@ -30,7 +30,7 @@ nextTurnButton.addEventListener("click", () => { startNextTurn() }, false);
  * @property {number} maxHealth - Participant's endurance
  * @property {number} health - Participant's current hp (for use in battles)
  * @property {number} speed - Participant's speed
- * @property {number} atk - Participant's attack
+ * @property {number} attack - Participant's attack
  * @property {number} dodge - Participant's dodge
  * @property {boolean} isDodging - Participant dodge action on or off
  * @property {string} type - Participant type (enemy/player)
@@ -74,6 +74,7 @@ await Settings.fetchItems();
  * @property {string} cooldown - Skill/spell cooldown in global turns (1 means it's available next turn)
  * @property {string} [cost] - Skill/spell cost (not yet used anywhere)
  * @property {string} priority - Skill/spell priority required
+ * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the SkillSpell
  */
 await Settings.fetchSkills();
 

@@ -99,7 +99,7 @@ function generateNewPlayer()
         type: "player",
         health: 100,
         speed: 70,
-        atk: 32,
+        attack: 32,
         dodge: 45,
         experience: 0,
         itemsOwned: generateRandomItems(),

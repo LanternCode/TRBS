@@ -35,7 +35,7 @@ function expRequired(lvl)
 function levelUp(player)
 {
     if(player.level < 10) {
-        player.atk += 2;
+        player.attack += 2;
         player.speed += 5;
         player.maxHealth += 10;
         player.dodge += 1;
@@ -60,8 +60,8 @@ function levelUp(player)
 function levelDown(player)
 {
     if(player.level > 1) {
-        if(player.atk > 2)
-            player.atk -= 2;
+        if(player.attack > 2)
+            player.attack -= 2;
         if(player.speed > 5)
             player.speed -= 5;
         if(player.maxHealth > 10)

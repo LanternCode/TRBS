@@ -116,7 +116,7 @@ function act()
 function handleRegAttack(target, attacker)
 {
     let participantType = attacker.type;
-    let attack = attacker.atk;
+    let attack = attacker.attack;
     if(target.isDodging)
     {
         //target is dodging - in phase 2 avoid half the damage

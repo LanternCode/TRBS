@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
 /**
  * This function establishes connection with the database and returns the client object for other methods to act on
@@ -29,7 +29,6 @@ async function createPlayers(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("player");
-        // create a document to insert
         const playerDocuments =
             [
                 {
@@ -37,7 +36,7 @@ async function createPlayers(client) {
                     maxHealth: 100,
                     health: 100,
                     speed: 81,
-                    atk: 200,
+                    attack: 200,
                     dodge: 11,
                     experience: 0,
                     isDodging: 0,
@@ -54,7 +53,7 @@ async function createPlayers(client) {
                     maxHealth: 80,
                     health: 80,
                     speed: 82,
-                    atk: 15,
+                    attack: 15,
                     dodge: 9,
                     experience: 0,
                     isDodging: 0,
@@ -71,7 +70,7 @@ async function createPlayers(client) {
                     maxHealth: 90,
                     health: 90,
                     speed: 17,
-                    atk: 10,
+                    attack: 10,
                     dodge: 6,
                     experience: 0,
                     isDodging: 0,
@@ -88,13 +87,13 @@ async function createPlayers(client) {
                     maxHealth: 80,
                     health: 80,
                     speed: 17,
-                    atk: 10,
+                    attack: 10,
                     dodge: 6,
                     experience: 0,
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -127,7 +126,7 @@ async function createEnemies(client) {
                     "subtype": "human",
                     "health": 54,
                     "speed": 56,
-                    "atk": 22,
+                    "attack": 22,
                     "dodge": 9,
                     "zone": 8,
                     "armor": 1,
@@ -148,7 +147,7 @@ async function createEnemies(client) {
                     "subtype": "monster",
                     "health": 59,
                     "speed": 71,
-                    "atk": 12,
+                    "attack": 12,
                     "dodge": 8,
                     "zone": 5,
                     "armor": 8,
@@ -162,7 +161,7 @@ async function createEnemies(client) {
                     "subtype": "monster",
                     "health": 55,
                     "speed": 44,
-                    "atk": 11,
+                    "attack": 11,
                     "dodge": 6,
                     "zone": 1,
                     "armor": 5,
@@ -176,7 +175,7 @@ async function createEnemies(client) {
                     "subtype": "monster",
                     "health": 50,
                     "speed": 62,
-                    "atk": 20,
+                    "attack": 20,
                     "dodge": 10,
                     "zone": 1,
                     "armor": 0,
@@ -190,7 +189,7 @@ async function createEnemies(client) {
                     "subtype": "human",
                     "health": 84,
                     "speed": 37,
-                    "atk": 19,
+                    "attack": 19,
                     "dodge": 7,
                     "zone": 6,
                     "armor": 0,
@@ -211,7 +210,7 @@ async function createEnemies(client) {
                     "subtype": "human",
                     "health": 53,
                     "speed": 16,
-                    "atk": 19,
+                    "attack": 19,
                     "dodge": 7,
                     "zone": 4,
                     "armor": 3,
@@ -232,7 +231,7 @@ async function createEnemies(client) {
                     "subtype": "monster",
                     "health": 87,
                     "speed": 48,
-                    "atk": 15,
+                    "attack": 15,
                     "dodge": 10,
                     "zone": 7,
                     "armor": 3,
@@ -246,7 +245,7 @@ async function createEnemies(client) {
                     "subtype": "human",
                     "health": 53,
                     "speed": 2,
-                    "atk": 22,
+                    "attack": 22,
                     "dodge": 9,
                     "zone": 10,
                     "armor": 1,
@@ -267,7 +266,7 @@ async function createEnemies(client) {
                     "subtype": "monster",
                     "health": 59,
                     "speed": 78,
-                    "atk": 18,
+                    "attack": 18,
                     "dodge": 9,
                     "zone": 7,
                     "armor": 2,
@@ -431,7 +430,59 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 1,
                 priority: 2
-            }
+            },
+            {
+                usid: 7,
+                name: "Zatruta Igła",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 15,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["poison"]
+            },
+            {
+                usid: 8,
+                name: "Iskierka",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["ignite"]
+            },
+            {
+                usid: 9,
+                name: "Szarpiące Uderzenie",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 20,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["bleed"]
+            },
+            {
+                usid: 10,
+                name: "Regenerujący Deszcz",
+                range: "all",
+                targetGroup: "player",
+                type: "healing",
+                subtype: "restore",
+                value: 0,
+                valueType: "flat",
+                cooldown: 4,
+                priority: 2,
+                statusesApplied: ["regeneration"]
+            },
         ];
         await collection.insertMany(skillDocuments);
         console.log("Successfully migrated: skills");
@@ -463,7 +514,7 @@ async function createStatuses(client) {
             },
             {
                 ustid: 1,
-                name: "burn",
+                name: "ignite",
                 displayName: "Podpalenie",
                 description: "Na początku tury uczestnika zadaje obrażenia domeny ognia",
                 effectiveAt: "start",
