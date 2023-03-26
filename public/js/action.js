@@ -204,11 +204,30 @@ function handleUseItem(target, itemId)
     let itemUsed = true;
     //find the item in the item list
     let item = Settings.items.find(i => i.uiid === itemId);
+    //history system call
+    newSystemCall("Użycie " + item.displayName + " na " + target.name);
     //see if the target is dead or alive
     let targetAlive = target.health > 0;
     //use the healing item
     if(targetAlive && item.subtype === "restore") restoreHp(item, target);
     else if (!targetAlive && item.subtype === "revive") restoreHp(item, target);
+    else if (targetAlive && item.type === "statModifier") {
+        //apply statuses of the item
+        if(Object.keys(item.statusesApplied || {}).length > 0) {
+            for(let s of item.statusesApplied) {
+                let status = s;
+                let statusReady = (typeof s) === "object";
+                if(!statusReady) {
+                    //fetch the full status based on the name
+                    status = Settings.statuses.filter(st => st.name === s);
+                }
+                Status.applyStatus(target, status[0]);
+            }
+        }
+    } else if (targetAlive && item.type === "statusRemover") {
+        //remove all clearable statuses of the target
+        Status.voidParticipantStatuses(target);
+    }
     else {
         newSystemCall("Nie możesz użyć tego przedmiotu na wskazanym celu.");
         itemUsed = false;
@@ -218,9 +237,6 @@ function handleUseItem(target, itemId)
     if(itemUsed){
         Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
         Settings.priorityThree = false;
-
-        //history system call
-        newSystemCall("Użycie " + item.displayName + " na " + target.name);
     }
 }
 

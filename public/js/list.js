@@ -183,6 +183,19 @@ function createItemTargetList()
             }
             break;
         }
+        case "self":
+        {
+            //item can only be used on the participants of the same type as the acting participant
+            let selfType = Settings.participants[Settings.localTurn].type;
+            filteredList = Settings.participants.filter(p => p.type === selfType).filter(p => p.health > 0);
+            break;
+        }
+        case "reverse":
+        {
+            let reverseType = Settings.participants[Settings.localTurn].type === "player" ? "enemy" : "player";
+            filteredList = Settings.participants.filter(p => p.type === reverseType).filter(p => p.health > 0);
+            break;
+        }
     }
     return filteredList;
 }

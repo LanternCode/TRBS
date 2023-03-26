@@ -54,7 +54,7 @@ class Settings {
     static addedEnemiesCount = 0;
     /**
      * pre-defined item definition array
-     * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
+     * @type [{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number, statusesApplied: array}]
      */
      static items;
     /**

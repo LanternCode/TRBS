@@ -92,7 +92,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2},
                     skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0},
                     level: 1,
                     armor: 0,
@@ -131,6 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
+                    "skillsOwned": {"7": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -152,6 +153,7 @@ async function createEnemies(client) {
                     "zone": 5,
                     "armor": 8,
                     "maxHealth": 59,
+                    "skillsOwned": {"8": 0},
                     "statusesApplied": []
                 },
                 {
@@ -166,6 +168,7 @@ async function createEnemies(client) {
                     "zone": 1,
                     "armor": 5,
                     "maxHealth": 55,
+                    "skillsOwned": {"9": 0},
                     "statusesApplied": []
                 },
                 {
@@ -296,7 +299,8 @@ async function createItems(client) {
                 type: "healing",
                 subtype: "restore",
                 valueType: "flat",
-                value: 10
+                value: 10,
+                statusesApplied: []
             },
             {
                 uiid: 2,
@@ -304,7 +308,8 @@ async function createItems(client) {
                 type: "healing",
                 subtype: "restore",
                 valueType: "flat",
-                value: 15
+                value: 15,
+                statusesApplied: []
             },
             {
                 uiid: 3,
@@ -312,7 +317,8 @@ async function createItems(client) {
                 type: "healing",
                 subtype: "restore",
                 valueType: "flat",
-                value: 22
+                value: 22,
+                statusesApplied: []
             },
             {
                 uiid: 4,
@@ -320,7 +326,8 @@ async function createItems(client) {
                 type: "healing",
                 subtype: "restore",
                 valueType: "flat",
-                value: 30
+                value: 30,
+                statusesApplied: []
             },
             {
                 uiid: 5,
@@ -328,7 +335,44 @@ async function createItems(client) {
                 type: "healing",
                 subtype: "revive",
                 valueType: "parcentage",
-                value: 0.50
+                value: 0.50,
+                statusesApplied: []
+            },
+            {
+                uiid: 6,
+                displayName: "Eliksir Czerwonofurii",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["damageBoost"]
+            },
+            {
+                uiid: 7,
+                displayName: "Eliksir Wiatrozieleni",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["dodgeBoost"]
+            },
+            {
+                uiid: 8,
+                displayName: "Eliksir Białocyklonu",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["speedBoost"]
+            },
+            {
+                uiid: 9,
+                displayName: "Napar Oczyszczający",
+                type: "statusRemover",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: []
             }
         ];
         await collection.insertMany(itemDocuments);
@@ -337,7 +381,7 @@ async function createItems(client) {
 }
 
 /**
- * This function inserts the pre-defined skills into the database
+ * This function inserts the pre-defined skills into the database.
  * @param client
  * @returns {Promise<void>}
  */
@@ -489,6 +533,11 @@ async function createSkills(client) {
     } catch { console.log("Failed migration: skills"); }
 }
 
+/**
+ * This function inserts the pre-defined statuses into the database.
+ * @param client
+ * @returns {Promise<void>}
+ */
 async function createStatuses(client) {
     try {
         const database = client.db("TRBS");
@@ -511,7 +560,7 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true,
+                useDefaultStrengthSource: true
             },
             {
                 ustid: 1,
@@ -565,7 +614,8 @@ async function createStatuses(client) {
                 statsAffectedList: [
                     {
                         stat: "speed",
-                        val: -15
+                        val: -15,
+                        valType: "flat"
                     }
                 ],
                 statusClearable: true,
@@ -588,7 +638,8 @@ async function createStatuses(client) {
                 statsAffectedList: [
                     {
                         stat: "speed",
-                        val: 25
+                        val: 25,
+                        valType: "flat"
                     }
                 ],
                 statusClearable: true,
@@ -611,7 +662,8 @@ async function createStatuses(client) {
                 statsAffectedList: [
                     {
                         stat: "attack",
-                        val: 6
+                        val: 6,
+                        valType: "flat"
                     }
                 ],
                 statusClearable: true,
@@ -634,7 +686,8 @@ async function createStatuses(client) {
                 statsAffectedList: [
                     {
                         stat: "dodge",
-                        val: 5
+                        val: 5,
+                        valType: "flat"
                     }
                 ],
                 statusClearable: true,

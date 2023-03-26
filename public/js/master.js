@@ -50,10 +50,11 @@ await Settings.fetchEnemies();
  * @typedef {Object} Item
  * @property {string} uiid - Unique item id
  * @property {string} displayName - Item display name
- * @property {string} type - Item type (for now only healing)
- * @property {string} subtype - item subtype (for healing items - restore/revive)
+ * @property {string} type - Item type (healing/statModifier)
+ * @property {string} subtype - item subtype (for healing items - restore/revive. for statMods - self/reverse to specify the target)
  * @property {string} valueType - Item value type (flat or percentage)
  * @property {number} value - Item value (flat number or decimal percentage)
+ * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the item
  */
 await Settings.fetchItems();
 

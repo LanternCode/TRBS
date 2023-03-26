@@ -225,8 +225,8 @@ class Status {
         }
         //then check if strength is defined
         let strengthOK = status.strength > 0;
-        //strength must be defined for non-persistent statuses
-        if(!strengthOK && status.effectiveTurn !== "persistent") {
+        //strength must be defined for non-persistent non-statModifier statuses
+        if(!strengthOK && status.effectiveTurn !== "persistent" && status.type !== "statModifier") {
             //default strength must be > 0
             let defaultStrengthOK = status.defaultStrength > 0;
             //default strength source must be defined
@@ -401,10 +401,10 @@ class Status {
      */
     static voidParticipantStatuses(participant) {
         let participantStatuses = participant.statusesApplied;
-        for (let i = 0; i < participantStatuses.length; i++) {
+        for (let i = participantStatuses.length-1; i >= 0; --i) {
             //Find only the statuses that can be cleared
             if (participantStatuses[i].statusClearable === true) {
-                //void the status
+                //Void them
                 newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + participantStatuses[i].displayName);
                 this.voidStatus(participant, participantStatuses[i]);
             }
@@ -641,7 +641,7 @@ class StatsAffected {
      */
     static cancelStatModifiers(participant, status) {
         for(let i = 0; i < Object.keys(status.statsAffectedList || {}).length; ++i) {
-            let statModifier = statsAffected[i];
+            let statModifier = status.statsAffectedList[i];
             let currentStatValue = participant[statModifier.stat];
             let updatedStatValue = currentStatValue - statModifier.val;
             let finalStatValue = updatedStatValue < 1 ? 1 : updatedStatValue;
