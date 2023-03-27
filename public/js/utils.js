@@ -157,4 +157,4 @@ function newSystemCall(call)
     document.getElementById("systemCall").appendChild(historyItem);
 }
 
-export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall };
+export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall, getRndInteger };

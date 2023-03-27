@@ -304,6 +304,23 @@ class Status {
     }
 
     /**
+     * This function takes a participant and returns an array that contains
+     * their persistent statuses effective at the particular listener given
+     *
+     * @param {object} participant the participant to get statuses from
+     * @param {string} listener the effectiveAt of the persistent status, ex. "onAct"
+     * @returns {array} an array with the statuses found
+     */
+    static getParticipantsPersistentStatuses(participant, listener) {
+        let statusList = participant.statusesApplied;
+        if (statusList.length === 0) return [];
+        else {
+            let matchingStatuses = statusList.filter(s => s.effectiveAt === listener).map(s => s.name);
+            return matchingStatuses;
+        }
+    }
+
+    /**
      * This function checks whether the given participant is already affected by the given status
      *
      * @function isParticipantAffected
@@ -372,9 +389,8 @@ class Status {
      * @param {object} replacementStatus the status to insert
      */
     static replaceParticipantStatus(participant, statusToReplace, replacementStatus) {
-        let statuses = participant.statusesApplied;
-        this.voidStatus(statuses, statusToReplace);
-        statuses.push(replacementStatus);
+        this.voidStatus(participant, statusToReplace);
+        participant.statusesApplied.push(replacementStatus);
     }
 
     /**
@@ -386,10 +402,13 @@ class Status {
      */
     static voidStatus(participant, statusToVoid) {
         let participantStatuses = participant.statusesApplied;
-        let statusPosition = participantStatuses.indexOf(statusToVoid);
-        //if the status had any stat modifiers, these must be cancelled first
-        StatsAffected.cancelStatModifiers(participant, participantStatuses[statusPosition]);
-        participantStatuses.splice(statusPosition, 1);
+        let inArrayStatusToVoid = participantStatuses.filter(ps => ps.name === statusToVoid.name);
+        let statusPosition = participantStatuses.indexOf(inArrayStatusToVoid[0]);
+        if(statusPosition >= 0) {
+            //if the status had any stat modifiers, these must be cancelled first
+            StatsAffected.cancelStatModifiers(participant, participantStatuses[statusPosition]);
+            participantStatuses.splice(statusPosition, 1);
+        }
     }
 
     /**
@@ -445,6 +464,7 @@ class Status {
             participant.statusesApplied.push(statusUpdated);
             StatsAffected.applyStatusStatModifiers(participant, statusUpdated);
         }
+        newSystemCall("Uczestnik " + participant.name + " stał się celem statusu " + status.displayName);
     }
 
     /**
@@ -525,6 +545,22 @@ class Status {
                     this.voidStatus(participant, participantStatuses[i]);
                 }
             }
+        }
+    }
+
+    /**
+     * This function reduced the length of a persistent status
+     * and voids the status if the length dropped to 0.
+     *
+     * @param {object} participant the participant targeted by the status
+     * @param {string} statusName the name of the status to advance
+     */
+    static advancePersistentStatus(participant, statusName) {
+        let statusToAdvance = this.getParticipantStatus(participant, {name: statusName});
+        statusToAdvance.length -= 1;
+        if(statusToAdvance.length <= 0) {
+            newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + statusToAdvance.displayName);
+            this.voidStatus(participant, statusToAdvance);
         }
     }
 }

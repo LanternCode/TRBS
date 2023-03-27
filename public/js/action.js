@@ -2,7 +2,7 @@ import {endBattle, isBattleOver} from "./battle.js";
 import {filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {handleSystemRoll, newSystemCall} from "./utils.js";
+import {getRndInteger, handleSystemRoll, newSystemCall} from "./utils.js";
 import {Status} from "./status.js";
 
 /**
@@ -20,6 +20,15 @@ function act()
     let target = document.getElementById("targetsList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
+
+    //process persistent statuses effective "onAct"
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    if(activeOnActStatuses.includes("confusion")) {
+        let targetsAvailable = Settings.participants;
+        let randomisedTarget = getRndInteger(0, targetsAvailable.length-1);
+        target = randomisedTarget;
+        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
+    }
 
     //The switches will handle action "security" and then pass the action to the appropriate handler
     if(action !== '') {
@@ -91,7 +100,7 @@ function act()
         newSystemCall("Nie wybrano żadnej akcji.");
     }
 
-    // mark unavailable actions
+    //mark unavailable actions
     if(Settings.priorityTwo === false)
     {
         priorityTwoActionFlag.classList.add("disabled");
@@ -221,7 +230,7 @@ function handleUseItem(target, itemId)
                     //fetch the full status based on the name
                     status = Settings.statuses.filter(st => st.name === s);
                 }
-                Status.applyStatus(target, status[0]);
+                Status.applyStatus(target, structuredClone(status[0]));
             }
         }
     } else if (targetAlive && item.type === "statusRemover") {
@@ -229,15 +238,12 @@ function handleUseItem(target, itemId)
         Status.voidParticipantStatuses(target);
     }
     else {
-        newSystemCall("Nie możesz użyć tego przedmiotu na wskazanym celu.");
-        itemUsed = false;
+        newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
     //reduce participant's item count
-    if(itemUsed){
-        Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
-        Settings.priorityThree = false;
-    }
+    Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
+    Settings.priorityThree = false;
 }
 
 /**
@@ -293,7 +299,7 @@ function handleUseSkill(skill, target)
                     //fetch the full status based on the name
                     status = Settings.statuses.filter(st => st.name === s);
                 }
-                Status.applyStatus(p, status[0]);
+                Status.applyStatus(p, structuredClone(status[0]));
             }
         }
     }
