@@ -59,7 +59,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0},
+                    "skillsOwned": {"7": 0, "11": 0, "16": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -153,7 +153,7 @@ async function createEnemies(client) {
                     "zone": 5,
                     "armor": 8,
                     "maxHealth": 59,
-                    "skillsOwned": {"8": 0, "11": 0},
+                    "skillsOwned": {"8": 0, "11": 0, "16": 0},
                     "statusesApplied": []
                 },
                 {
@@ -539,6 +539,71 @@ async function createSkills(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["confusion"]
+            },
+            {
+                usid: 12,
+                name: "Błogosławieństwo Impaktu",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 3,
+                statusesApplied: ["impact"]
+            },
+            {
+                usid: 13,
+                name: "Błogo. Dodatkowego Ataku",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 3,
+                statusesApplied: ["extraAttack"]
+            },
+            {
+                usid: 14,
+                name: "Błogo. Furii",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 3,
+                statusesApplied: ["fury"]
+            },
+            {
+                usid: 15,
+                name: "Błogo. Perfekcji",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 3,
+                statusesApplied: ["perfection"]
+            },
+            {
+                usid: 16,
+                name: "Szarpanie Pazurami",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 20,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["shrapnel"]
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -591,7 +656,7 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true,
+                useDefaultStrengthSource: true
             },
             {
                 ustid: 2,
@@ -609,7 +674,7 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true,
+                useDefaultStrengthSource: true
             },
             {
                 ustid: 3,
@@ -749,7 +814,7 @@ async function createStatuses(client) {
                 displayName: "Impakt",
                 description: "Uczestnik zadaje dwukrotnie zwiększone obrażenia jeśli jego zdrowie jest mniejsze od połowy, oraz ponownie podwójnie" +
                     " zwiększone jeśli zdrowie jego celu jest mniejsze od połowy.",
-                effectiveAt: "onDagame",
+                effectiveAt: "onDamage",
                 effectiveTurn: "persistent",
                 type: "damage",
                 strengthType: "",

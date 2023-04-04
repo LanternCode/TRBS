@@ -24,10 +24,19 @@ function act()
     //process persistent statuses effective "onAct"
     let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
     if(activeOnActStatuses.includes("confusion")) {
+        //confusion status randomises the action target
         let targetsAvailable = Settings.participants;
         let randomisedTarget = getRndInteger(0, targetsAvailable.length-1);
         target = randomisedTarget;
         Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
+    }
+    let extraAttackAvailable = false;
+    let extraAttackUsed = false;
+    if(activeOnActStatuses.includes("extraAttack")) {
+        if(Settings.priorityTwo === false) {
+            //extraAttack allows the participant to perform an extra priority 2 attack action
+            extraAttackAvailable = true;
+        }
     }
 
     //The switches will handle action "security" and then pass the action to the appropriate handler
@@ -36,8 +45,11 @@ function act()
         {
             case "regAttack":
             {
-                if(Settings.priorityTwo === true)
+                if(Settings.priorityTwo || extraAttackAvailable) {
+                    if (!Settings.priorityTwo)
+                        extraAttackUsed = true;
                     handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
+                }
                 else if(Settings.priorityTwo === false) newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
                 else newSystemCall("Nie wybrano żadnego celu.");
                 break;
@@ -74,6 +86,10 @@ function act()
                             priorityClear = true;
                             Settings.priorityThree = false;
                         }
+                        else if (extraAttackAvailable) {
+                            priorityClear = true;
+                            extraAttackUsed = true;
+                        }
                         if(priorityClear)
                             handleUseSkill(skill, target);
                         else newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
@@ -94,6 +110,9 @@ function act()
                 if(Settings.getDebuggingEnabled)
                     console.log("An error has occured, the following value was passed as action: ", action);
             }
+        }
+        if(extraAttackUsed) {
+            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "extraAttack");
         }
     }
     else {
@@ -140,7 +159,7 @@ function handleRegAttack(target, attacker)
     let criticalWeakPoint = hitCheck === 100;
     let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
     if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
-    else if (criticalHit) attack += attacker.zone;
+    else if (criticalHit) attack += parseInt(attacker.zone);
 
     if(hitCheck < target.dodge)
     {
@@ -162,6 +181,9 @@ function handleRegAttack(target, attacker)
         else if (criticalHit) newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczny Atak)");
         else newSystemCall("Rzut systemu: " + hitCheck + " (Trafienie)");
     }
+
+    //See if the impact status is present and apply it if so
+    attack = applyImpact(attack, target);
 
     //reduce the attack by target's armor rating
     if(attack - target.armor >= 0)
@@ -408,7 +430,7 @@ function damageTarget(obj, target)
     let typePropertyName = statusObject ? "strengthType" : "valueType";
 
     let startingHealth = target.health;
-    let dmg = parseInt(obj[propertyName]);
+    let dmg = applyImpact(parseInt(obj[propertyName]), target); //parseInt(obj[propertyName])*damageMultiplier;
 
     //damages participant by a flat value
     if (obj[typePropertyName] === "flat") {
@@ -424,6 +446,34 @@ function damageTarget(obj, target)
     }
 
     return startingHealth - target.health;
+}
+
+/**
+ * Utility function that calculates the damage of an Impact-affected attack
+ * It also advances the status if it was applied to the attack
+ *
+ * @param damage
+ * @param target
+ * @returns {*}
+ */
+function applyImpact(damage, target) {
+    let damageTotal = damage;
+    let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onDamage");
+    if(activeOnDamageStatuses.includes("impact")) {
+        //impact status may double or quadruple damage
+        let impactMultiplier = 1;
+        if (Settings.participants[Settings.localTurn].health <= Settings.participants[Settings.localTurn].maxHealth * 0.5) {
+            impactMultiplier *= 2;
+        }
+        if (target.health <= target.maxHealth * 0.5) {
+            impactMultiplier *= 2;
+        }
+        if(impactMultiplier > 1) {
+            damageTotal *= impactMultiplier;
+            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "impact");
+        }
+    }
+    return damageTotal;
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};
