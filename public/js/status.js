@@ -21,6 +21,7 @@ import {damageTarget, restoreHp} from "./action.js";
  * @property {boolean} statusClearable - true if the status can be voided by in-game actions, false otherwise
  * @property {boolean} lastUntilCleared - true if the status lasts indefinitely (until cleared), false otherwise
  * @property {boolean} useDefaultStrengthSource - true to use a default stat to take strength from (level/zone), false otherwise
+ * @property {boolean} applyStatsAffectedImmediately - some statuses delay the application of stat modifiers, ex. fury, true otherwise.
  */
 class Status {
     constructor(ustid) {
@@ -174,34 +175,21 @@ class Status {
      * @type {boolean}
      */
     statusClearable = false;
-    get getStatusClearable() {
-        return this.statusClearable;
-    }
-    set setStatusClearable(value) {
-        this.statusClearable = value;
-    }
     /**
      * @property lastUntilCleared
      * @type {boolean}
      */
     lastUntilCleared = false;
-    get getLastUntilCleared() {
-        return this.lastUntilCleared;
-    }
-    set setLastUntilCleared(value) {
-        this.lastUntilCleared = value;
-    }
     /**
      * @property useDefaultStrengthSource
      * @type {boolean}
      */
     useDefaultStrengthSource = false;
-    get getUseDefaultStrengthSource() {
-        return this.useDefaultStrengthSource;
-    }
-    set setUseDefaultStrengthSource(value) {
-        this.useDefaultStrengthSource = value;
-    }
+    /**
+     * @property applyStatsAffectedImmediately
+     * @type {boolean}
+     */
+    applyStatsAffectedImmediately = true;
 
     /**
      * This function takes a status and checks if it is valid. Prints an error message if invalid.
@@ -456,13 +444,15 @@ class Status {
                 StatsAffected.cancelStatModifiers(participant, statusUpdated);
                 //apply the status and any stat modifiers
                 Status.replaceParticipantStatus(participant, statusUpdated, strongerStatus);
-                StatsAffected.applyStatusStatModifiers(participant, strongerStatus);
+                if(strongerStatus.applyStatsAffectedImmediately === true)
+                    StatsAffected.applyStatusStatModifiers(participant, strongerStatus);
             }
         }
         else {
             //apply the status and any stat modifiers
             participant.statusesApplied.push(statusUpdated);
-            StatsAffected.applyStatusStatModifiers(participant, statusUpdated);
+            if(statusUpdated.applyStatsAffectedImmediately === true)
+                StatsAffected.applyStatusStatModifiers(participant, statusUpdated);
         }
         newSystemCall("Uczestnik " + participant.name + " stał się celem statusu " + status.displayName);
     }

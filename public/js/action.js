@@ -3,7 +3,7 @@ import {filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {getRndInteger, handleSystemRoll, newSystemCall} from "./utils.js";
-import {Status} from "./status.js";
+import {StatsAffected, Status} from "./status.js";
 
 /**
  * This function handles user actions
@@ -155,11 +155,21 @@ function handleRegAttack(target, attacker)
     let maxRoll = participantType === "enemy" ? "d100" : "d20";
     let hitCheck = handleSystemRoll(maxRoll);
 
+    //handle the "perfection" status
+    let perfectAttack = false;
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    if(activeOnActStatuses.includes("perfection")) {
+        //perfection status makes an attack always hit
+        hitCheck = target.dodge++;
+        perfectAttack = true;
+        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "perfection");
+    }
+
     //critical attacks double or increase the damage, check if they happened
     let criticalWeakPoint = hitCheck === 100;
     let criticalHit = (participantType === "enemy" && hitCheck >= 90) || (participantType === "player" && hitCheck === 20);
-    if(criticalWeakPoint || (criticalHit && participantType === "player")) attack *= 2;
-    else if (criticalHit) attack += parseInt(attacker.zone);
+    if((criticalWeakPoint || (criticalHit && participantType === "player")) && !perfectAttack) attack *= 2;
+    else if (criticalHit && !perfectAttack) attack += parseInt(attacker.zone);
 
     if(hitCheck < target.dodge)
     {
@@ -183,7 +193,7 @@ function handleRegAttack(target, attacker)
     }
 
     //See if the impact status is present and apply it if so
-    attack = applyImpact(attack, target);
+    attack = attack > 0 ? applyImpact(attack, target) : 0;
 
     //reduce the attack by target's armor rating
     if(attack - target.armor >= 0)
@@ -195,6 +205,28 @@ function handleRegAttack(target, attacker)
     if(targetHealth - attack > 0)
         target.health -= attack;
     else target.health = 0;
+
+    //check "onDeath" persistent statuses
+    if(target.health === 0) {
+        //see if there remains only 1 alive participant in the target's team
+        let aliveTargetTypeParticipantsArr = Settings.participants.filter(p => p.type === target.type && p.health > 0);
+        if(aliveTargetTypeParticipantsArr.length === 1) {
+            //see if the participant is affected by the "fury" status
+            let activeOnDeathStatuses = Status.getParticipantsPersistentStatuses(aliveTargetTypeParticipantsArr[0], "onDeath");
+            if(activeOnDeathStatuses.includes("fury")) {
+                let furyStatusFound = activeOnDeathStatuses.filter(s => s.name === "fury")[0];
+                //fury restores hp and increases damage
+                aliveTargetTypeParticipantsArr[0].health += furyStatusFound.strength;
+                StatsAffected.applyStatusStatModifiers(aliveTargetTypeParticipantsArr[0], furyStatusFound);
+                //update the status to a global status - this way the effect of the stat mod will wear off after the desired number of turns
+                let newFuryStatus = structuredClone(furyStatusFound);
+                newFuryStatus.effectiveTurn = "global";
+                newFuryStatus.effectiveAt = "end";
+                //replace the current status with the new status
+                Status.replaceParticipantStatus(aliveTargetTypeParticipantsArr[0], furyStatusFound, newFuryStatus);
+            }
+        }
+    }
 
     //history system call
     if (attack > 0) newSystemCall(attacker.name + " zadaje " + attack + " obrażeń " + target.name + "!");
@@ -400,15 +432,18 @@ function restoreHp(obj, target)
     //store the health of the target before the health is restored
     let startingHealth = target.health;
 
+    //see if the 'shrapnel' status is present that reduces healing by a half
+    let healthToRestore = applyShrapnel(obj[propertyName], target);
+
     if(obj[typePropertyName] === "flat"){
-        if(target.health + obj[propertyName] > target.maxHealth)
+        if(target.health + healthToRestore > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += obj[propertyName];
+        else target.health += healthToRestore;
     }
     else {
-        if(target.health + (target.maxHealth * obj[propertyName]) > target.maxHealth)
+        if(target.health + (target.maxHealth * healthToRestore) > target.maxHealth)
             target.health = target.maxHealth;
-        else target.health += (target.maxHealth * obj[propertyName]);
+        else target.health += (target.maxHealth * healthToRestore);
     }
 
     return target.health - startingHealth;
@@ -430,7 +465,7 @@ function damageTarget(obj, target)
     let typePropertyName = statusObject ? "strengthType" : "valueType";
 
     let startingHealth = target.health;
-    let dmg = applyImpact(parseInt(obj[propertyName]), target); //parseInt(obj[propertyName])*damageMultiplier;
+    let dmg = applyImpact(parseInt(obj[propertyName]), target);
 
     //damages participant by a flat value
     if (obj[typePropertyName] === "flat") {
@@ -452,9 +487,11 @@ function damageTarget(obj, target)
  * Utility function that calculates the damage of an Impact-affected attack
  * It also advances the status if it was applied to the attack
  *
- * @param damage
- * @param target
- * @returns {*}
+ * To be removed or reconstructed once Skills are separated from Spells
+ *
+ * @param {int} damage the damage to apply impact to
+ * @param {Participant} target the target of the attack
+ * @returns {int} damage with impact applied
  */
 function applyImpact(damage, target) {
     let damageTotal = damage;
@@ -474,6 +511,27 @@ function applyImpact(damage, target) {
         }
     }
     return damageTotal;
+}
+
+/**
+ * Utility function that calculates the healing of a shrapnel-affected action
+ * It also advances the status if it was applied
+ *
+ * To be removed or reconstructed once Skills are separated from Spells
+ *
+ * @param {int} healing the value of healing
+ * @param {Participant} target the target of the healing effect
+ * @returns {int} the post-shrapnel value of healing
+ */
+function applyShrapnel(healing, target) {
+    let activeOnHealingStatuses = Status.getParticipantsPersistentStatuses(target, "onHealing");
+    if(activeOnHealingStatuses.includes("shrapnel")) {
+        //shrapnel reduces healing by half
+        let healingPostShrapnel = Math.floor(healing * 0.5);
+        Status.advancePersistentStatus(target, "shrapnel");
+        return healingPostShrapnel;
+    }
+    else return healing;
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};

@@ -638,7 +638,8 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 1,
@@ -656,7 +657,8 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 2,
@@ -674,7 +676,8 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 3,
@@ -699,6 +702,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 4,
@@ -723,6 +727,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 5,
@@ -747,6 +752,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 6,
@@ -771,6 +777,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 7,
@@ -789,6 +796,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 8,
@@ -807,6 +815,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 9,
@@ -826,6 +835,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 10,
@@ -844,6 +854,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 11,
@@ -862,6 +873,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 12,
@@ -869,7 +881,7 @@ async function createStatuses(client) {
                 displayName: "Furia",
                 description: "Uczestnik który jako jedyny ze swojej drużyny pozostał na polu walki odzyskuje natychmiast część swojego zdrowia" +
                     " a jego obrażenia są zwiększone.",
-                effectiveAt: "onAct",
+                effectiveAt: "onDeath",
                 effectiveTurn: "persistent",
                 type: "statModifier",
                 strengthType: "",
@@ -886,7 +898,8 @@ async function createStatuses(client) {
                 ],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: false
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: false
             },
             {
                 ustid: 13,
@@ -904,7 +917,141 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: false
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 14,
+                name: "deepWounds",
+                displayName: "Głębokie Rany",
+                description: "Cel otrzymuje zwiększone obrażenia.",
+                effectiveAt: "onDamage",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 15,
+                name: "bombDebuff",
+                displayName: "Bomba",
+                description: "Do celu przyczepiono bombę...",
+                effectiveAt: "onStartTurn",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 16,
+                name: "illusion",
+                displayName: "Iluzja",
+                description: "Tylko osoby zaatakowane przez ten cel mogą go atakować.",
+                effectiveAt: "onHit",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 17,
+                name: "object",
+                displayName: "Obiekt",
+                description: "Obiekty nie mogą atakować.",
+                effectiveAt: "onAct",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 0,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 18,
+                name: "permadeath",
+                displayName: "Perma-Death",
+                description: "Efekty Ożywiające nie działają na ten cel.",
+                effectiveAt: "onRestoreHp",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 0,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 19,
+                name: "statusResistance",
+                displayName: "Odporność na statusy",
+                description: "Ten cel jest odporny na działanie statusów.",
+                effectiveAt: "onApplyStatus",
+                effectiveTurn: "persistent",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 20,
+                name: "instantEscape",
+                displayName: "Natychmiastowa Ucieczka",
+                description: "Podejmując ucieczkę z walki, cel zawsze ucieknie.",
+                effectiveAt: "onEscape",
+                effectiveTurn: "persistent",
+                type: "other",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             }
         ];
         await collection.insertMany(statusDocuments);
