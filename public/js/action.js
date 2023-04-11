@@ -45,7 +45,7 @@ function act()
         {
             case "regAttack":
             {
-                if(Settings.priorityTwo || extraAttackAvailable) {
+                if((Settings.priorityTwo || extraAttackAvailable) && target !== '') {
                     if (!Settings.priorityTwo)
                         extraAttackUsed = true;
                     handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
@@ -157,10 +157,10 @@ function handleRegAttack(target, attacker)
 
     //handle the "perfection" status
     let perfectAttack = false;
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
     if(activeOnActStatuses.includes("perfection")) {
         //perfection status makes an attack always hit
-        hitCheck = target.dodge++;
+        hitCheck = target.dodge + 1;
         perfectAttack = true;
         Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "perfection");
     }
@@ -195,6 +195,14 @@ function handleRegAttack(target, attacker)
     //See if the impact status is present and apply it if so
     attack = attack > 0 ? applyImpact(attack, target) : 0;
 
+    //if the deep wounds status is active, increase damage
+    let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(target, "onDamage");
+    if(activeOnDamageStatuses.includes("deepWounds")) {
+        let deepWoundsStatus = target.statusesApplied.filter(s => s.name === "deepWounds")[0];
+        attack += deepWoundsStatus.strength;
+        Status.advancePersistentStatus(target, "deepWounds");
+    }
+
     //reduce the attack by target's armor rating
     if(attack - target.armor >= 0)
         attack -= target.armor;
@@ -214,16 +222,15 @@ function handleRegAttack(target, attacker)
             //see if the participant is affected by the "fury" status
             let activeOnDeathStatuses = Status.getParticipantsPersistentStatuses(aliveTargetTypeParticipantsArr[0], "onDeath");
             if(activeOnDeathStatuses.includes("fury")) {
-                let furyStatusFound = activeOnDeathStatuses.filter(s => s.name === "fury")[0];
-                //fury restores hp and increases damage
-                aliveTargetTypeParticipantsArr[0].health += furyStatusFound.strength;
-                StatsAffected.applyStatusStatModifiers(aliveTargetTypeParticipantsArr[0], furyStatusFound);
+                //fury restores hp
+                let furyStatusFound = aliveTargetTypeParticipantsArr[0].statusesApplied.filter(s => s.name === "fury")[0];
+                let tHp = aliveTargetTypeParticipantsArr[0].health;
+                let mHp = aliveTargetTypeParticipantsArr[0].maxHealth;
+                aliveTargetTypeParticipantsArr[0].health = tHp + furyStatusFound.strength > mHp ? mHp : tHp + furyStatusFound.strength;
                 //update the status to a global status - this way the effect of the stat mod will wear off after the desired number of turns
-                let newFuryStatus = structuredClone(furyStatusFound);
-                newFuryStatus.effectiveTurn = "global";
-                newFuryStatus.effectiveAt = "end";
-                //replace the current status with the new status
-                Status.replaceParticipantStatus(aliveTargetTypeParticipantsArr[0], furyStatusFound, newFuryStatus);
+                furyStatusFound.effectiveTurn = "global";
+                furyStatusFound.effectiveAt = "end";
+                StatsAffected.applyStatusStatModifiers(aliveTargetTypeParticipantsArr[0], furyStatusFound);
             }
         }
     }
@@ -524,14 +531,18 @@ function applyImpact(damage, target) {
  * @returns {int} the post-shrapnel value of healing
  */
 function applyShrapnel(healing, target) {
-    let activeOnHealingStatuses = Status.getParticipantsPersistentStatuses(target, "onHealing");
-    if(activeOnHealingStatuses.includes("shrapnel")) {
-        //shrapnel reduces healing by half
-        let healingPostShrapnel = Math.floor(healing * 0.5);
-        Status.advancePersistentStatus(target, "shrapnel");
-        return healingPostShrapnel;
+    let activeOnHealingStatuses = Status.getParticipantStatus(target, {"name": "shrapnel"});
+    console.log(activeOnHealingStatuses);
+    if(activeOnHealingStatuses !== false) {
+        console.log("is array");
+        if(activeOnHealingStatuses.map(s => s.name).includes("shrapnel")) {
+            console.log("is shrapnel");
+            //shrapnel reduces healing by half
+            let healingPostShrapnel = Math.floor(healing * 0.5);
+            return healingPostShrapnel;
+        }
     }
-    else return healing;
+    return healing;
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};

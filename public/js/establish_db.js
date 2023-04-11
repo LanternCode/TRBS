@@ -862,7 +862,7 @@ async function createStatuses(client) {
                 displayName: "Poszarpanie",
                 description: "Efekty lecznicze oddziałujące na uczestnika są zmniejszone o połowę.",
                 effectiveAt: "onRestoreHp",
-                effectiveTurn: "persistent",
+                effectiveTurn: "global",
                 type: "damage",
                 strengthType: "",
                 defaultLength: 3,
@@ -936,7 +936,7 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true,
+                useDefaultStrengthSource: false,
                 applyStatsAffectedImmediately: true
             },
             {
@@ -1052,6 +1052,25 @@ async function createStatuses(client) {
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
                 applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 21,
+                name: "instantEscape",
+                displayName: "Natychmiastowa Ucieczka",
+                description: "Podejmując ucieczkę z walki, cel zawsze ucieknie.",
+                effectiveAt: "onEscape",
+                effectiveTurn: "persistent",
+                type: "other",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             }
         ];
         await collection.insertMany(statusDocuments);
@@ -1060,7 +1079,7 @@ async function createStatuses(client) {
 }
 
 /**
- * This function creates all collections in the database
+ * This function creates all mandatory collections in the database
  * @returns {Promise<void>}
  */
 export async function migrateAll()

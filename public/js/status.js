@@ -120,56 +120,26 @@ class Status {
      * @type {number}
      */
     defaultLength = 0;
-    get getDefaultLength() {
-        return this.defaultLength;
-    }
-    set setDefaultLength(value) {
-        this.defaultLength = value;
-    }
     /**
      * @property length
      * @type {number}
      */
     length = 0;
-    get getLength() {
-        return this.length;
-    }
-    set setLength(value) {
-        this.length = value;
-    }
     /**
      * @property defaultStrength
      * @type {number}
      */
     defaultStrength = 0;
-    get getDefaultStrength() {
-        return this.defaultStrength;
-    }
-    set setDefaultStrength(value) {
-        this.defaultStrength = value;
-    }
     /**
      * @property strength
      * @type {number}
      */
     strength = 0;
-    get getStrength() {
-        return this.strength;
-    }
-    set setStrength(value) {
-        this.strength = value;
-    }
     /**
      * @property statsAffectedList
      * @type {array}
      */
     statsAffectedList = [];
-    get getStatsAffectedList() {
-        return this.statsAffectedList;
-    }
-    set setStatsAffectedList(value) {
-        this.statsAffectedList = value;
-    }
     /**
      * @property statusClearable
      * @type {boolean}
@@ -498,8 +468,10 @@ class Status {
             for (let j = 0; j < participantStatuses.length; j++) {
                 //Find only the global statuses
                 if (participantStatuses[j].effectiveTurn === "global") {
+                    console.log(participantStatuses[j]);
+                    console.log(participantStatuses[j].length);
                     //first reduce the length by 1
-                    participantStatuses[j].length = participantStatuses[i].length - 1;
+                    participantStatuses[j].length -= 1;
                     //inflict the status effect on the participant
                     this.advanceStatus(Settings.participants[i], j);
                     //void the status if length dropped to 0
@@ -631,6 +603,7 @@ class StatsAffected {
     static applyStatusStatModifiers(participant, status) {
         let statusStatModifiers = status.statsAffectedList;
         for(let i = 0; i < statusStatModifiers.length; ++i) {
+            console.log(statusStatModifiers[i]);
             //apply the stat modifier
             let valApplied = this.applyStatModifier(participant, statusStatModifiers[i]);
             //convert the percentage type to a flat value to properly add it back to the participant later
