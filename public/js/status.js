@@ -184,7 +184,7 @@ class Status {
         //then check if strength is defined
         let strengthOK = status.strength > 0;
         //strength must be defined for non-persistent non-statModifier statuses
-        if(!strengthOK && status.effectiveTurn !== "persistent" && status.type !== "statModifier") {
+        if(!strengthOK && (status.effectiveTurn === "start" || status.effectiveTurn === "end")) {
             //default strength must be > 0
             let defaultStrengthOK = status.defaultStrength > 0;
             //default strength source must be defined
@@ -211,7 +211,7 @@ class Status {
             //global turns do not require effectiveAt, local must be "start" or "end", persistent needs a correct listener
             let effAt = status.effectiveAt;
             let effTurn = status.effectiveTurn;
-            let allowedValues = effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath"]
+            let allowedValues = effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath", "onStartTurn", "onApplyStatus", "onEscape"]
                 : (effTurn === "local" ? ["start", "end"]
                     : "");
             effectiveAtOK = effTurn === "global" ? true : ((typeof effTurn === 'string') && allowedValues.includes(effAt));

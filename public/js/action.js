@@ -447,7 +447,7 @@ function restoreHp(obj, target)
     let startingHealth = target.health;
 
     //see if the 'perma-death' status is present that makes revival impossible
-    let activeOnRestoreHpStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onRestoreHp");
+    let activeOnRestoreHpStatuses = Status.getParticipantsPersistentStatuses(target, "onRestoreHp");
     let permaDeath = false;
     if(activeOnRestoreHpStatuses.includes("permadeath")) {
         permaDeath = true;
@@ -546,11 +546,8 @@ function applyImpact(damage, target) {
  */
 function applyShrapnel(healing, target) {
     let activeOnHealingStatuses = Status.getParticipantStatus(target, {"name": "shrapnel"});
-    console.log(activeOnHealingStatuses);
     if(activeOnHealingStatuses !== false) {
-        console.log("is array");
-        if(activeOnHealingStatuses.map(s => s.name).includes("shrapnel")) {
-            console.log("is shrapnel");
+        if(activeOnHealingStatuses.name === "shrapnel") {
             //shrapnel reduces healing by half
             let healingPostShrapnel = Math.floor(healing * 0.5);
             return healingPostShrapnel;

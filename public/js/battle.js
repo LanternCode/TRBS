@@ -165,14 +165,17 @@ function startNextTurn()
         if(activeOnStartTurnStatuses.includes("bombDebuff")) {
             //bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
             let hitCheck = handleSystemRoll("player");
-            if(hitCheck > 12)
+            if(hitCheck > 12) {
                 Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
+                newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");
+            }
             else {
                 let bombStatusLength = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
                 Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "bombDebuff");
                 if(bombStatusLength <= 1) {
                     //the length will have dropped to 0 - kill the player
                     Settings.participants[Settings.localTurn].health = 0;
+                    newSystemCall(Settings.participants[Settings.localTurn].name + " WYBUCHŁ! KABOOM!");
                 }
             }
         }

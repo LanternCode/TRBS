@@ -59,7 +59,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -604,6 +604,71 @@ async function createSkills(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["shrapnel"]
+            },
+            {
+                usid: 17,
+                name: "Paka Amira",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["bombDebuff"]
+            },
+            {
+                usid: 18,
+                name: "Unieruchomienie",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["object"]
+            },
+            {
+                usid: 19,
+                name: "Wieczna Śmierć",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["permadeath"]
+            },
+            {
+                usid: 20,
+                name: "Siedmiomilowe Buty",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["instantEscape"]
+            },
+            {
+                usid: 21,
+                name: "Złoty Eliksir",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["statusResistance"]
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -620,7 +685,6 @@ async function createStatuses(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("status");
-        // create a document to insert
         const statusDocuments = [
             {
                 ustid: 0,
@@ -1021,8 +1085,8 @@ async function createStatuses(client) {
                 displayName: "Odporność na statusy",
                 description: "Ten cel jest odporny na działanie statusów.",
                 effectiveAt: "onApplyStatus",
-                effectiveTurn: "persistent",
-                type: "damage",
+                effectiveTurn: "global",
+                type: "statModifier",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -1052,30 +1116,12 @@ async function createStatuses(client) {
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
                 applyStatsAffectedImmediately: true
-            },
-            {
-                ustid: 21,
-                name: "instantEscape",
-                displayName: "Natychmiastowa Ucieczka",
-                description: "Podejmując ucieczkę z walki, cel zawsze ucieknie.",
-                effectiveAt: "onEscape",
-                effectiveTurn: "persistent",
-                type: "other",
-                strengthType: "",
-                defaultLength: 1,
-                length: 0,
-                defaultStrength: 0,
-                strength: 0,
-                statsAffectedList: [],
-                statusClearable: true,
-                lastUntilCleared: false,
-                useDefaultStrengthSource: false,
-                applyStatsAffectedImmediately: true
             }
         ];
         await collection.insertMany(statusDocuments);
         console.log("Successfully migrated: statuses");
-    } catch { console.log("Failed migration: statuses"); }
+    }
+    catch { console.log("Failed migration: statuses"); }
 }
 
 /**
