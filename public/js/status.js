@@ -399,6 +399,9 @@ class Status {
         //before you apply the status, validate it
         let statusValid = Status.validate(status);
         if (!statusValid) return;
+        //check if the target is protected against statuses
+        let activeOnApplyStatusStatuses = Status.getParticipantsPersistentStatuses(participant, "onApplyStatus");
+        if(activeOnApplyStatusStatuses.includes("statusResistance")) return;
         //apply defaultLength and defaultStrength where required
         let statusUpdated = Status.applyDefaultValues(status);
         //if the status is valid, check that the participant is not already affected by it
