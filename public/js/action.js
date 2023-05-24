@@ -23,6 +23,7 @@ function act()
 
     //process persistent statuses effective "onAct"
     let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    let isObject = false;
     if(activeOnActStatuses.includes("confusion")) {
         //confusion status randomises the action target
         let targetsAvailable = Settings.participants;
@@ -30,6 +31,10 @@ function act()
         target = randomisedTarget;
         Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
     }
+    else if(activeOnActStatuses.includes("object")) {
+        isObject = true;
+    }
+
     let extraAttackAvailable = false;
     let extraAttackUsed = false;
     if(activeOnActStatuses.includes("extraAttack")) {
@@ -45,7 +50,9 @@ function act()
         {
             case "regAttack":
             {
-                if((Settings.priorityTwo || extraAttackAvailable) && target !== '') {
+                if(isObject)
+                    newSystemCall("Obiekty nie mogą atakować!");
+                else if((Settings.priorityTwo || extraAttackAvailable) && target !== '') {
                     if (!Settings.priorityTwo)
                         extraAttackUsed = true;
                     handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
