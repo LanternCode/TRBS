@@ -446,8 +446,15 @@ function restoreHp(obj, target)
     //store the health of the target before the health is restored
     let startingHealth = target.health;
 
+    //see if the 'perma-death' status is present that makes revival impossible
+    let activeOnRestoreHpStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onRestoreHp");
+    let permaDeath = false;
+    if(activeOnRestoreHpStatuses.includes("permadeath")) {
+        permaDeath = true;
+    }
+
     //see if the 'shrapnel' status is present that reduces healing by a half
-    let healthToRestore = applyShrapnel(obj[propertyName], target);
+    let healthToRestore = permaDeath ? 0 : applyShrapnel(obj[propertyName], target);
 
     if(obj[typePropertyName] === "flat"){
         if(target.health + healthToRestore > target.maxHealth)
