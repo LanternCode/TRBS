@@ -1,4 +1,4 @@
-import {handleSystemRoll, newSystemCall} from "./utils.js";
+import {handleSystemRoll, newSystemCall, randomSystemRoll} from "./utils.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
@@ -164,7 +164,7 @@ function startNextTurn()
         let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
         if(activeOnStartTurnStatuses.includes("bombDebuff")) {
             //bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
-            let hitCheck = handleSystemRoll("player");
+            let hitCheck = randomSystemRoll(20);
             if(hitCheck > 12) {
                 Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
                 newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");

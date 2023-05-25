@@ -2,7 +2,7 @@ import {endBattle, isBattleOver} from "./battle.js";
 import {filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {getRndInteger, handleSystemRoll, newSystemCall} from "./utils.js";
+import {getRndInteger, handleSystemRoll, newSystemCall, randomSystemRoll} from "./utils.js";
 import {StatsAffected, Status} from "./status.js";
 
 /**
@@ -162,9 +162,14 @@ function handleRegAttack(target, attacker)
     let maxRoll = participantType === "enemy" ? "d100" : "d20";
     let hitCheck = handleSystemRoll(maxRoll);
 
-    //handle the "perfection" status
+    //handle the "perfection" and "blind" statuses
     let perfectAttack = false;
     let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    if(activeOnActStatuses.includes("blind")) {
+        //blindness reduces the participant's hit chance by D4+1
+        let reduction = randomSystemRoll(4)+1;
+        hitCheck -= reduction;
+    }
     if(activeOnActStatuses.includes("perfection")) {
         //perfection status makes an attack always hit
         hitCheck = target.dodge + 1;
