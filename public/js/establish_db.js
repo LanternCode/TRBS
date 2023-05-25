@@ -58,8 +58,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"10": 2, "11": 2, "12": 2},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0},
+                    itemsOwned: {"10": 2, "11": 2, "12": 9, "13": 1, "14": 1, "15": 1},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "21": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -92,7 +92,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2, "13": 1, "14": 1, "15": 1},
                     skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0},
                     level: 1,
                     armor: 0,
@@ -104,7 +104,8 @@ async function createPlayers(client) {
 
         await collection.insertMany(playerDocuments);
         console.log("Successfully migrated: players");
-    } catch { console.log("Failed migration: players"); }
+    }
+    catch { console.log("Failed migration: players"); }
 }
 
 /**
@@ -399,6 +400,33 @@ async function createItems(client) {
                 valueType: "",
                 value: 0,
                 statusesApplied: ["statusResistance"]
+            },
+            {
+                uiid: 13,
+                displayName: "Siedmiomilowe Buty",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["instantEscape"]
+            },
+            {
+                uiid: 14,
+                displayName: "Furia Lasu",
+                type: "healing",
+                subtype: "restore",
+                valueType: "parcentage",
+                value: 1.0,
+                statusesApplied: ["damageBoostForestFury"]
+            },
+            {
+                uiid: 15,
+                displayName: "Eliksir Wrzącej Krwi",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["damageBoostRedPotion"]
             }
         ];
         await collection.insertMany(itemDocuments);
@@ -1239,6 +1267,56 @@ async function createStatuses(client) {
                 strength: 0,
                 statsAffectedList: [],
                 statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 25,
+                name: "damageBoostForestFury",
+                displayName: "Zwiększony Atak",
+                description: "Atak uczestnika jest zwiększony.",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "attack",
+                        val: 2.0,
+                        valType: "percentage"
+                    }
+                ],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 25,
+                name: "damageBoostRedPotion",
+                displayName: "Zwiększony Atak",
+                description: "Atak uczestnika jest zwiększony.",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "attack",
+                        val: 4.0,
+                        valType: "percentage"
+                    }
+                ],
+                statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
                 applyStatsAffectedImmediately: true

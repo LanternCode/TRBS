@@ -297,8 +297,16 @@ function handleUseItem(target, itemId)
     //use the healing item
     if(targetAlive && item.subtype === "restore") restoreHp(item, target);
     else if (!targetAlive && item.subtype === "revive") restoreHp(item, target);
-    else if (targetAlive && item.type === "statModifier") {
-        //apply statuses of the item
+    else if (targetAlive && item.type === "statusRemover") {
+        //remove all clearable statuses of the target
+        Status.voidParticipantStatuses(target);
+    }
+    else {
+        newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
+    }
+
+    //apply statuses of the item
+    if (targetAlive) {
         if(Object.keys(item.statusesApplied || {}).length > 0) {
             for(let s of item.statusesApplied) {
                 let status = s;
@@ -310,12 +318,6 @@ function handleUseItem(target, itemId)
                 Status.applyStatus(target, structuredClone(status[0]));
             }
         }
-    } else if (targetAlive && item.type === "statusRemover") {
-        //remove all clearable statuses of the target
-        Status.voidParticipantStatuses(target);
-    }
-    else {
-        newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
     //reduce participant's item count

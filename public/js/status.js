@@ -594,7 +594,7 @@ class StatsAffected {
         if(valTypeOK) {
             let valType = statsAffectedObject.valType;
             let val = statsAffectedObject.val;
-            let valOK = valType === "flat" ? ((typeof val === 'number') && val !== 0) : ((typeof val === 'number') && val > 0 && val <= 1);
+            let valOK = valType === "flat" ? ((typeof val === 'number') && val !== 0) : (typeof val === 'number');
             return statOK && valTypeOK && valOK;
         }
         else return false;
@@ -630,10 +630,10 @@ class StatsAffected {
      */
     static applyStatModifier(participant, statModifier) {
         let currentStatValue = participant[statModifier.stat];
-        let valToApply = statModifier.valType === "flat" ? statModifier.val : (currentStatValue * statModifier.val);
-        let updatedStatValue = currentStatValue + valToApply;
+        let updatedStatValue = statModifier.valType === "flat" ? (currentStatValue + statModifier.val) : (currentStatValue * statModifier.val);
         let finalStatValue = updatedStatValue > 0 ? updatedStatValue : 1;
         participant[statModifier.stat] = finalStatValue;
+        let valToApply = finalStatValue - currentStatValue;
         return valToApply;
     }
 
