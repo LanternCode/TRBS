@@ -18,6 +18,7 @@ import {damageTarget, restoreHp} from "./action.js";
  * @property {number} defaultStrength - if strength is not specified, the defaultStrength will be used
  * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.) or how many uses it has
  * @property {array} statsAffectedList - list of StatsAffected objects that list which statistics were affected and how much
+ * @property {array} linkedTargetsList - list of participants linked to the status effect (optional)
  * @property {boolean} statusClearable - true if the status can be voided by in-game actions, false otherwise
  * @property {boolean} lastUntilCleared - true if the status lasts indefinitely (until cleared), false otherwise
  * @property {boolean} useDefaultStrengthSource - true to use a default stat to take strength from (level/zone), false otherwise
@@ -140,6 +141,11 @@ class Status {
      * @type {array}
      */
     statsAffectedList = [];
+    /**
+     * @property linkedTargetsList
+     * @type {array}
+     */
+    linkedTargetsList = [];
     /**
      * @property statusClearable
      * @type {boolean}

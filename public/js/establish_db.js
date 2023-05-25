@@ -58,7 +58,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {},
+                    itemsOwned: {"10": 2, "11": 2, "12": 2},
                     skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "20": 0, "21": 0},
                     level: 1,
                     armor: 0,
@@ -92,8 +92,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2},
-                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0, "16": 0},
+                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -291,7 +291,6 @@ async function createItems(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("item");
-        // create a document to insert
         const itemDocuments = [
             {
                 uiid: 1,
@@ -373,6 +372,33 @@ async function createItems(client) {
                 valueType: "",
                 value: 0,
                 statusesApplied: []
+            },
+            {
+                uiid: 10,
+                displayName: "Eliksir Koncentracji",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["focus"]
+            },
+            {
+                uiid: 11,
+                displayName: "Eliksir Płynnego Srebra",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["liquidSilver"]
+            },
+            {
+                uiid: 12,
+                displayName: "Płynne Złoto",
+                type: "statModifier",
+                subtype: "self",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["statusResistance"]
             }
         ];
         await collection.insertMany(itemDocuments);
@@ -669,6 +695,19 @@ async function createSkills(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["statusResistance"]
+            },
+            {
+                usid: 22,
+                name: "Oślepiający Promień",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["blind"]
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -709,7 +748,7 @@ async function createStatuses(client) {
                 ustid: 1,
                 name: "ignite",
                 displayName: "Podpalenie",
-                description: "Na początku tury uczestnika zadaje obrażenia domeny ognia.",
+                description: "Na początku swojej tury, uczestnik otrzymuje obrażenia domeny ognia.",
                 effectiveAt: "start",
                 effectiveTurn: "local",
                 type: "damage",
@@ -1036,6 +1075,7 @@ async function createStatuses(client) {
                 defaultStrength: 0,
                 strength: 0,
                 statsAffectedList: [],
+                linkedTargetsList: [],
                 statusClearable: false,
                 lastUntilCleared: true,
                 useDefaultStrengthSource: false,
@@ -1113,6 +1153,92 @@ async function createStatuses(client) {
                 strength: 0,
                 statsAffectedList: [],
                 statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 21,
+                name: "blind",
+                displayName: "Olśnienie",
+                description: "Obniża szansę celu na trafienie w przeciwnika.",
+                effectiveAt: "onHit",
+                effectiveTurn: "global",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 22,
+                name: "focus",
+                displayName: "Koncentracja",
+                description: "Zwiększa szansę celu na trafienie w przeciwnika.",
+                effectiveAt: "onHit",
+                effectiveTurn: "global",
+                type: "damage",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 5,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 23,
+                name: "liquidSilver",
+                displayName: "Eliksir Płynnego Srebra",
+                description: "Znacznie zwiększa unik i szybkość na jedną turę.",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "statModifier",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "speed",
+                        val: 30,
+                        valType: "flat"
+                    },{
+                        stat: "dodge",
+                        val: 30,
+                        valType: "flat"
+                    }
+                ],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 24,
+                name: "liquidSilverFree",
+                displayName: "Eliksir Płynnego Srebra",
+                description: "Możesz użyć tego eliksiru nie poświęcając akcji 3 priorytetu.",
+                effectiveAt: "end",
+                effectiveTurn: "local",
+                type: "statModifier",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
                 applyStatsAffectedImmediately: true
