@@ -106,6 +106,16 @@ function act()
                 else newSystemCall("Nie wybrano celu bądź umiejętności.");
                 break;
             }
+            case "escape":
+            {
+                //the instant escape status ignores the usual escape check
+                let activeOnEscapeStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onEscape");
+                let instantEscape = false;
+                if(activeOnEscapeStatuses.includes("instantEscape"))
+                    instantEscape = true;
+
+                break;
+            }
             case "debug":
             {
                 handleDebugAction(actionElement, Settings.participants[target]);
