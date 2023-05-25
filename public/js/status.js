@@ -211,7 +211,7 @@ class Status {
         }
         //effectiveAt, effectiveTurn and type must be specified and have one of the pre-defined values
         let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.effectiveTurn);
-        let typeOK = (typeof status.type === 'string') && ["restore", "damage", "revive", "statModifier"].includes(status.type);
+        let typeOK = (typeof status.type === 'string') && ["restore", "damage", "revive", "statModifier", "status"].includes(status.type);
         let effectiveAtOK = false;
         if(effectiveTurnOK) {
             //global turns do not require effectiveAt, local must be "start" or "end", persistent needs a correct listener

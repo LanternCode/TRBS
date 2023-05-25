@@ -168,7 +168,13 @@ function handleRegAttack(target, attacker)
     if(activeOnActStatuses.includes("blind")) {
         //blindness reduces the participant's hit chance by D4+1
         let reduction = randomSystemRoll(4)+1;
-        hitCheck -= reduction;
+        hitCheck = (hitCheck - reduction) < 0 ? 0 : (hitCheck - reduction);
+    }
+    if(activeOnActStatuses.includes("focus")) {
+        //focus increases the participant's hit chance by 5
+        console.log(hitCheck);
+        hitCheck = participantType === "enemy" ? ((hitCheck + 5) > 100 ? 100 : (hitCheck + 5)) : ((hitCheck + 5) > 20 ? 20 : (hitCheck + 5));
+        console.log(hitCheck);
     }
     if(activeOnActStatuses.includes("perfection")) {
         //perfection status makes an attack always hit

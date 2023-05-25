@@ -1011,7 +1011,7 @@ async function createStatuses(client) {
                 description: "Cel akcji uczestnika jest wybierany losowo.",
                 effectiveAt: "onAct",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 2,
                 length: 0,
@@ -1049,7 +1049,7 @@ async function createStatuses(client) {
                 description: "Do celu przyczepiono bombę...",
                 effectiveAt: "onStartTurn",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -1088,7 +1088,7 @@ async function createStatuses(client) {
                 description: "Obiekty nie mogą atakować.",
                 effectiveAt: "onAct",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 0,
                 length: 0,
@@ -1107,7 +1107,7 @@ async function createStatuses(client) {
                 description: "Efekty Ożywiające nie działają na ten cel.",
                 effectiveAt: "onRestoreHp",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 0,
                 length: 0,
@@ -1126,7 +1126,7 @@ async function createStatuses(client) {
                 description: "Ten cel jest odporny na działanie statusów.",
                 effectiveAt: "onApplyStatus",
                 effectiveTurn: "global",
-                type: "statModifier",
+                type: "status",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -1145,7 +1145,7 @@ async function createStatuses(client) {
                 description: "Podejmując ucieczkę z walki, cel zawsze ucieknie.",
                 effectiveAt: "onEscape",
                 effectiveTurn: "persistent",
-                type: "other",
+                type: "status",
                 strengthType: "",
                 defaultLength: 1,
                 length: 0,
@@ -1164,7 +1164,7 @@ async function createStatuses(client) {
                 description: "Obniża szansę celu na trafienie w przeciwnika.",
                 effectiveAt: "onHit",
                 effectiveTurn: "global",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -1183,7 +1183,7 @@ async function createStatuses(client) {
                 description: "Zwiększa szansę celu na trafienie w przeciwnika.",
                 effectiveAt: "onHit",
                 effectiveTurn: "global",
-                type: "damage",
+                type: "status",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -1246,8 +1246,7 @@ async function createStatuses(client) {
         ];
         await collection.insertMany(statusDocuments);
         console.log("Successfully migrated: statuses");
-    }
-    catch { console.log("Failed migration: statuses"); }
+    } catch { console.log("Failed migration: statuses"); }
 }
 
 /**
