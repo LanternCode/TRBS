@@ -179,6 +179,10 @@ function startNextTurn()
                 }
             }
         }
+        //liquid silver can be used for free if used last turn
+        let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
+        if(!freeLiquidSilver)
+            Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
 
         //Check if the participant is alive, if not, void all their non-special statuses and start next turn
         if(Settings.participants[Settings.localTurn].health === 0) {

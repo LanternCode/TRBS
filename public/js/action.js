@@ -172,9 +172,7 @@ function handleRegAttack(target, attacker)
     }
     if(activeOnActStatuses.includes("focus")) {
         //focus increases the participant's hit chance by 5
-        console.log(hitCheck);
         hitCheck = participantType === "enemy" ? ((hitCheck + 5) > 100 ? 100 : (hitCheck + 5)) : ((hitCheck + 5) > 20 ? 20 : (hitCheck + 5));
-        console.log(hitCheck);
     }
     if(activeOnActStatuses.includes("perfection")) {
         //perfection status makes an attack always hit
@@ -323,6 +321,11 @@ function handleUseItem(target, itemId)
     //reduce participant's item count
     Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
     Settings.priorityThree = false;
+
+    //liquid silver can be used for free if it was also used one turn earlier
+    let noFreeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilverFree"}) === false;
+    if(!noFreeLiquidSilver)
+        Settings.priorityThree = true;
 }
 
 /**

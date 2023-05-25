@@ -419,8 +419,6 @@ class Status {
             let strongerStatus = Status.compareStatusPower(participantAffectedBy, statusUpdated);
             //replace the previous status with the new status if it is stronger
             if(statusUpdated === strongerStatus) {
-                //cancel all current stat modifiers from that status
-                StatsAffected.cancelStatModifiers(participant, statusUpdated);
                 //apply the status and any stat modifiers
                 Status.replaceParticipantStatus(participant, statusUpdated, strongerStatus);
                 if(strongerStatus.applyStatsAffectedImmediately === true)
@@ -612,7 +610,6 @@ class StatsAffected {
     static applyStatusStatModifiers(participant, status) {
         let statusStatModifiers = status.statsAffectedList;
         for(let i = 0; i < statusStatModifiers.length; ++i) {
-            console.log(statusStatModifiers[i]);
             //apply the stat modifier
             let valApplied = this.applyStatModifier(participant, statusStatModifiers[i]);
             //convert the percentage type to a flat value to properly add it back to the participant later
