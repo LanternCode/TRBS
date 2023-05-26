@@ -59,7 +59,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {"10": 2, "11": 2, "12": 9, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "21": 0, "23": 0},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "21": 0, "23": 0, "24": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -93,7 +93,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0, "23": 0},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0, "23": 0, "24": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0, "23": 0},
+                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0, "23": 0, "24": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -748,6 +748,20 @@ async function createSkills(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["deepWounds"]
+            },
+            {
+                usid: 24,
+                name: "Kwiat Iluzji",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 30,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["illusion"],
+                statusTarget: "caster"
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -1107,7 +1121,7 @@ async function createStatuses(client) {
                 displayName: "Iluzja",
                 description: "Tylko osoby zaatakowane przez ten cel mogą go atakować.",
                 effectiveAt: "onHit",
-                effectiveTurn: "persistent",
+                effectiveTurn: "global",
                 type: "damage",
                 strengthType: "",
                 defaultLength: 3,

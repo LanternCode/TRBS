@@ -172,19 +172,20 @@ function handleRegAttack(target, attacker)
     let maxRoll = participantType === "enemy" ? "d100" : "d20";
     let hitCheck = handleSystemRoll(maxRoll);
 
-    //handle the "perfection" and "blind" statuses
+    //handle the persistent statuses
     let perfectAttack = false;
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
-    if(activeOnActStatuses.includes("blind")) {
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    let activeTargetStatuses = Status.getParticipantsPersistentStatuses(target, "onHit");
+    if(activeOnHitStatuses.includes("blind")) {
         //blindness reduces the participant's hit chance by D4+1
         let reduction = randomSystemRoll(4)+1;
         hitCheck = (hitCheck - reduction) < 0 ? 0 : (hitCheck - reduction);
     }
-    if(activeOnActStatuses.includes("focus")) {
+    if(activeOnHitStatuses.includes("focus")) {
         //focus increases the participant's hit chance by 5
         hitCheck = participantType === "enemy" ? ((hitCheck + 5) > 100 ? 100 : (hitCheck + 5)) : ((hitCheck + 5) > 20 ? 20 : (hitCheck + 5));
     }
-    if(activeOnActStatuses.includes("perfection")) {
+    if(activeOnHitStatuses.includes("perfection")) {
         //perfection status makes an attack always hit
         hitCheck = target.dodge + 1;
         perfectAttack = true;
@@ -216,6 +217,35 @@ function handleRegAttack(target, attacker)
         if(criticalWeakPoint) newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczny Słaby Punkt)");
         else if (criticalHit) newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczny Atak)");
         else newSystemCall("Rzut systemu: " + hitCheck + " (Trafienie)");
+    }
+
+    //illusion nulls the damage dealt, check after hit checks
+    if(activeTargetStatuses.includes("illusion")) {
+        //fetch the status
+        let illusionStatus = target.statusesApplied.filter(s => s.name === "illusion")[0];
+        //illusion requires the target to have attacked the attacked first
+        if(illusionStatus.hasOwnProperty("linkedTargetsList")) {
+            if(!illusionStatus.linkedTargetsList.includes(Settings.localTurn)) {
+                //if the target is not in the list, the attack "goes through them"
+                attack = 0;
+            }
+        }
+    }
+
+    //by attacking a target, they will be added to the illusion status' list
+    if(activeOnHitStatuses.includes("illusion") && attack > 0) {
+        //fetch the status
+        let illusionStatus = attacker.statusesApplied.filter(s => s.name === "illusion")[0];
+        let targetParticipantNo = Settings.participants.indexOf(Settings.participants.filter(p => p.name === target.name)[0]);
+        if(illusionStatus.hasOwnProperty("linkedTargetsList")) {
+            if(illusionStatus.linkedTargetsList.indexOf(targetParticipantNo) === -1) {
+                illusionStatus.linkedTargetsList.push(targetParticipantNo);
+            }
+        }
+        else {
+            illusionStatus.linkedTargetsList = [];
+            illusionStatus.linkedTargetsList.push(targetParticipantNo);
+        }
     }
 
     //See if the impact status is present and apply it if so
@@ -396,7 +426,9 @@ function handleUseSkill(skill, target)
                     //fetch the full status based on the name
                     status = Settings.statuses.filter(st => st.name === s);
                 }
-                Status.applyStatus(p, structuredClone(status[0]));
+                if(skill.statusTarget === "caster")
+                    Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
+                else Status.applyStatus(p, structuredClone(status[0]));
             }
         }
     }

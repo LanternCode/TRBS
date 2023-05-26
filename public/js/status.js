@@ -475,8 +475,6 @@ class Status {
             for (let j = 0; j < participantStatuses.length; j++) {
                 //Find only the global statuses
                 if (participantStatuses[j].effectiveTurn === "global") {
-                    console.log(participantStatuses[j]);
-                    console.log(participantStatuses[j].length);
                     //first reduce the length by 1
                     participantStatuses[j].length -= 1;
                     //inflict the status effect on the participant
@@ -552,12 +550,6 @@ class StatsAffected {
      * @type {string}
      */
     stat = "";
-    get getStat() {
-        return this.stat;
-    }
-    set setStat(value) {
-        this.stat = value;
-    }
     /**
      * @property stat
      * @type {string}
@@ -574,12 +566,6 @@ class StatsAffected {
      * @type {number}
      */
     val = 0;
-    get getVal() {
-        return this.val;
-    }
-    set setVal(value) {
-        this.val = value;
-    }
 
     /**
      * This function validates a statsAffected object instance
