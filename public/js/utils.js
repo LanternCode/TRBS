@@ -143,7 +143,7 @@ function handleSystemRoll(diceType)
 }
 
 /**
- * This function handles a d100 or d20 roll and overwrites it if the appropriate debug option is enabled
+ * This function rolls a number from 1 to the maxRoll passed
  *
  * @generator
  * @function randomSystemRoll

@@ -1,4 +1,4 @@
-import {newSystemCall} from "./utils.js";
+import {newSystemCall, randomSystemRoll} from "./utils.js";
 import {Settings} from "./settings.js";
 import {damageTarget, restoreHp} from "./action.js";
 
@@ -13,7 +13,8 @@ import {damageTarget, restoreHp} from "./action.js";
  * @property {string} effectiveTurn - whether the status is applied at the local, global or throughout turn (local/global/persistent)
  * @property {string} type - status type (restore/damage/revive/statModifier)
  * @property {string} strengthType - the strength can be "flat" or "percentage" (10 damage vs. 10% of hp)
- * @property {number} defaultLength - if length is not specified, the defaultLength will be used
+ * @property {number} randomisedLength - if length in turn is to be randomised, put the max length here
+ * @property {number} defaultLength - if length is not specified, the defaultLength will be used, 0 will use randomisedLength
  * @property {number} length - how many turns the status will last
  * @property {number} defaultStrength - if strength is not specified, the defaultStrength will be used
  * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.) or how many uses it has
@@ -33,89 +34,46 @@ class Status {
      * @type {string}
      */
     ustid = "";
-    get getUstid() {
-        return this.ustid;
-    }
-    set setUstid(value) {
-        this.ustid = value;
-    }
     /**
      * @property name
      * @type {string}
      */
     name = "";
-    get getName() {
-        return this.name;
-    }
-    set setName(value) {
-        this.name = value;
-    }
     /**
      * @property displayName
      * @type {string}
      */
     displayName = "";
-    get getDisplayName() {
-        return this.displayName;
-    }
-    set setDisplayName(value) {
-        this.displayName = value;
-    }
     /**
      * @property description
      * @type {string}
      */
     description = "";
-    get getDescription() {
-        return this.description;
-    }
-    set setDescription(value) {
-        this.description = value;
-    }
     /**
      * @property effectiveAt
      * @type {string}
      */
     effectiveAt = "";
-    get getEffectiveAt() {
-        return this.effectiveAt;
-    }
-    set setEffectiveAt(value) {
-        this.effectiveAt = value;
-    }
     /**
      * @property effectiveTurn
      * @type {string}
      */
     effectiveTurn = "";
-    get getEffectiveTurn() {
-        return this.effectiveTurn;
-    }
-    set setEffectiveTurn(value) {
-        this.effectiveTurn = value;
-    }
     /**
      * @property type
      * @type {string}
      */
     type = "";
-    get getType() {
-        return this.type;
-    }
-    set setType(value) {
-        this.type = value;
-    }
     /**
      * @property strengthType
      * @type {string}
      */
     strengthType = "";
-    get getStrengthType() {
-        return this.strengthType;
-    }
-    set setStrengthType(value) {
-        this.strengthType = value;
-    }
+    /**
+     * @property randomisedLength
+     * @type {number}
+     */
+    randomisedLength = 0;
     /**
      * @property defaultLength
      * @type {number}
@@ -325,7 +283,11 @@ class Status {
         //first check the length is specified
         let lengthDefined = status.length > 0;
         if(!lengthDefined) {
-            status.length = status.defaultLength;
+            let defaultLengthDef = status.defaultLength > 0;
+            if(!defaultLengthDef) {
+                status.length = randomSystemRoll(status.randomisedLength);
+            }
+            else status.length = status.defaultLength;
         }
         //then check if strength is defined
         let strengthDefined = status.strength > 0;
@@ -555,12 +517,6 @@ class StatsAffected {
      * @type {string}
      */
     valType = "";
-    get getValType() {
-        return this.valType;
-    }
-    set setValType(value) {
-        this.valType = value;
-    }
     /**
      * @property val
      * @type {number}
