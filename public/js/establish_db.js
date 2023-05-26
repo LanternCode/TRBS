@@ -59,7 +59,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {"10": 2, "11": 2, "12": 9, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "21": 0, "23": 0, "24": 0},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "21": 0, "23": 0, "24": 0, "25": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -93,7 +93,7 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0, "23": 0, "24": 0},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0, "23": 0, "24": 0, "25": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0, "23": 0, "24": 0},
+                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0, "23": 0, "24": 0, "25": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -421,11 +421,11 @@ async function createItems(client) {
             {
                 uiid: 15,
                 displayName: "Eliksir Wrzącej Krwi",
-                type: "statModifier",
+                type: "special",
                 subtype: "self",
                 valueType: "",
                 value: 0,
-                statusesApplied: ["damageBoostRedPotion"]
+                statusesApplied: []
             }
         ];
         await collection.insertMany(itemDocuments);
@@ -762,6 +762,19 @@ async function createSkills(client) {
                 priority: 2,
                 statusesApplied: ["illusion"],
                 statusTarget: "caster"
+            },
+            {
+                usid: 25,
+                name: "Uderzenie w Głowę",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 15,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["stun"]
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -1323,25 +1336,19 @@ async function createStatuses(client) {
                 applyStatsAffectedImmediately: true
             },
             {
-                ustid: 25,
-                name: "damageBoostRedPotion",
-                displayName: "Zwiększony Atak",
-                description: "Atak uczestnika jest zwiększony.",
-                effectiveAt: "end",
-                effectiveTurn: "global",
-                type: "statModifier",
+                ustid: 26,
+                name: "stun",
+                displayName: "Lekkie Oszołomienie",
+                description: "Uczestnik jest oszołomiony i traci następną turę.",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "status",
                 strengthType: "flat",
-                defaultLength: 3,
+                defaultLength: 1,
                 length: 0,
                 defaultStrength: 0,
                 strength: 0,
-                statsAffectedList: [
-                    {
-                        stat: "attack",
-                        val: 4.0,
-                        valType: "percentage"
-                    }
-                ],
+                statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,

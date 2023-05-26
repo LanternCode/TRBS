@@ -344,6 +344,22 @@ function handleUseItem(target, itemId)
         //remove all clearable statuses of the target
         Status.voidParticipantStatuses(target);
     }
+    else if(item.type === "special") {
+        //first multiply the attack by 3
+        target.attack *= 3;
+        //randomise two targets - one must be of reverse type to us
+        let reverseType = target.type === "player" ? "enemy" : "player";
+        let firstTargetArray = Settings.participants.filter(p => p.type === reverseType);
+        let firstTarget = firstTargetArray[randomSystemRoll(firstTargetArray.length)-1];
+        let secondTarget = Settings.participants[randomSystemRoll(Settings.participants.length)-1];
+        //attack the two targets
+        handleRegAttack(firstTarget, target);
+        handleRegAttack(secondTarget, target);
+        //stun the target of the potion
+        Status.applyStatus(target, Settings.statuses.filter(s => s.name === "stun")[0]);
+        //bring the attack back to the original number
+        target.attack /= 3;
+    }
     else {
         newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }

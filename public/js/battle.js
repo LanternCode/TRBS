@@ -190,8 +190,16 @@ function startNextTurn()
             startNextTurn();
         }
 
+        //see if the player is stunned
+        let playerStunned = !(Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"stun"}) === false);
+
         //Turn has changed - Advance all statuses with effects at the start of local turn
         Status.advanceLocalStatuses("start");
+
+        //if the player is stunned, skip to the next turn
+        if(playerStunned) {
+            startNextTurn();
+        }
 
         //Reset the action list
         adjustOptions("reset");
