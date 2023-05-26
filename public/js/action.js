@@ -224,9 +224,12 @@ function handleRegAttack(target, attacker)
     //if the deep wounds status is active, increase damage
     let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(target, "onDamage");
     if(activeOnDamageStatuses.includes("deepWounds")) {
-        let deepWoundsStatus = target.statusesApplied.filter(s => s.name === "deepWounds")[0];
-        attack += deepWoundsStatus.strength;
-        Status.advancePersistentStatus(target, "deepWounds");
+        //only increase the damage of an attack if it actually hits
+        if(attack > 0) {
+            let deepWoundsStatus = target.statusesApplied.filter(s => s.name === "deepWounds")[0];
+            attack += deepWoundsStatus.strength;
+            Status.advancePersistentStatus(target, "deepWounds");
+        }
     }
 
     //reduce the attack by target's armor rating
