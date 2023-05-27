@@ -3,23 +3,79 @@ import {Settings} from "./settings.js";
 import {damageTarget, restoreHp} from "./action.js";
 
 /**
- * A status
  * @typedef {Object} Status
+ *
+ * The Status class handles all interactions between the participants and status effects.
+ * A status effect is an effect, or an interaction, that takes place without having to directly interact with it.
+ * Once the status is applied, the participant simply goes on with their activities in the battle.
+ *
+ * Currently, there are 6 types of status effects: "restore", "damage", "statModifier", "debuff", "buff" and "transitional".
+ * Statuses of type "damage" deal damage to the participant affected by them.
+ * Statuses of type "restore" heal the participants affected by them.
+ * Statuses of type "statModifier" change the statistics of the participant (strength, speed etc.)
+ * Statuses of type "debuff" disadvantage the participant in some other way, ex. making them unable to attack
+ * Statuses of type "buff" provide some advantage to the participant, ex. raise their hit chance during an attack
+ * The final type, "transitional", is used to transition between one status and another, or to allow more complex interactions.
+ *
+ * Each status activates ("procs") at some point in the turn. This is defined by the "effectiveTurn" property.
+ * There are currently 3 options: local, global and persistent.
+ * A "local" proc will activate during the participant's local turn, either at the start, or the end.
+ * A "global" proc will activate at the end of the global turn (all participant's turn has passed).
+ * A "persistent" status has a limited number of uses and can activate at any time of the battle.
+ * Each proc reduces the remaining length of the status by 1. Once it reaches 0, the status ends.
+ *
+ * The last crucial element is the status' "effectiveAt" property. This property dictates the exact moment the status effect activates.
+ * If we just limited the status effects to proc at local or global turns, their capabilities would be very limited.
+ * This property allows the user to define a precise moment in the flow of the battle to set the status at.
+ * Currently, the following options are available: "onAct", "onDamage", "onHit", "onRestoreHp", "onDeath", "onStartTurn", "onApplyStatus", "onEscape".
+ * We call these options "listeners", since they patiently wait and listen for a participant who is affected by them to act.
+ * The "onAct" listener triggers as soon as the participant makes an action, to ex. stop it.
+ * The "onDamage" listener triggers when damage is dealt to a participant, to ex. increase it.
+ * The "onHit" listener triggers when an attack is made, to ex. reduce the hit chance.
+ * The "onRestoreHp" listener triggers when the target is healed, to ex. reduce the value of the heal.
+ * The "onDeath" listener triggers when a participant dies, to ex. grant a boon to their ally.
+ * The "onStartTurn" listener triggers as soon as any turn starts, to ex. skip the turn.
+ * The "onApplyStatus" listener triggers the moment any status effect is applied, to ex. nullify it.
+ * The "onEscape" listener triggers the moment the participant attempts to escape the battle, to ex. increase his chances
+ * As you can see, these listeners pinpoint an exact moment in the flow of the battle to make it more dynamic and real.
+ * There are two options limited to the "local" "effectiveTurn" procs, and these are "start" and "end".
+ * The "start" will proc at the start of the local turn of the participant.
+ * The "end" will proc at the end of the local turn of the participant.
+ *
+ * The final thing to note is the "persistent" status and it's limited number of uses.
+ * Sometimes we want a status to proc no more than 3 times. To do this, we use a persistent status and specify the length to 3.
+ * Then we set the moment the status procs, so the "effectiveAt" property, to one of our choice.
+ * It's important to note that the "effectiveAt" property is used to help you and the programmer differentiate between statuses.
+ * The actual "persistent" status must be implemented and tested separately, however, it will be set at the given "effectiveAt" moment.
+ * For local and global statuses, this is not required - their behaviour is fully automated and no custom programming is required.
+ *
+ * "statsAffectedList" is used for statuses of type "statModifier" - the actual StatsAffected object is stored here for reference.
+ *
+ * "linkedTargetsList" is a special property used by statuses that need to keep a list of participants to work properly, for any reason.
+ * This behaviour must be programmed separately each time it is required, but for reference, see the "illusion" status.
+ *
+ * "useDefaultStrengthSource" is used for statuses that change their strength over time, ex. it depends on the level of the player.
+ * This behaviour is quite common. If this property is set to true, no strength is required - participant's "level" or "zone" will be used automatically.
+ *
+ * "applyStatsAffectedImmediately" will not apply stat modifiers once the status is applied. They must be programmed into the status implementation later.
+ * For reference, see the "fury" status, that is present on the participant, but only gives them a boon when other participants are downed.
+ *
+ * Status effects are the most complex part of the system and the following properties make them possible:
  * @property {string} ustid - unique status id, generated by MongoDb
- * @property {string} name - internal name of the status
+ * @property {string} name - internal name of the status (to find it in the list of all statuses)
  * @property {string} displayName - the name of the status seen by the user
- * @property {string} description - the description of the status effect visible to the user
- * @property {string} effectiveAt - whether the status is applied as the start or end of the local turn (start/end)
- * @property {string} effectiveTurn - whether the status is applied at the local, global or throughout turn (local/global/persistent)
- * @property {string} type - status type (restore/damage/revive/statModifier)
- * @property {string} strengthType - the strength can be "flat" or "percentage" (10 damage vs. 10% of hp)
+ * @property {string} description - the description of the status effect seen by the user
+ * @property {string} effectiveAt - whether the status is applied as the start or end of the local turn (start/end) or at the given listener (see above)
+ * @property {string} effectiveTurn - whether the status is applied at the local, global or throughout the turn (local/global/persistent)
+ * @property {string} type - status type (restore/damage/statModifier/debuff/buff/transitional - see above for the description)
+ * @property {string} strengthType - the strength can be "flat" or "percentage" (10 damage vs. 10% of the hp)
  * @property {number} randomisedLength - if length in turn is to be randomised, put the max length here
  * @property {number} defaultLength - if length is not specified, the defaultLength will be used, 0 will use randomisedLength
- * @property {number} length - how many turns the status will last
+ * @property {number} length - how many turns the status will last, if 0 is used, defaultLength will be used
  * @property {number} defaultStrength - if strength is not specified, the defaultStrength will be used
- * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.) or how many uses it has
- * @property {array} statsAffectedList - list of StatsAffected objects that list which statistics were affected and how much
- * @property {array} linkedTargetsList - list of participants linked to the status effect (optional)
+ * @property {number} strength - how strong the status is, ex. 5/10/25 (damage/healing etc.)
+ * @property {array} statsAffectedList - list of StatsAffected objects that list which statistics were affected and by how much
+ * @property {array} linkedTargetsList - list of participants linked to the status effect
  * @property {boolean} statusClearable - true if the status can be voided by in-game actions, false otherwise
  * @property {boolean} lastUntilCleared - true if the status lasts indefinitely (until cleared), false otherwise
  * @property {boolean} useDefaultStrengthSource - true to use a default stat to take strength from (level/zone), false otherwise
@@ -93,7 +149,7 @@ class Status {
             let effTurn = status.effectiveTurn;
             //effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath", "onStartTurn", "onApplyStatus", "onEscape"]
             let allowedLocalValues = ["start", "end"];
-            effectiveAtOK = effTurn === "global" ? true : ((typeof effTurn === 'string') && allowedLocalValues.includes(effAt));
+            effectiveAtOK = effTurn === "global" || effTurn === "persistent" ? true : ((typeof effTurn === 'string') && allowedLocalValues.includes(effAt));
         }
         if(!effectiveAtOK || !effectiveTurnOK || !typeOK) {
             if(!effectiveAtOK) errorMessage += "W: Podano niepoprawny momentu działania statusu w kolejce\n";

@@ -15,26 +15,26 @@ function act()
 {
     let action = document.getElementById("actionList").value;
     let actionElement = document.getElementById("actionElementsList").value;
-    let actionElementType = actionElement.split("-")[0];
+    //let actionElementType = actionElement.split("-")[0];
     let actionElementId = parseInt(actionElement.split("-")[1]);
     let target = document.getElementById("targetsList").value;
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
-    //process persistent statuses effective "onAct"
+    //process the "confusion" status
     let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
-    let isObject = false;
     if(activeOnActStatuses.includes("confusion")) {
         //confusion status randomises the action target
         let targetsAvailable = Settings.participants;
-        let randomisedTarget = getRndInteger(0, targetsAvailable.length-1);
-        target = randomisedTarget;
+        target = getRndInteger(0, targetsAvailable.length-1);
         Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
     }
-    else if(activeOnActStatuses.includes("object")) {
+    //process the "object" status
+    let isObject = false;
+    if(activeOnActStatuses.includes("object")) {
         isObject = true;
     }
-
+    //process the "extraAttack" status
     let extraAttackAvailable = false;
     let extraAttackUsed = false;
     if(activeOnActStatuses.includes("extraAttack")) {
@@ -172,8 +172,7 @@ function handleRegAttack(target, attacker)
     let maxRoll = participantType === "enemy" ? "d100" : "d20";
     let hitCheck = handleSystemRoll(maxRoll);
 
-    //handle the persistent statuses
-    let perfectAttack = false;
+    //process the "blind" status
     let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
     let activeTargetStatuses = Status.getParticipantsPersistentStatuses(target, "onHit");
     if(activeOnHitStatuses.includes("blind")) {
@@ -181,10 +180,13 @@ function handleRegAttack(target, attacker)
         let reduction = randomSystemRoll(4)+1;
         hitCheck = (hitCheck - reduction) < 0 ? 0 : (hitCheck - reduction);
     }
+    //process the "focus" status
     if(activeOnHitStatuses.includes("focus")) {
         //focus increases the participant's hit chance by 5
         hitCheck = participantType === "enemy" ? ((hitCheck + 5) > 100 ? 100 : (hitCheck + 5)) : ((hitCheck + 5) > 20 ? 20 : (hitCheck + 5));
     }
+    //process the "perfection" status
+    let perfectAttack = false;
     if(activeOnHitStatuses.includes("perfection")) {
         //perfection status makes an attack always hit
         hitCheck = target.dodge + 1;
@@ -219,7 +221,7 @@ function handleRegAttack(target, attacker)
         else newSystemCall("Rzut systemu: " + hitCheck + " (Trafienie)");
     }
 
-    //illusion nulls the damage dealt, check after hit checks
+    //process the "illusion" status
     if(activeTargetStatuses.includes("illusion")) {
         //fetch the status
         let illusionStatus = target.statusesApplied.filter(s => s.name === "illusion")[0];
@@ -232,7 +234,7 @@ function handleRegAttack(target, attacker)
         }
     }
 
-    //by attacking a target, they will be added to the illusion status' list
+    //illusion, cont. - by attacking a target, they will be added to the illusion status' list
     if(activeOnHitStatuses.includes("illusion") && attack > 0) {
         //fetch the status
         let illusionStatus = attacker.statusesApplied.filter(s => s.name === "illusion")[0];
@@ -248,10 +250,10 @@ function handleRegAttack(target, attacker)
         }
     }
 
-    //See if the impact status is present and apply it if so
+    //process the "impact" status
     attack = attack > 0 ? applyImpact(attack, target) : 0;
 
-    //if the deep wounds status is active, increase damage
+    //process the "deep wounds" status
     let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(target, "onDamage");
     if(activeOnDamageStatuses.includes("deepWounds")) {
         //only increase the damage of an attack if it actually hits
@@ -273,7 +275,7 @@ function handleRegAttack(target, attacker)
         target.health -= attack;
     else target.health = 0;
 
-    //check "onDeath" persistent statuses
+    //process the "fury" status
     if(target.health === 0) {
         //see if there remains only 1 alive participant in the target's team
         let aliveTargetTypeParticipantsArr = Settings.participants.filter(p => p.type === target.type && p.health > 0);
@@ -361,6 +363,7 @@ function handleUseItem(target, itemId)
         target.attack /= 3;
     }
     else {
+        itemUsed = false;
         newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
@@ -380,8 +383,10 @@ function handleUseItem(target, itemId)
     }
 
     //reduce participant's item count
-    Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
-    Settings.priorityThree = false;
+    if(itemUsed) {
+        Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
+        Settings.priorityThree = false;
+    }
 
     //liquid silver can be used for free if it was also used one turn earlier
     let noFreeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilverFree"}) === false;
@@ -406,19 +411,16 @@ function handleUseSkill(skill, target)
     //check if a special target was selected
     if (target === "everyone"){
         participantsAffected = Settings.participants;
-        //history system call
         newSystemCall("Użycie umiejętności " + skill.name + " na wszystkich");
     }
     else if (target === "player" || target === "enemy"){
         participantsAffected = Settings.participants.filter(p => p.type === target);
-        //history system call
         newSystemCall("Użycie umiejętności " + skill.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
     }
     else {
         if (!isNaN(target)) {
             //a single participant is the target of this skill
             participantsAffected.push(Settings.participants[target]);
-            //history system call
             newSystemCall("Użycie umiejętności " + skill.name + " na " + Settings.participants[target].name);
         }
     }
@@ -497,6 +499,7 @@ function handleDebugAction(actionElement, target)
                 else newSystemCall("Debug input value must be an integer between 1 and 100!");
             }
             else newSystemCall("Debug input value must be a number!");
+            break;
         }
         default:
         {
@@ -523,14 +526,14 @@ function restoreHp(obj, target)
     //store the health of the target before the health is restored
     let startingHealth = target.health;
 
-    //see if the 'perma-death' status is present that makes revival impossible
+    //process the "permadeath" status
     let activeOnRestoreHpStatuses = Status.getParticipantsPersistentStatuses(target, "onRestoreHp");
     let permaDeath = false;
     if(activeOnRestoreHpStatuses.includes("permadeath")) {
         permaDeath = true;
     }
 
-    //see if the 'shrapnel' status is present that reduces healing by a half
+    //process the "shrapnel" status
     let healthToRestore = permaDeath ? 0 : applyShrapnel(obj[propertyName], target);
 
     if(obj[typePropertyName] === "flat"){
@@ -626,8 +629,7 @@ function applyShrapnel(healing, target) {
     if(activeOnHealingStatuses !== false) {
         if(activeOnHealingStatuses.name === "shrapnel") {
             //shrapnel reduces healing by half
-            let healingPostShrapnel = Math.floor(healing * 0.5);
-            return healingPostShrapnel;
+            return Math.floor(healing * 0.5);
         }
     }
     return healing;

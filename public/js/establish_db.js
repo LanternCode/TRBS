@@ -58,8 +58,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"10": 2, "11": 2, "12": 9, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "17": 0, "18": 0, "19": 0, "23": 0, "24": 0, "25": 0},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -92,8 +92,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2, "10": 2, "11": 2, "12": 2, "13": 1, "14": 1, "15": 1},
-                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0, "22": 0, "23": 0, "24": 0, "25": 0},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0, "16": 0, "22": 0, "23": 0, "24": 0, "25": 0},
+                    "skillsOwned": {"7": 0, "16": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -341,7 +341,7 @@ async function createItems(client) {
                 uiid: 6,
                 displayName: "Eliksir Czerwonofurii",
                 type: "statModifier",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["damageBoost"]
@@ -350,7 +350,7 @@ async function createItems(client) {
                 uiid: 7,
                 displayName: "Eliksir Wiatrozieleni",
                 type: "statModifier",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["dodgeBoost"]
@@ -359,7 +359,7 @@ async function createItems(client) {
                 uiid: 8,
                 displayName: "Eliksir Białocyklonu",
                 type: "statModifier",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["speedBoost"]
@@ -368,7 +368,7 @@ async function createItems(client) {
                 uiid: 9,
                 displayName: "Napar Oczyszczający",
                 type: "statusRemover",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: []
@@ -377,7 +377,7 @@ async function createItems(client) {
                 uiid: 10,
                 displayName: "Eliksir Koncentracji",
                 type: "statModifier",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["focus"]
@@ -386,7 +386,7 @@ async function createItems(client) {
                 uiid: 11,
                 displayName: "Eliksir Płynnego Srebra",
                 type: "statModifier",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["liquidSilver"]
@@ -395,7 +395,7 @@ async function createItems(client) {
                 uiid: 12,
                 displayName: "Płynne Złoto",
                 type: "status",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["statusResistance"]
@@ -404,7 +404,7 @@ async function createItems(client) {
                 uiid: 13,
                 displayName: "Siedmiomilowe Buty",
                 type: "status",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["instantEscape"]
@@ -422,7 +422,7 @@ async function createItems(client) {
                 uiid: 15,
                 displayName: "Eliksir Wrzącej Krwi",
                 type: "special",
-                subtype: "",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: []
@@ -430,7 +430,8 @@ async function createItems(client) {
         ];
         await collection.insertMany(itemDocuments);
         console.log("Successfully migrated: items");
-    } catch { console.log("Failed migration: items"); }
+    }
+    catch { console.log("Failed migration: items"); }
 }
 
 /**
@@ -753,7 +754,8 @@ async function createSkills(client) {
         ];
         await collection.insertMany(skillDocuments);
         console.log("Successfully migrated: skills");
-    } catch { console.log("Failed migration: skills"); }
+    }
+    catch { console.log("Failed migration: skills"); }
 }
 
 /**

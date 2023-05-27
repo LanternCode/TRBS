@@ -76,6 +76,7 @@ await Settings.fetchItems();
  * @property {string} [cost] - Skill/spell cost (not yet used anywhere)
  * @property {string} priority - Skill/spell priority required
  * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the SkillSpell
+ * @property {string} statusTarget - If the skill applies a status, use it on the target of the skill ("target") or the "caster". Target by default.
  */
 await Settings.fetchSkills();
 

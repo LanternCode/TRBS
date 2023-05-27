@@ -1,4 +1,4 @@
-import {handleSystemRoll, newSystemCall, randomSystemRoll} from "./utils.js";
+import {newSystemCall, randomSystemRoll} from "./utils.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
@@ -28,9 +28,9 @@ function startBattle()
 
         //reset priority
         Settings.priorityTwo = true;
-        priorityTwoActionFlag.classList.remove("disabled");
+        document.getElementById("priorityTwoActionFlag").classList.remove("disabled");
         Settings.priorityThree = true;
-        priorityThreeActionFlag.classList.remove("disabled");
+        document.getElementById("priorityThreeActionFlag").classList.remove("disabled");
 
         //disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("createCardButton"))
@@ -42,7 +42,7 @@ function startBattle()
         document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
         //reset the current action
-        actionList.value = "none";
+        document.getElementById("actionList").value = "none";
 
         //hide out-of-battle labels when entering battle
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
@@ -160,7 +160,7 @@ function startNextTurn()
         //This has to be disabled now in case a defeated member was revived
         Settings.participants[Settings.localTurn].isDodging = 0;
 
-        //Advance persistent statuses effective at the start of local turn
+        //process the "bomb debuff" status
         let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
         if(activeOnStartTurnStatuses.includes("bombDebuff")) {
             //bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
@@ -179,7 +179,7 @@ function startNextTurn()
                 }
             }
         }
-        //liquid silver can be used for free if used last turn
+        //process the "liquid silver" status
         let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
         if(!freeLiquidSilver)
             Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
@@ -316,7 +316,7 @@ function continueToBattle() {
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
 
-    //hide the continue to battle button, show the start battle button
+    //hide the "continue to battle" button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
