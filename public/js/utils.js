@@ -143,6 +143,19 @@ function handleSystemRoll(diceType)
 }
 
 /**
+ * This function rolls a number from 1 to the maxRoll passed
+ *
+ * @generator
+ * @function randomSystemRoll
+ * @param {number} maxRoll the max value of the roll
+ * @returns {number} a roll in range 1-maxRoll
+ */
+function randomSystemRoll(maxRoll)
+{
+    return Math.floor(Math.random() * maxRoll) + 1;
+}
+
+/**
  * This function creates a battle history item with the message sent to the user after a system call
  *
  * @function newSystemCall
@@ -157,4 +170,4 @@ function newSystemCall(call)
     document.getElementById("systemCall").appendChild(historyItem);
 }
 
-export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall, getRndInteger };
+export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall, getRndInteger, randomSystemRoll };

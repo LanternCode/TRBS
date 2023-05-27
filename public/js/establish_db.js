@@ -58,8 +58,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {},
-                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -92,8 +92,8 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 2, "7": 2, "8": 2, "9": 2},
-                    skillsOwned: {"6": 0, "7": 0, "8": 0, "9": 0, "10": 0, "11": 0},
+                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    skillsOwned: {"6": 0, "7": 0, "8": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -104,7 +104,8 @@ async function createPlayers(client) {
 
         await collection.insertMany(playerDocuments);
         console.log("Successfully migrated: players");
-    } catch { console.log("Failed migration: players"); }
+    }
+    catch { console.log("Failed migration: players"); }
 }
 
 /**
@@ -116,7 +117,6 @@ async function createEnemies(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("enemy");
-        // create a document to insert
         const enemyDocuments =
             [
                 {
@@ -131,7 +131,7 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "11": 0, "16": 0},
+                    "skillsOwned": {"7": 0, "16": 0},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -291,7 +291,6 @@ async function createItems(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("item");
-        // create a document to insert
         const itemDocuments = [
             {
                 uiid: 1,
@@ -342,7 +341,7 @@ async function createItems(client) {
                 uiid: 6,
                 displayName: "Eliksir Czerwonofurii",
                 type: "statModifier",
-                subtype: "self",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["damageBoost"]
@@ -351,7 +350,7 @@ async function createItems(client) {
                 uiid: 7,
                 displayName: "Eliksir Wiatrozieleni",
                 type: "statModifier",
-                subtype: "self",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["dodgeBoost"]
@@ -360,7 +359,7 @@ async function createItems(client) {
                 uiid: 8,
                 displayName: "Eliksir Białocyklonu",
                 type: "statModifier",
-                subtype: "self",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: ["speedBoost"]
@@ -369,7 +368,61 @@ async function createItems(client) {
                 uiid: 9,
                 displayName: "Napar Oczyszczający",
                 type: "statusRemover",
-                subtype: "self",
+                subtype: "sameType",
+                valueType: "",
+                value: 0,
+                statusesApplied: []
+            },
+            {
+                uiid: 10,
+                displayName: "Eliksir Koncentracji",
+                type: "statModifier",
+                subtype: "sameType",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["focus"]
+            },
+            {
+                uiid: 11,
+                displayName: "Eliksir Płynnego Srebra",
+                type: "statModifier",
+                subtype: "sameType",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["liquidSilver"]
+            },
+            {
+                uiid: 12,
+                displayName: "Płynne Złoto",
+                type: "status",
+                subtype: "sameType",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["statusResistance"]
+            },
+            {
+                uiid: 13,
+                displayName: "Siedmiomilowe Buty",
+                type: "status",
+                subtype: "sameType",
+                valueType: "",
+                value: 0,
+                statusesApplied: ["instantEscape"]
+            },
+            {
+                uiid: 14,
+                displayName: "Furia Lasu",
+                type: "healing",
+                subtype: "restore",
+                valueType: "parcentage",
+                value: 1.0,
+                statusesApplied: ["damageBoostForestFury"]
+            },
+            {
+                uiid: 15,
+                displayName: "Eliksir Wrzącej Krwi",
+                type: "special",
+                subtype: "sameType",
                 valueType: "",
                 value: 0,
                 statusesApplied: []
@@ -377,7 +430,8 @@ async function createItems(client) {
         ];
         await collection.insertMany(itemDocuments);
         console.log("Successfully migrated: items");
-    } catch { console.log("Failed migration: items"); }
+    }
+    catch { console.log("Failed migration: items"); }
 }
 
 /**
@@ -604,11 +658,104 @@ async function createSkills(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["shrapnel"]
+            },
+            {
+                usid: 17,
+                name: "Paka Amira",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["bombDebuff"]
+            },
+            {
+                usid: 18,
+                name: "Unieruchomienie",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["object"]
+            },
+            {
+                usid: 19,
+                name: "Wieczna Śmierć",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["permadeath"]
+            },
+            {
+                usid: 22,
+                name: "Oślepiający Promień",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["blind"]
+            },
+            {
+                usid: 23,
+                name: "Zaostrzony Strzał",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 20,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["deepWounds"]
+            },
+            {
+                usid: 24,
+                name: "Kwiat Iluzji",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 30,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["illusion"],
+                statusTarget: "caster"
+            },
+            {
+                usid: 25,
+                name: "Uderzenie w Głowę",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 15,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["stun"]
             }
         ];
         await collection.insertMany(skillDocuments);
         console.log("Successfully migrated: skills");
-    } catch { console.log("Failed migration: skills"); }
+    }
+    catch { console.log("Failed migration: skills"); }
 }
 
 /**
@@ -620,7 +767,6 @@ async function createStatuses(client) {
     try {
         const database = client.db("TRBS");
         const collection = database.collection("status");
-        // create a document to insert
         const statusDocuments = [
             {
                 ustid: 0,
@@ -638,13 +784,14 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 1,
                 name: "ignite",
                 displayName: "Podpalenie",
-                description: "Na początku tury uczestnika zadaje obrażenia domeny ognia.",
+                description: "Na początku swojej tury, uczestnik otrzymuje obrażenia domeny ognia.",
                 effectiveAt: "start",
                 effectiveTurn: "local",
                 type: "damage",
@@ -656,7 +803,8 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 2,
@@ -674,7 +822,8 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: true
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 3,
@@ -699,6 +848,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 4,
@@ -709,7 +859,8 @@ async function createStatuses(client) {
                 effectiveTurn: "global",
                 type: "statModifier",
                 strengthType: "flat",
-                defaultLength: 3,
+                randomisedLength: 5,
+                defaultLength: 0,
                 length: 0,
                 defaultStrength: 0,
                 strength: 0,
@@ -723,6 +874,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 5,
@@ -733,7 +885,8 @@ async function createStatuses(client) {
                 effectiveTurn: "global",
                 type: "statModifier",
                 strengthType: "flat",
-                defaultLength: 3,
+                randomisedLength: 5,
+                defaultLength: 0,
                 length: 0,
                 defaultStrength: 0,
                 strength: 0,
@@ -747,6 +900,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 6,
@@ -757,7 +911,8 @@ async function createStatuses(client) {
                 effectiveTurn: "global",
                 type: "statModifier",
                 strengthType: "flat",
-                defaultLength: 3,
+                randomisedLength: 5,
+                defaultLength: 0,
                 length: 0,
                 defaultStrength: 0,
                 strength: 0,
@@ -771,6 +926,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 7,
@@ -789,6 +945,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 8,
@@ -797,7 +954,7 @@ async function createStatuses(client) {
                 description: "Uczestnik może wykonać dodatkową akcję priorytetu 2.",
                 effectiveAt: "onAct",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "buff",
                 strengthType: "",
                 defaultLength: 1,
                 length: 0,
@@ -807,6 +964,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 9,
@@ -816,7 +974,7 @@ async function createStatuses(client) {
                     " zwiększone jeśli zdrowie jego celu jest mniejsze od połowy.",
                 effectiveAt: "onDamage",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "buff",
                 strengthType: "",
                 defaultLength: 1,
                 length: 0,
@@ -826,6 +984,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 10,
@@ -834,7 +993,7 @@ async function createStatuses(client) {
                 description: "Następny atak tego celu będzie sukcesem i nie może zostać uniknięty (może zostać zablokowany)",
                 effectiveAt: "onHit",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "buff",
                 strengthType: "",
                 defaultLength: 1,
                 length: 0,
@@ -844,6 +1003,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 11,
@@ -851,8 +1011,8 @@ async function createStatuses(client) {
                 displayName: "Poszarpanie",
                 description: "Efekty lecznicze oddziałujące na uczestnika są zmniejszone o połowę.",
                 effectiveAt: "onRestoreHp",
-                effectiveTurn: "persistent",
-                type: "damage",
+                effectiveTurn: "global",
+                type: "debuff",
                 strengthType: "",
                 defaultLength: 3,
                 length: 0,
@@ -862,6 +1022,7 @@ async function createStatuses(client) {
                 statusClearable: true,
                 lastUntilCleared: false,
                 useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             },
             {
                 ustid: 12,
@@ -869,7 +1030,7 @@ async function createStatuses(client) {
                 displayName: "Furia",
                 description: "Uczestnik który jako jedyny ze swojej drużyny pozostał na polu walki odzyskuje natychmiast część swojego zdrowia" +
                     " a jego obrażenia są zwiększone.",
-                effectiveAt: "onAct",
+                effectiveAt: "onDeath",
                 effectiveTurn: "persistent",
                 type: "statModifier",
                 strengthType: "",
@@ -886,7 +1047,8 @@ async function createStatuses(client) {
                 ],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: false
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: false
             },
             {
                 ustid: 13,
@@ -895,7 +1057,7 @@ async function createStatuses(client) {
                 description: "Cel akcji uczestnika jest wybierany losowo.",
                 effectiveAt: "onAct",
                 effectiveTurn: "persistent",
-                type: "damage",
+                type: "debuff",
                 strengthType: "",
                 defaultLength: 2,
                 length: 0,
@@ -904,16 +1066,283 @@ async function createStatuses(client) {
                 statsAffectedList: [],
                 statusClearable: true,
                 lastUntilCleared: false,
-                useDefaultStrengthSource: false
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 14,
+                name: "deepWounds",
+                displayName: "Głębokie Rany",
+                description: "Cel otrzymuje zwiększone obrażenia.",
+                effectiveAt: "onDamage",
+                effectiveTurn: "persistent",
+                type: "debuff",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: true,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 15,
+                name: "bombDebuff",
+                displayName: "Bomba",
+                description: "Do celu przyczepiono bombę...",
+                effectiveAt: "onStartTurn",
+                effectiveTurn: "persistent",
+                type: "debuff",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 16,
+                name: "illusion",
+                displayName: "Iluzja",
+                description: "Tylko osoby zaatakowane przez ten cel mogą go atakować.",
+                effectiveAt: "onHit",
+                effectiveTurn: "global",
+                type: "buff",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                linkedTargetsList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 17,
+                name: "object",
+                displayName: "Obiekt",
+                description: "Obiekty nie mogą atakować.",
+                effectiveAt: "onAct",
+                effectiveTurn: "persistent",
+                type: "debuff",
+                strengthType: "",
+                defaultLength: 0,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 18,
+                name: "permadeath",
+                displayName: "Perma-Death",
+                description: "Efekty Ożywiające nie działają na ten cel.",
+                effectiveAt: "onRestoreHp",
+                effectiveTurn: "persistent",
+                type: "debuff",
+                strengthType: "",
+                defaultLength: 0,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: true,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 19,
+                name: "statusResistance",
+                displayName: "Odporność na statusy",
+                description: "Ten cel jest odporny na działanie statusów.",
+                effectiveAt: "onApplyStatus",
+                effectiveTurn: "global",
+                type: "buff",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 20,
+                name: "instantEscape",
+                displayName: "Natychmiastowa Ucieczka",
+                description: "Podejmując ucieczkę z walki, cel zawsze ucieknie.",
+                effectiveAt: "onEscape",
+                effectiveTurn: "persistent",
+                type: "buff",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 21,
+                name: "blind",
+                displayName: "Olśnienie",
+                description: "Obniża szansę celu na trafienie w przeciwnika.",
+                effectiveAt: "onHit",
+                effectiveTurn: "global",
+                type: "debuff",
+                strengthType: "",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 22,
+                name: "focus",
+                displayName: "Koncentracja",
+                description: "Zwiększa szansę celu na trafienie w przeciwnika.",
+                effectiveAt: "onHit",
+                effectiveTurn: "global",
+                type: "buff",
+                strengthType: "",
+                randomisedLength: 5,
+                defaultLength: 0,
+                length: 0,
+                defaultStrength: 5,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 23,
+                name: "liquidSilver",
+                displayName: "Eliksir Płynnego Srebra",
+                description: "Znacznie zwiększa unik i szybkość na jedną turę.",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "statModifier",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "speed",
+                        val: 30,
+                        valType: "flat"
+                    },{
+                        stat: "dodge",
+                        val: 30,
+                        valType: "flat"
+                    }
+                ],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 24,
+                name: "liquidSilverFree",
+                displayName: "Eliksir Płynnego Srebra",
+                description: "Możesz użyć tego eliksiru nie poświęcając akcji 3 priorytetu.",
+                effectiveAt: "end",
+                effectiveTurn: "local",
+                type: "transitional",
+                strengthType: "",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: false,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 25,
+                name: "damageBoostForestFury",
+                displayName: "Zwiększony Atak",
+                description: "Atak uczestnika jest zwiększony.",
+                effectiveAt: "end",
+                effectiveTurn: "global",
+                type: "statModifier",
+                strengthType: "flat",
+                defaultLength: 3,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [
+                    {
+                        stat: "attack",
+                        val: 2.0,
+                        valType: "percentage"
+                    }
+                ],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
+            },
+            {
+                ustid: 26,
+                name: "stun",
+                displayName: "Lekkie Oszołomienie",
+                description: "Uczestnik jest oszołomiony i traci następną turę.",
+                effectiveAt: "start",
+                effectiveTurn: "local",
+                type: "debuff",
+                strengthType: "flat",
+                defaultLength: 1,
+                length: 0,
+                defaultStrength: 0,
+                strength: 0,
+                statsAffectedList: [],
+                statusClearable: true,
+                lastUntilCleared: false,
+                useDefaultStrengthSource: false,
+                applyStatsAffectedImmediately: true
             }
         ];
         await collection.insertMany(statusDocuments);
         console.log("Successfully migrated: statuses");
-    } catch { console.log("Failed migration: statuses"); }
+    }
+    catch { console.log("Failed migration: statuses"); }
 }
 
 /**
- * This function creates all collections in the database
+ * This function creates all mandatory collections in the database
  * @returns {Promise<void>}
  */
 export async function migrateAll()

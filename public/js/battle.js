@@ -1,4 +1,4 @@
-import {newSystemCall} from "./utils.js";
+import {newSystemCall, randomSystemRoll} from "./utils.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
@@ -28,9 +28,9 @@ function startBattle()
 
         //reset priority
         Settings.priorityTwo = true;
-        priorityTwoActionFlag.classList.remove("disabled");
+        document.getElementById("priorityTwoActionFlag").classList.remove("disabled");
         Settings.priorityThree = true;
-        priorityThreeActionFlag.classList.remove("disabled");
+        document.getElementById("priorityThreeActionFlag").classList.remove("disabled");
 
         //disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("createCardButton"))
@@ -42,7 +42,7 @@ function startBattle()
         document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
         //reset the current action
-        actionList.value = "none";
+        document.getElementById("actionList").value = "none";
 
         //hide out-of-battle labels when entering battle
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
@@ -160,14 +160,46 @@ function startNextTurn()
         //This has to be disabled now in case a defeated member was revived
         Settings.participants[Settings.localTurn].isDodging = 0;
 
+        //process the "bomb debuff" status
+        let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
+        if(activeOnStartTurnStatuses.includes("bombDebuff")) {
+            //bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
+            let hitCheck = randomSystemRoll(20);
+            if(hitCheck > 12) {
+                Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
+                newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");
+            }
+            else {
+                let bombStatusLength = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
+                Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "bombDebuff");
+                if(bombStatusLength <= 1) {
+                    //the length will have dropped to 0 - kill the player
+                    Settings.participants[Settings.localTurn].health = 0;
+                    newSystemCall(Settings.participants[Settings.localTurn].name + " WYBUCHŁ! KABOOM!");
+                }
+            }
+        }
+        //process the "liquid silver" status
+        let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
+        if(!freeLiquidSilver)
+            Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
+
         //Check if the participant is alive, if not, void all their non-special statuses and start next turn
         if(Settings.participants[Settings.localTurn].health === 0) {
             Status.voidParticipantStatuses(Settings.participants[Settings.localTurn]);
             startNextTurn();
         }
 
+        //see if the player is stunned
+        let playerStunned = !(Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"stun"}) === false);
+
         //Turn has changed - Advance all statuses with effects at the start of local turn
         Status.advanceLocalStatuses("start");
+
+        //if the player is stunned, skip to the next turn
+        if(playerStunned) {
+            startNextTurn();
+        }
 
         //Reset the action list
         adjustOptions("reset");
@@ -284,7 +316,7 @@ function continueToBattle() {
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
 
-    //hide the continue to battle button, show the start battle button
+    //hide the "continue to battle" button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
