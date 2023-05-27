@@ -26,107 +26,33 @@ import {damageTarget, restoreHp} from "./action.js";
  * @property {boolean} applyStatsAffectedImmediately - some statuses delay the application of stat modifiers, ex. fury, true otherwise.
  */
 class Status {
+    //class constructor
     constructor(ustid) {
         this.ustid = ustid;
     }
-    /**
-     * @property ustid
-     * @type {string}
-     */
+    //class properties
     ustid = "";
-    /**
-     * @property name
-     * @type {string}
-     */
     name = "";
-    /**
-     * @property displayName
-     * @type {string}
-     */
     displayName = "";
-    /**
-     * @property description
-     * @type {string}
-     */
     description = "";
-    /**
-     * @property effectiveAt
-     * @type {string}
-     */
     effectiveAt = "";
-    /**
-     * @property effectiveTurn
-     * @type {string}
-     */
     effectiveTurn = "";
-    /**
-     * @property type
-     * @type {string}
-     */
     type = "";
-    /**
-     * @property strengthType
-     * @type {string}
-     */
     strengthType = "";
-    /**
-     * @property randomisedLength
-     * @type {number}
-     */
     randomisedLength = 0;
-    /**
-     * @property defaultLength
-     * @type {number}
-     */
     defaultLength = 0;
-    /**
-     * @property length
-     * @type {number}
-     */
     length = 0;
-    /**
-     * @property defaultStrength
-     * @type {number}
-     */
     defaultStrength = 0;
-    /**
-     * @property strength
-     * @type {number}
-     */
     strength = 0;
-    /**
-     * @property statsAffectedList
-     * @type {array}
-     */
     statsAffectedList = [];
-    /**
-     * @property linkedTargetsList
-     * @type {array}
-     */
     linkedTargetsList = [];
-    /**
-     * @property statusClearable
-     * @type {boolean}
-     */
     statusClearable = false;
-    /**
-     * @property lastUntilCleared
-     * @type {boolean}
-     */
     lastUntilCleared = false;
-    /**
-     * @property useDefaultStrengthSource
-     * @type {boolean}
-     */
     useDefaultStrengthSource = false;
-    /**
-     * @property applyStatsAffectedImmediately
-     * @type {boolean}
-     */
     applyStatsAffectedImmediately = true;
 
     /**
-     * This function takes a status and checks if it is valid. Prints an error message if invalid.
+     * This function takes a status and checks if it is valid. Prints an error message to the history box if invalid.
      *
      * @function validate
      * @param {Object} status a status object to validate
@@ -135,73 +61,79 @@ class Status {
     static validate(status) {
         //define a string to store the error message
         let errorMessage = "";
+
         //first check the length is specified (or lasts until cleared)
         let lengthOK = status.length > 0 || status.lastUntilCleared;
-        //if length is not defined, check if defaultLength is defined
+        //if length is not defined, check if defaultLength or randomisedLength is defined
         if(!lengthOK) {
             let defaultLengthOK = status.defaultLength > 0;
-            //if defaultLength is not defined, the status is invalid
-            if(!defaultLengthOK) {
-                errorMessage += "Nie podano czasu trwania statusu (length)\n";
+            let randomisedLengthOK = status.randomisedLength > 0;
+            if(!defaultLengthOK && !randomisedLengthOK) {
+                errorMessage += "W: Nie podano czasu trwania statusu\n";
             }
         }
-        //then check if strength is defined
-        let strengthOK = status.strength > 0;
-        //strength must be defined for non-persistent non-statModifier statuses
-        if(!strengthOK && (status.effectiveTurn === "start" || status.effectiveTurn === "end")) {
-            //default strength must be > 0
-            let defaultStrengthOK = status.defaultStrength > 0;
-            //default strength source must be defined
-            let defaultStrengthSourceOK = status.useDefaultStrengthSource;
-            //if defaultStrength is not defined and useSource is false, the status is invalid
-            if(!defaultStrengthOK && !defaultStrengthSourceOK) {
-                errorMessage += "Nie podano siły statusu (strength)\n";
-            }
-        }
+
         //name, displayName and description must all be defined
         let nameOK = (typeof status.name === 'string') && status.name.length > 0;
         let displayNameOK = (typeof status.displayName === 'string') && status.displayName.length > 0;
         let descriptionOK = (typeof status.description === 'string') && status.description.length > 0;
         if(!nameOK || !displayNameOK || !descriptionOK) {
-            if(!nameOK) errorMessage += "Nie podano wewnętrznej nazwy statusu (name)\n";
-            if(!displayNameOK) errorMessage += "Nie podano wyświetlanej nazwy statusu (displayName)\n";
-            if(!descriptionOK) errorMessage += "Nie podano opisu statusu (description)\n";
+            if(!nameOK) errorMessage += "W: Nie podano wewnętrznej nazwy statusu\n";
+            if(!displayNameOK) errorMessage += "W: Nie podano wyświetlanej nazwy statusu\n";
+            if(!descriptionOK) errorMessage += "W: Nie podano opisu statusu\n";
         }
+
         //effectiveAt, effectiveTurn and type must be specified and have one of the pre-defined values
         let effectiveTurnOK = (typeof status.effectiveTurn === 'string') && ["local", "global", "persistent"].includes(status.effectiveTurn);
-        let typeOK = (typeof status.type === 'string') && ["restore", "damage", "revive", "statModifier", "status"].includes(status.type);
+        let typeOK = (typeof status.type === 'string') && ["restore", "damage", "statModifier", "debuff", "buff", "transitional"].includes(status.type);
         let effectiveAtOK = false;
         if(effectiveTurnOK) {
-            //global turns do not require effectiveAt, local must be "start" or "end", persistent needs a correct listener
+            //global turns do not require effectiveAt, local must be "start" or "end", persistent can use any listener for now
             let effAt = status.effectiveAt;
             let effTurn = status.effectiveTurn;
-            let allowedValues = effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath", "onStartTurn", "onApplyStatus", "onEscape"]
-                : (effTurn === "local" ? ["start", "end"]
-                    : "");
-            effectiveAtOK = effTurn === "global" ? true : ((typeof effTurn === 'string') && allowedValues.includes(effAt));
+            //effTurn === "persistent" ? ["onAct", "onDamage", "onHit", "onRestoreHp", "onDeath", "onStartTurn", "onApplyStatus", "onEscape"]
+            let allowedLocalValues = ["start", "end"];
+            effectiveAtOK = effTurn === "global" ? true : ((typeof effTurn === 'string') && allowedLocalValues.includes(effAt));
         }
         if(!effectiveAtOK || !effectiveTurnOK || !typeOK) {
-            if(!effectiveAtOK) errorMessage += "Podano niepoprawny momentu działania statusu (effectiveAt)\n";
-            if(!effectiveTurnOK) errorMessage += "Podano niepoprawny moment redukcji czasu działania statusu (effectiveTurn)\n";
-            if(!typeOK) errorMessage += "Podano niepoprawny typ statusu (type)\n";
+            if(!effectiveAtOK) errorMessage += "W: Podano niepoprawny momentu działania statusu w kolejce\n";
+            if(!effectiveTurnOK) errorMessage += "W: Podano niepoprawny moment zmniejszania czasu działania statusu w kolejce\n";
+            if(!typeOK) errorMessage += "W: Podano niepoprawny typ statusu\n";
         }
-        status.statsAffectedList = typeof status.statsAffectedList == "undefined" ? [] : status.statsAffectedList;
+
+        //strength must be defined for statuses of type "damage" and "restore"
+        if(typeOK) {
+            let strengthRequired = status.type === "damage" || status.type === "restore";
+            let strengthOK = strengthRequired ? (status.strength > 0 || status.useDefaultStrengthSource) : true;
+            if(!strengthOK) {
+                //default strength must be defined, otherwise the status is invalid
+                if(status.defaultStrength < 1) {
+                    errorMessage += "W: Nie podano siły statusu\n";
+                }
+            }
+        }
+        else errorMessage += "W: Nie zmierzono siły statusu z uwagi na niepoprawny typ\n";
+
         //statsAffectedList must match the specification of the object, so the object's validation method is used
+        status.statsAffectedList = typeof status.statsAffectedList == "undefined" ? [] : status.statsAffectedList;
         let statsAffectedListOK = true;
         for(let i = 0; i < status.statsAffectedList.length; ++i) {
             let statsAffectedListElementOK = StatsAffected.validate(status.statsAffectedList[i]);
             statsAffectedListOK = statsAffectedListElementOK === true ? statsAffectedListOK : false;
-            if(!statsAffectedListElementOK) errorMessage += "Wskazane zmiany statystyk nr. "+i+" przez status są niepoprawne (statsAffectedList["+i+"])\n";
+            if(!statsAffectedListElementOK) errorMessage += "W: Wskazana zmiana statystyk nr. "+i+" przez status jest niepoprawna\n";
         }
         if(!statsAffectedListOK) {
-            errorMessage += "Wskazane zmiany statystyk przez status są niepoprawne (statsAffectedList)\n";
+            errorMessage += "W: Wskazane zmiany statystyk przez status są niepoprawne\n";
         }
-        if(errorMessage !== "") {
-            if(Settings.getDebuggingEnabled)
-                newSystemCall(errorMessage);
+
+        //if there is no error message, the status is valid
+        if(errorMessage === "")
+            return true;
+        else {
+            //print the error message
+            newSystemCall(errorMessage);
             return false;
         }
-        else return true;
     }
 
     /**
@@ -236,10 +168,7 @@ class Status {
     static getParticipantsPersistentStatuses(participant, listener) {
         let statusList = participant.statusesApplied;
         if (statusList.length === 0) return [];
-        else {
-            let matchingStatuses = statusList.filter(s => s.effectiveAt === listener).map(s => s.name);
-            return matchingStatuses;
-        }
+        else return statusList.filter(s => s.effectiveAt === listener).map(s => s.name);
     }
 
     /**
@@ -302,7 +231,7 @@ class Status {
             } //else use default strength
             else status.strength = status.defaultStrength;
         }
-        //return the updates status
+        //return the updated status
         return status;
     }
 
@@ -339,7 +268,7 @@ class Status {
 
     /**
      * This function voids all clearable statuses of a participant
-     * Used mostly on death or use of Cleansing Potion item
+     * Used mostly on death or use of the Cleansing Potion item
      *
      * @function voidParticipantStatuses
      * @param {object} participant the participant whom statuses will be voided
@@ -357,11 +286,11 @@ class Status {
     }
 
     /**
-     * This function takes a participant and a status, and then applies the status on that participant
+     * This function takes a participant and a status, and then applies the status on the participant
      *
      * @function applyStatus
      * @param {object} participant the target of the status
-     * @param {object} status the status object
+     * @param {object} status the status to apply
      */
     static applyStatus(participant, status) {
         //before you apply the status, validate it
@@ -397,7 +326,7 @@ class Status {
     }
 
     /**
-     * This function inflicts the effects of the status on the participant
+     * This function inflicts the effects of the status on the participant as the fight goes on
      *
      * @function advanceStatus
      * @param {object} participant the participant who is the target of the status effect
@@ -502,25 +431,15 @@ class Status {
  * @property {number} val - the strength of the effect (flat - 5/10 etc.) or percentage (0.2 - 20%, 0.7 - 70%)
  */
 class StatsAffected {
+    //class constructor
     constructor(stat, valType, val) {
         this.stat = stat;
         this.valType = valType;
         this.val = val;
     }
-    /**
-     * @property stat
-     * @type {string}
-     */
+    //class properties
     stat = "";
-    /**
-     * @property stat
-     * @type {string}
-     */
     valType = "";
-    /**
-     * @property val
-     * @type {number}
-     */
     val = 0;
 
     /**
@@ -575,8 +494,7 @@ class StatsAffected {
         let updatedStatValue = statModifier.valType === "flat" ? (currentStatValue + statModifier.val) : (currentStatValue * statModifier.val);
         let finalStatValue = updatedStatValue > 0 ? updatedStatValue : 1;
         participant[statModifier.stat] = finalStatValue;
-        let valToApply = finalStatValue - currentStatValue;
-        return valToApply;
+        return finalStatValue - currentStatValue;
     }
 
     /**
@@ -591,8 +509,7 @@ class StatsAffected {
             let statModifier = status.statsAffectedList[i];
             let currentStatValue = participant[statModifier.stat];
             let updatedStatValue = currentStatValue - statModifier.val;
-            let finalStatValue = updatedStatValue < 1 ? 1 : updatedStatValue;
-            participant[statModifier.stat] = finalStatValue;
+            participant[statModifier.stat] = updatedStatValue < 1 ? 1 : updatedStatValue;
         }
     }
 }
