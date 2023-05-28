@@ -183,7 +183,7 @@ function createItemTargetList()
             }
             break;
         }
-        case "self":
+        case "sameType":
         {
             //item can only be used on the participants of the same type as the acting participant
             let selfType = Settings.participants[Settings.localTurn].type;
