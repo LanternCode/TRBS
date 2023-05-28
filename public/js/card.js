@@ -28,13 +28,15 @@ function createCardTemplate(type, newParticipant)
     let dodgeValue = document.createElement("h4");
     let armorLabel = document.createElement("label");
     let armorValue = document.createElement("h4");
+    let statusLabel = document.createElement("label");
+    let statusValue = document.createElement("h4");
 
     //add the attributes to the card
     card.className = type === "player" ? "playerSection" : "enemySection";
     participantName.innerText = newParticipant.name + " [" +
         newParticipant.dodge + "]";
     healthLabel.innerText = "HP:";
-    healthValue.innerText = newParticipant.health;
+    healthValue.innerText = newParticipant.maxHealth;
     speedLabel.innerText = "Szybkość:";
     speedValue.innerText = newParticipant.speed;
     attackLabel.innerText = "Atak:";
@@ -45,6 +47,8 @@ function createCardTemplate(type, newParticipant)
     dodgeValue.classList.add("outOfBattleElem");
     armorLabel.innerText = "Pancerz:";
     armorValue.innerText = newParticipant.armor;
+    statusLabel.innerText = "Statusy:";
+    statusValue.innerText = "";
 
     //append all elements in the right order
     card.appendChild(participantName);
@@ -58,6 +62,8 @@ function createCardTemplate(type, newParticipant)
     card.appendChild(dodgeValue);
     card.appendChild(armorLabel);
     card.appendChild(armorValue);
+    card.appendChild(statusLabel);
+    card.appendChild(statusValue);
 
     //add player-only elements (lvl and exp)
     if(type === "player"){
@@ -72,18 +78,26 @@ function createCardTemplate(type, newParticipant)
         //check if we're in the list or editing on the table
         let inList;
         lvlUpButton.onclick = function(){
-            levelUp(newParticipant);
             inList = this.parentNode.classList.contains("clickOnMe");
-            if(inList)
-                refreshCardList("player");
-            else refreshCardsInBattle(true);
+            if(inList) {
+                levelUp(newParticipant);
+                refreshCardList("player", false);
+            }
+            else {
+                levelUp(newParticipant, true);
+                refreshCardsInBattle(true);
+            }
         };
         lvlDownButton.onclick = function(){
-            levelDown(newParticipant);
             inList = this.parentNode.classList.contains("clickOnMe");
-            if(inList)
-                refreshCardList("player");
-            else refreshCardsInBattle(true);
+            if(inList) {
+                levelDown(newParticipant);
+                refreshCardList("player", false);
+            }
+            else {
+                levelDown(newParticipant, true);
+                refreshCardsInBattle(true);
+            }
         };
 
         lvlLabel.classList.add("outOfBattleElem", "blockDisp", "displayAfterBattle");
@@ -251,16 +265,16 @@ function createCardTemplate(type, newParticipant)
      if(cType === "enemy"){
          let zoneInput = document.createElement("input");
          zoneInput.type = "text";
-         zoneInput.value = card.children[12].innerText;
-         zoneInput.dataset.originalValue = card.children[12].innerText;
-         card.replaceChild(zoneInput, card.children[12]);
+         zoneInput.value = card.children[14].innerText;
+         zoneInput.dataset.originalValue = card.children[14].innerText;
+         card.replaceChild(zoneInput, card.children[14]);
      }
      else {
-         card.children[12].classList.add("hidden");
          card.children[14].classList.add("hidden");
+         card.children[16].classList.add("hidden");
      }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 17;
+     let buttonsStartHere = cType === "enemy" ? 15 : 19;
      //hide the edit and pick buttons
      card.children[buttonsStartHere].classList.add("hidden");
      //enable the save, cancel and drop buttons
@@ -330,19 +344,19 @@ function createCardTemplate(type, newParticipant)
      arrayOfChoice[pId].armor = parseInt(newArmor);
      //players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
-         let newZone = card.children[12].value;
+         let newZone = card.children[14].value;
          let zoneText = document.createElement("h4");
          zoneText.innerText = newZone;
          zoneText.classList.add("outOfBattleElem");
-         card.replaceChild(zoneText, card.children[12]);
+         card.replaceChild(zoneText, card.children[14]);
          arrayOfChoice[pId].zone = newZone;
      }
      else {
-         card.children[12].classList.add("hidden");
-         card.children[14].classList.add("hidden");
+         card.children[14].classList.remove("hidden");
+         card.children[16].classList.remove("hidden");
      }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 17;
+     let buttonsStartHere = cType === "enemy" ? 15 : 19;
      //enable the edit and pick buttons
      card.children[buttonsStartHere].classList.remove("hidden");
      //hide the save, cancel and drop buttons
@@ -394,16 +408,16 @@ function createCardTemplate(type, newParticipant)
      //players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
          let zoneText = document.createElement("h4");
-         zoneText.innerText = card.children[12].dataset.originalValue;
+         zoneText.innerText = card.children[14].dataset.originalValue;
          zoneText.classList.add("outOfBattleElem");
-         card.replaceChild(zoneText, card.children[12]);
+         card.replaceChild(zoneText, card.children[14]);
      }
      else {
-         card.children[12].classList.add("hidden");
-         card.children[14].classList.add("hidden");
+         card.children[14].classList.remove("hidden");
+         card.children[16].classList.remove("hidden");
      }
      //players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 13 : 17;
+     let buttonsStartHere = cType === "enemy" ? 15 : 19;
      //enable the edit and pick buttons
      card.children[buttonsStartHere].classList.remove("hidden");
      //hide the save, cancel and drop buttons

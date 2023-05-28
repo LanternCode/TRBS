@@ -60,14 +60,14 @@ async function addEnemy(index)
  */
 function refreshCardsInBattle(refreshDefs = false)
 {
-    //count updates so that slots do not repeat
+    //Count updates so that slots do not repeat
     let playersUpdated = 0;
     let enemiesUpdated = 0;
 
-    //choose the array to use for refreshing cards
+    //Choose the array to use for refreshing cards
     let arrOfChoice = refreshDefs ? Settings.participantsDefinition : Settings.participants;
 
-    //find the correct battle slot
+    //Find the correct battle slot
     for(let i = 0; i < arrOfChoice.length; ++i)
     {
         let battleSlot = "";
@@ -81,18 +81,30 @@ function refreshCardsInBattle(refreshDefs = false)
             battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
             enemiesUpdated++;
         }
-        //update values in battle
+
+        //Update values in battle - for a total refresh, reset the HP to the maxHealth value
         battleSlot.children[0].innerText = arrOfChoice[i].name + " [" + arrOfChoice[i].dodge + "]";
-        battleSlot.children[2].innerText = arrOfChoice[i].health;
+        battleSlot.children[2].innerText = refreshDefs ? arrOfChoice[i].maxHealth : arrOfChoice[i].health;
         battleSlot.children[4].innerText = arrOfChoice[i].speed;
         battleSlot.children[6].innerText = arrOfChoice[i].attack;
         battleSlot.children[8].innerText = arrOfChoice[i].dodge;
         battleSlot.children[10].innerText = arrOfChoice[i].armor;
 
+        //Prepare the status list
+        let statusesLabel = "";
+        let statusesTooltip = "";
+        for(let j = 0; j < Object.keys(arrOfChoice[i].statusesApplied || {}).length; ++j) {
+            let status = arrOfChoice[i].statusesApplied[j];
+            statusesLabel += status.displayName + " (" + status.strength + ") [" + status.length + "]\n";
+            statusesTooltip += status.description + "\n";
+        }
+        battleSlot.children[12].innerText = statusesLabel;
+        battleSlot.children[12].title = statusesTooltip;
+
+        //Xp is updated in the definition only, hence refreshDefs must be true
         if(arrOfChoice[i].type === "player" && refreshDefs){
-            //xp is updated in the definition only, hence refreshDefs must be true
-            battleSlot.children[13].innerText = arrOfChoice[i].level;
-            battleSlot.children[16].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
+            battleSlot.children[15].innerText = arrOfChoice[i].level;
+            battleSlot.children[18].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
         }
     }
 }

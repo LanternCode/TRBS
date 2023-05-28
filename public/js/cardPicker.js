@@ -3,7 +3,6 @@ import { generateNewEnemy, generateNewPlayer } from "./utils.js";
 import { Settings } from "./settings.js";
 import { addPlayer, addEnemy } from "./table.js";
 import {createCardTemplate} from "./card.js";
-import { newSystemCall } from "./utils.js";
 
 /**
  * This function checks if new participants can be added into battle and if so,
@@ -145,10 +144,8 @@ async function insertCard(type, newParticipant, location = "table")
  * @param {boolean} firstUse whether to generate the list for the first time
  * @returns {HTMLElement | void} For the first time return a valid section element, void otherwise
  */
-async function refreshCardList(cardType, firstUse = false)
+async function refreshCardList(cardType, firstUse = true)
 {
-    firstUse = true;
-
     //fetch or create the card picker selection list
     let cardList = (cardType === "player" ? Settings.availablePlayers : Settings.availableEnemies);
     let selectSection;

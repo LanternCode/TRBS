@@ -30,9 +30,10 @@ function expRequired(lvl)
  *
  * @function levelUp
  * @param {Participant} player - The player who levels up
+ * @param {boolean} local - If true, do not save the changes to the db - only update locally
  * @return {void}
  */
-function levelUp(player)
+function levelUp(player, local = false)
 {
     if(player.level < 10) {
         player.attack += 2;
@@ -43,7 +44,8 @@ function levelUp(player)
         player.experience = 0;
         player.level += 1;
 
-        updateParticipant(player, "player");
+        if(!local)
+            updateParticipant(player, "player");
     }
     else {
         newSystemCall("Gracz posiada już maksymalny poziom!");
@@ -55,9 +57,10 @@ function levelUp(player)
  *
  * @function levelDown
  * @param {Participant} player - The player who levels down
+ * @param {boolean} local - If true, do not save the changes to the db - only update locally
  * @return {void}
  */
-function levelDown(player)
+function levelDown(player, local = false)
 {
     if(player.level > 1) {
         if(player.attack > 2)
@@ -73,7 +76,8 @@ function levelDown(player)
         player.experience = 0;
         player.level -= 1;
 
-        updateParticipant(player, "player");
+        if(!local)
+            updateParticipant(player, "player");
     }
     else {
         newSystemCall("Gracz posiada pierwszy poziom!");
