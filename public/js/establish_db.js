@@ -469,7 +469,7 @@ async function createSkills(client) {
                 usid: 1,
                 name: "Próżnia",
                 range: "all",
-                targetGroup: "enemy",
+                targetGroup: "reversed",
                 type: "offensive",
                 subtype: "damage",
                 value: 80,

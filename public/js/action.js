@@ -459,13 +459,28 @@ function handleUseSkillSpell(ability, target)
     }
     //Only include dead or alive participants based on the subtype of the ability
     participantsAffected = filterBySubtype(participantsAffected, subtype);
-    //Establish whether the ability hits the target(s)
+    //Make system rolls for a player and an opponent
     let spellHitSuccess = false;
     let hitsArray = [];
     let hitMarkRequired = false;
     let hitMarkSuccess = false;
     let hitEnemyRoll = handleSystemRoll('d20');
     let hitPlayerRoll = handleSystemRoll('d100');
+    //Process the "blind" status
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    if(activeOnHitStatuses.includes("blind")) {
+        //Blindness reduces the participant's hit chance by D4+1
+        let reduction = randomSystemRoll(4)+1;
+        hitEnemyRoll = (hitEnemyRoll - reduction) < 0 ? 0 : (hitEnemyRoll - reduction);
+        hitPlayerRoll = (hitPlayerRoll - reduction) < 0 ? 0 : (hitPlayerRoll - reduction);
+    }
+    //Process the "focus" status
+    if(activeOnHitStatuses.includes("focus")) {
+        //focus increases the participant's hit chance by 5
+        hitEnemyRoll = hitEnemyRoll + 5 > 20 ? 20 : (hitEnemyRoll + 5);
+        hitPlayerRoll = hitPlayerRoll + 5 > 100 ? 100 : (hitPlayerRoll + 5);
+    }
+    //Establish whether the ability hits the target(s)
     if(ability.hitMark === "default") {
         if(abilityType === "spell") {
             //By default, spells hit if the d20 roll is 11 or greater no matter the target
@@ -490,7 +505,15 @@ function handleUseSkillSpell(ability, target)
             hitMarkSuccess = true;
         }
     }
-
+    //Process the "perfection" status
+    let perfectAttack = false;
+    if(activeOnHitStatuses.includes("perfection")) {
+        //Perfection status makes an attack always hit
+        spellHitSuccess = true;
+        hitMarkSuccess = true;
+        perfectAttack = true;
+        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "perfection");
+    }
     //Apply the effects only if the ability hits
     if((abilityType === "spell" && spellHitSuccess)
         || (hitMarkRequired && hitMarkSuccess)
@@ -499,15 +522,43 @@ function handleUseSkillSpell(ability, target)
         //Critical hits double or increase the power of the ability, check if they happened
         let criticalWeakPoint = Settings.participants[Settings.localTurn].type === "enemy" ? hitPlayerRoll === 100 : false;
         let criticalHit = Settings.participants[Settings.localTurn].type === "player" ? hitEnemyRoll === 20 : hitPlayerRoll >= 90;
-        //if((criticalWeakPoint || (criticalHit)) && !perfectAttack) attack *= 2;
-        //else if (criticalHit && !perfectAttack) attack += parseInt(attacker.zone);
 
         //Use the ability on each target
-        let abilityPreModifiers = structuredClone(ability);
         let i = 0;
         for (let p of participantsAffected) {
+            //Clone the ability to apply modifiers on per-target basis
+            let abilityPreModifiers = structuredClone(ability);
+            //Process the "illusion" status
+            let activeTargetStatuses = Status.getParticipantsPersistentStatuses(p, "onHit");
+            if(activeTargetStatuses.includes("illusion") && Settings.participants[Settings.localTurn] !== p.type) {
+                //Fetch the status
+                let illusionStatus = p.statusesApplied.filter(s => s.name === "illusion")[0];
+                //Illusion requires the target to have attacked the attacked first
+                if(illusionStatus.hasOwnProperty("linkedTargetsList")) {
+                    if(!illusionStatus.linkedTargetsList.includes(Settings.localTurn)) {
+                        //If the target is not in the list, the attack "goes through them"
+                        abilityPreModifiers.value = 0;
+                    }
+                }
+            }
+            //Illusion, cont. - by attacking a target, they will be added to the illusion status' list
+            let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+            if(activeOnHitStatuses.includes("illusion") && abilityPreModifiers.value > 0 && Settings.participants[Settings.localTurn] !== p.type) {
+                //Fetch the status
+                let illusionStatus = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "illusion")[0];
+                let targetParticipantNo = Settings.participants.indexOf(Settings.participants.filter(part => part.name === p.name)[0]);
+                if(illusionStatus.hasOwnProperty("linkedTargetsList")) {
+                    if(illusionStatus.linkedTargetsList.indexOf(targetParticipantNo) === -1) {
+                        illusionStatus.linkedTargetsList.push(targetParticipantNo);
+                    }
+                }
+                else {
+                    illusionStatus.linkedTargetsList = [];
+                    illusionStatus.linkedTargetsList.push(targetParticipantNo);
+                }
+            }
             //Compare with the target's dodge whether the hit is critical, full or partial
-            let applyStatuses = true;
+            let applyStatuses = false;
             if(criticalWeakPoint) {
                 abilityPreModifiers.value *= 2;
                 applyStatuses = true;
@@ -518,8 +569,9 @@ function handleUseSkillSpell(ability, target)
                 applyStatuses = true;
                 newSystemCall("Rzut systemu: " + (Settings.participants[Settings.localTurn].type === "player" ? hitEnemyRoll : hitPlayerRoll) + " (Krytyczny Atak)");
             }
-            else if(hitsArray[i] > p.dodge && type === "offensive")
+            else if((hitsArray[i] > p.dodge || perfectAttack) && type === "offensive")
             {
+                hitsArray[i] = p.dodge + 1;
                 applyStatuses = true;
                 newSystemCall("Rzut systemu: " + hitsArray[i] + " (Trafienie)");
             }
@@ -534,15 +586,36 @@ function handleUseSkillSpell(ability, target)
                 abilityPreModifiers.value = Math.floor(abilityPreModifiers.value / 2);
                 newSystemCall("Rzut systemu: " + hitsArray[i] + " (Atak Połowiczny)");
             }
-            else if (type === "offensive")
+            else
             {
                 abilityPreModifiers.value = 0;
-                newSystemCall("Rzut systemu: " + hitsArray[i] + " (Chybienie)");
+                let diceResult = Settings.participants[Settings.localTurn].type === "player" ? hitEnemyRoll : hitPlayerRoll;
+                if(abilityType === "skill")
+                    newSystemCall("Rzut systemu: " + diceResult + " (Chybienie)");
+                else newSystemCall("Rzut systemu: " + hitEnemyRoll + " (Chybienie)");
             }
             //Check if the target is dodging an attack - avoid half the damage
             if(p.isDodging && type === "offensive")
             {
                 abilityPreModifiers.value = Math.floor(abilityPreModifiers.value / 2);
+            }
+            //Process the "impact" status
+            abilityPreModifiers.value = abilityPreModifiers.value > 0 ? applyImpact(abilityPreModifiers.value, p) : 0;
+            //Process the "deep wounds" status
+            let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(p, "onDamage");
+            if(activeOnDamageStatuses.includes("deepWounds")) {
+                //only increase the damage of the attack if it actually hits
+                if(abilityPreModifiers.value > 0) {
+                    let deepWoundsStatus = p.statusesApplied.filter(s => s.name === "deepWounds")[0];
+                    abilityPreModifiers.value += deepWoundsStatus.strength;
+                    Status.advancePersistentStatus(p, "deepWounds");
+                }
+            }
+            //Reduce the ability's power by target's armor rating if it is a skill and not a spell
+            if(abilityType === "skill" && type === "offensive") {
+                if(abilityPreModifiers.value - p.armor >= 0)
+                    abilityPreModifiers.value -= p.armor;
+                else abilityPreModifiers.value = 0;
             }
             //Finally apply the ability if its value is higher than 0
             if(abilityPreModifiers.value > 0) {
@@ -550,6 +623,26 @@ function handleUseSkillSpell(ability, target)
                     restoreHp(abilityPreModifiers, p);
                 else if (type === "offensive")
                     damageTarget(abilityPreModifiers, p);
+            }
+            //Process the "fury" status
+            if(p.health === 0) {
+                //See if there remains only 1 alive participant in the target's team
+                let aliveTargetTypeParticipantsArr = Settings.participants.filter(part => part.type === p.type && part.health > 0);
+                if(aliveTargetTypeParticipantsArr.length === 1) {
+                    //See if the participant is affected by the "fury" status
+                    let activeOnDeathStatuses = Status.getParticipantsPersistentStatuses(aliveTargetTypeParticipantsArr[0], "onDeath");
+                    if(activeOnDeathStatuses.includes("fury")) {
+                        //Fury restores hp
+                        let furyStatusFound = aliveTargetTypeParticipantsArr[0].statusesApplied.filter(s => s.name === "fury")[0];
+                        let tHp = aliveTargetTypeParticipantsArr[0].health;
+                        let mHp = aliveTargetTypeParticipantsArr[0].maxHealth;
+                        aliveTargetTypeParticipantsArr[0].health = tHp + furyStatusFound.strength > mHp ? mHp : tHp + furyStatusFound.strength;
+                        //Update the status to a global status - this way the effect of the stat mod will wear off after the desired number of turns
+                        furyStatusFound.effectiveTurn = "global";
+                        furyStatusFound.effectiveAt = "end";
+                        StatsAffected.applyStatusStatModifiers(aliveTargetTypeParticipantsArr[0], furyStatusFound);
+                    }
+                }
             }
             //Apply statuses of the ability
             if(applyStatuses) {
@@ -716,8 +809,6 @@ function damageTarget(obj, target)
  * Utility function that calculates the damage of an Impact-affected attack
  * It also advances the status if it was applied to the attack
  *
- * To be removed or reconstructed once Skills are separated from Spells
- *
  * @param {int} damage the damage to apply impact to
  * @param {Participant} target the target of the attack
  * @returns {int} damage with impact applied
@@ -726,7 +817,7 @@ function applyImpact(damage, target) {
     let damageTotal = damage;
     let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onDamage");
     if(activeOnDamageStatuses.includes("impact")) {
-        //impact status may double or quadruple damage
+        //Impact status may double or quadruple damage
         let impactMultiplier = 1;
         if (Settings.participants[Settings.localTurn].health <= Settings.participants[Settings.localTurn].maxHealth * 0.5) {
             impactMultiplier *= 2;
@@ -746,8 +837,6 @@ function applyImpact(damage, target) {
  * Utility function that calculates the healing of a shrapnel-affected action
  * It also advances the status if it was applied
  *
- * To be removed or reconstructed once Skills are separated from Spells
- *
  * @param {int} healing the value of healing
  * @param {Participant} target the target of the healing effect
  * @returns {int} the post-shrapnel value of healing
@@ -756,7 +845,7 @@ function applyShrapnel(healing, target) {
     let activeOnHealingStatuses = Status.getParticipantStatus(target, {"name": "shrapnel"});
     if(activeOnHealingStatuses !== false) {
         if(activeOnHealingStatuses.name === "shrapnel") {
-            //shrapnel reduces healing by half
+            //Shrapnel reduces healing by half
             return Math.floor(healing * 0.5);
         }
     }
