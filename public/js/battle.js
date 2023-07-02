@@ -48,6 +48,10 @@ function startBattle()
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
             elem.classList.toggle("hidden");
 
+        //show in-battle labels when entering battle
+        for (let elem of document.getElementsByClassName("inBattleElem"))
+            elem.classList.toggle("hidden");
+
         //hide the edit participant button
         for (let elem of document.getElementsByClassName("editButton"))
             elem.classList.toggle("hidden");
@@ -315,6 +319,10 @@ function continueToBattle() {
     //show out-of-battle labels when exiting battle
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
+
+    //hide in-battle labels when exiting battle
+    for (let elem of document.getElementsByClassName("inBattleElem"))
+        elem.classList.toggle("hidden");
 
     //hide the "continue to battle" button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");

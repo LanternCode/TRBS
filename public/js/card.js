@@ -48,7 +48,9 @@ function createCardTemplate(type, newParticipant)
     armorLabel.innerText = "Pancerz:";
     armorValue.innerText = newParticipant.armor;
     statusLabel.innerText = "Statusy:";
+    statusLabel.classList.add("inBattleElem", "hidden");
     statusValue.innerText = "";
+    statusValue.classList.add("inBattleElem", "hidden");
 
     //append all elements in the right order
     card.appendChild(participantName);

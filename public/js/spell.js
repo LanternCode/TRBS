@@ -12,6 +12,7 @@
  * @property {number} priority - spell priority
  * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the Spell
  * @property {string} statusTarget - If the spell applies a status, use it on the target of the skill ("target") or the "caster". Target by default.
+ * @property {string} hitMark -
  */
 class Spell {
     //class constructor
@@ -30,6 +31,9 @@ class Spell {
     subtype = "";
     statusTarget = "";
     valueType = "";
+    hitMark = "default";
     statusesApplied = [];
 
 }
+
+export { Spell };

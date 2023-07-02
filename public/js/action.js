@@ -4,6 +4,8 @@ import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
 import {getRndInteger, handleSystemRoll, newSystemCall, randomSystemRoll} from "./utils.js";
 import {StatsAffected, Status} from "./status.js";
+import {Skill} from "./skill.js";
+import {Spell} from "./spell.js";
 
 /**
  * This function handles user actions
@@ -425,6 +427,7 @@ function handleUseItem(target, itemId)
 
 /**
  * This function takes a skill or a spell and a target to use the skill or spell on that target
+ * For the ease of development, a Skill or a Spell is names "ability" - its type is established later
  *
  * @function handleUseSkillSpell
  * @param {Skill|Spell} ability The skill or spell to use
@@ -433,54 +436,147 @@ function handleUseItem(target, itemId)
  */
 function handleUseSkillSpell(ability, target)
 {
-    //Fetch skill/spell properties
-    let participantsAffected = [];
+    //Set variables for useful ability properties
     let type = ability.type;
     let subtype = ability.subtype;
-    //Check if a special target was selected
+    let abilityType = Object.hasOwn(ability, "uspid") ? "spell" : "skill";
+    //Based on the target, generate the target(s) array
+    let participantsAffected = [];
     if (target === "everyone"){
         participantsAffected = Settings.participants;
-        newSystemCall("Użycie umiejętności " + ability.name + " na wszystkich");
+        newSystemCall("Użycie "+(abilityType === "spell" ? "zaklęcia " : "umiejętności ") + ability.name + " na wszystkich");
     }
     else if (target === "player" || target === "enemy"){
         participantsAffected = Settings.participants.filter(p => p.type === target);
-        newSystemCall("Użycie umiejętności " + ability.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
+        newSystemCall("Użycie "+(abilityType === "spell" ? "zaklęcia " : "umiejętności ")+ ability.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
     }
     else {
         if (!isNaN(target)) {
-            //A single participant is the target of this skill
+            //A single participant is the target of this ability
             participantsAffected.push(Settings.participants[target]);
-            newSystemCall("Użycie umiejętności " + ability.name + " na " + Settings.participants[target].name);
+            newSystemCall("Użycie "+(abilityType === "spell" ? "zaklęcia " : "umiejętności ") + ability.name + " na " + Settings.participants[target].name);
         }
     }
-
-    //Only include dead or alive participants based on the subtype of the skill
+    //Only include dead or alive participants based on the subtype of the ability
     participantsAffected = filterBySubtype(participantsAffected, subtype);
-
-    //Apply the effects of the skill or spell (healing/damaging)
-    for (let p of participantsAffected) {
-        if (type === "healing")
-            restoreHp(ability, p);
-        else if (type === "offensive")
-            damageTarget(ability, p);
-
-        //Apply statuses of the skill or spell
-        if(Object.keys(ability.statusesApplied || {}).length > 0) {
-            for(let s of ability.statusesApplied) {
-                let status = s;
-                let statusReady = (typeof s) === "object";
-                if(!statusReady) {
-                    //Fetch the full status based on the name
-                    status = Settings.statuses.filter(st => st.name === s);
-                }
-                if(ability.statusTarget === "caster")
-                    Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
-                else Status.applyStatus(p, structuredClone(status[0]));
+    //Establish whether the ability hits the target(s)
+    let spellHitSuccess = false;
+    let hitsArray = [];
+    let hitMarkRequired = false;
+    let hitMarkSuccess = false;
+    let hitEnemyRoll = handleSystemRoll('d20');
+    let hitPlayerRoll = handleSystemRoll('d100');
+    if(ability.hitMark === "default") {
+        if(abilityType === "spell") {
+            //By default, spells hit if the d20 roll is 11 or greater no matter the target
+            if(hitEnemyRoll >= 11)
+                spellHitSuccess = true;
+        }
+        else if(abilityType === "skill") {
+            //For skills, the default is the opponent's dodge - you roll one time and compare against each target
+            for(let i = 0; i < participantsAffected.length; ++i) {
+                //Fill the hitsArray with true, false or "half" - one entry per participant
+                if(participantsAffected[i].type === "enemy")
+                    hitsArray.push(hitEnemyRoll);
+                else hitsArray.push(hitPlayerRoll);
             }
         }
     }
+    else {
+        //If it is not set to default, compare against the specific mark
+        //For now the mark must be a number
+        hitMarkRequired = true;
+        if(hitEnemyRoll >= ability.hitMark) {
+            hitMarkSuccess = true;
+        }
+    }
 
-    //Set the skill or spell on cooldown
+    //Apply the effects only if the ability hits
+    if((abilityType === "spell" && spellHitSuccess)
+        || (hitMarkRequired && hitMarkSuccess)
+        || (abilityType === "skill" && hitsArray.length === participantsAffected.length))
+    {
+        //Critical hits double or increase the power of the ability, check if they happened
+        let criticalWeakPoint = Settings.participants[Settings.localTurn].type === "enemy" ? hitPlayerRoll === 100 : false;
+        let criticalHit = Settings.participants[Settings.localTurn].type === "player" ? hitEnemyRoll === 20 : hitPlayerRoll >= 90;
+        //if((criticalWeakPoint || (criticalHit)) && !perfectAttack) attack *= 2;
+        //else if (criticalHit && !perfectAttack) attack += parseInt(attacker.zone);
+
+        //Use the ability on each target
+        let abilityPreModifiers = structuredClone(ability);
+        let i = 0;
+        for (let p of participantsAffected) {
+            //Compare with the target's dodge whether the hit is critical, full or partial
+            let applyStatuses = true;
+            if(criticalWeakPoint) {
+                abilityPreModifiers.value *= 2;
+                applyStatuses = true;
+                newSystemCall("Rzut systemu: " + hitPlayerRoll + " (Krytyczny Słaby Punkt)");
+            }
+            else if (criticalHit) {
+                abilityPreModifiers.value += Settings.participants[Settings.localTurn].type === "player" ? Settings.participants[Settings.localTurn].level : Settings.participants[Settings.localTurn].zone;
+                applyStatuses = true;
+                newSystemCall("Rzut systemu: " + (Settings.participants[Settings.localTurn].type === "player" ? hitEnemyRoll : hitPlayerRoll) + " (Krytyczny Atak)");
+            }
+            else if(hitsArray[i] > p.dodge && type === "offensive")
+            {
+                applyStatuses = true;
+                newSystemCall("Rzut systemu: " + hitsArray[i] + " (Trafienie)");
+            }
+            else if((abilityType === "spell" && spellHitSuccess) || (hitMarkRequired && hitMarkSuccess))
+            {
+                applyStatuses = true;
+                newSystemCall("Rzut systemu: " + hitEnemyRoll + " (Trafienie)");
+            }
+            else if(hitsArray[i] === p.dodge && type === "offensive")
+            {
+                applyStatuses = true;
+                abilityPreModifiers.value = Math.floor(abilityPreModifiers.value / 2);
+                newSystemCall("Rzut systemu: " + hitsArray[i] + " (Atak Połowiczny)");
+            }
+            else if (type === "offensive")
+            {
+                abilityPreModifiers.value = 0;
+                newSystemCall("Rzut systemu: " + hitsArray[i] + " (Chybienie)");
+            }
+            //Check if the target is dodging an attack - avoid half the damage
+            if(p.isDodging && type === "offensive")
+            {
+                abilityPreModifiers.value = Math.floor(abilityPreModifiers.value / 2);
+            }
+            //Finally apply the ability if its value is higher than 0
+            if(abilityPreModifiers.value > 0) {
+                if (type === "healing")
+                    restoreHp(abilityPreModifiers, p);
+                else if (type === "offensive")
+                    damageTarget(abilityPreModifiers, p);
+            }
+            //Apply statuses of the ability
+            if(applyStatuses) {
+                if(Object.keys(ability.statusesApplied || {}).length > 0) {
+                    for(let s of ability.statusesApplied) {
+                        let status = s;
+                        let statusReady = (typeof s) === "object";
+                        if(!statusReady) {
+                            //Fetch the full status based on the name
+                            status = Settings.statuses.filter(st => st.name === s);
+                        }
+                        if(ability.statusTarget === "caster")
+                            Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
+                        else Status.applyStatus(p, structuredClone(status[0]));
+                    }
+                }
+            }
+            i++;
+        }
+    }
+    else {
+        if(Settings.participants[Settings.localTurn].type === "player")
+            newSystemCall("Rzut systemu: " + hitEnemyRoll + " (Chybienie)");
+        else newSystemCall("Rzut systemu: " + hitPlayerRoll + " (Chybienie)");
+    }
+
+    //Set the ability on cooldown
     if(Object.hasOwn(ability, "uspid"))
         Settings.participants[Settings.localTurn].spellsOwned[ability.uspid] = ability.cooldown;
     else

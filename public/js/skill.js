@@ -12,6 +12,7 @@
  * @property {number} priority - Skill priority required
  * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the Skill
  * @property {string} statusTarget - If the skill applies a status, use it on the target of the skill ("target") or the "caster". Target by default.
+ * @property {string} hitMark -
  */
 class Skill {
     //class constructor
@@ -30,5 +31,8 @@ class Skill {
     subtype = "";
     statusTarget = "";
     valueType = "";
+    hitMark = "default";
     statusesApplied = [];
 }
+
+export { Skill };

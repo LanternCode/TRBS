@@ -462,7 +462,8 @@ async function createSkills(client) {
                 value: 20,
                 valueType: "flat",
                 cooldown: 4,
-                priority: 2
+                priority: 2,
+                hitMark: "default"
             },
             {
                 usid: 1,
@@ -474,7 +475,8 @@ async function createSkills(client) {
                 value: 80,
                 valueType: "flat",
                 cooldown: 2,
-                priority: 3
+                priority: 3,
+                hitMark: "default"
             },
             {
                 usid: 2,
@@ -487,7 +489,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["poison"]
+                statusesApplied: ["poison"],
+                hitMark: "default"
             },
             {
                 usid: 3,
@@ -500,7 +503,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["bleed"]
+                statusesApplied: ["bleed"],
+                hitMark: "default"
             },
             {
                 usid: 4,
@@ -513,7 +517,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["confusion"]
+                statusesApplied: ["confusion"],
+                hitMark: "default"
             },
             {
                 usid: 5,
@@ -526,7 +531,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["shrapnel"]
+                statusesApplied: ["shrapnel"],
+                hitMark: "default"
             },
             {
                 usid: 6,
@@ -539,7 +545,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["bombDebuff"]
+                statusesApplied: ["bombDebuff"],
+                hitMark: "default"
             },
             {
                 usid: 7,
@@ -552,7 +559,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["object"]
+                statusesApplied: ["object"],
+                hitMark: "default"
             },
             {
                 usid: 8,
@@ -565,7 +573,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["blind"]
+                statusesApplied: ["blind"],
+                hitMark: "default"
             },
             {
                 usid: 9,
@@ -578,7 +587,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["deepWounds"]
+                statusesApplied: ["deepWounds"],
+                hitMark: "default"
             },
             {
                 usid: 10,
@@ -591,7 +601,8 @@ async function createSkills(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["stun"]
+                statusesApplied: ["stun"],
+                hitMark: "default"
             }
         ];
         await collection.insertMany(skillDocuments);
@@ -621,7 +632,8 @@ async function createSpells(client) {
                 value: 50,
                 valueType: "flat",
                 cooldown: 3,
-                priority: 2
+                priority: 2,
+                hitMark: "default"
             },
             {
                 uspid: 1,
@@ -633,7 +645,8 @@ async function createSpells(client) {
                 value: 30,
                 valueType: "flat",
                 cooldown: 1,
-                priority: 2
+                priority: 2,
+                hitMark: "default"
             },
             {
                 uspid: 2,
@@ -645,7 +658,8 @@ async function createSpells(client) {
                 value: 70,
                 valueType: "flat",
                 cooldown: 3,
-                priority: 2
+                priority: 2,
+                hitMark: "default"
             },
             {
                 uspid: 3,
@@ -657,7 +671,8 @@ async function createSpells(client) {
                 value: 0.5,
                 valueType: "percentage",
                 cooldown: 4,
-                priority: 3
+                priority: 3,
+                hitMark: "default"
             },
             {
                 uspid: 4,
@@ -669,7 +684,8 @@ async function createSpells(client) {
                 value: 300,
                 valueType: "flat",
                 cooldown: 1,
-                priority: 2
+                priority: 2,
+                hitMark: "default"
             },
             {
                 uspid: 5,
@@ -682,7 +698,8 @@ async function createSpells(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 2,
-                statusesApplied: ["ignite"]
+                statusesApplied: ["ignite"],
+                hitMark: "default"
             },
             {
                 uspid: 6,
@@ -695,7 +712,8 @@ async function createSpells(client) {
                 valueType: "flat",
                 cooldown: 4,
                 priority: 2,
-                statusesApplied: ["regeneration"]
+                statusesApplied: ["regeneration"],
+                hitMark: "default"
             },
             {
                 uspid: 7,
@@ -708,7 +726,8 @@ async function createSpells(client) {
                 valueType: "flat",
                 cooldown: 3,
                 priority: 3,
-                statusesApplied: ["perfection"]
+                statusesApplied: ["perfection"],
+                hitMark: "default"
             },
             {
                 uspid: 8,
@@ -722,7 +741,8 @@ async function createSpells(client) {
                 cooldown: 3,
                 priority: 2,
                 statusesApplied: ["illusion"],
-                statusTarget: "caster"
+                statusTarget: "caster",
+                hitMark: "default"
             }
         ];
         await collection.insertMany(spellDocuments);
