@@ -73,6 +73,18 @@ async function getSkills()
 }
 
 /**
+ * This function obtains the spells list
+ *
+ * @function getSpells
+ * @returns {Promise<any>}
+ */
+async function getSpells()
+{
+    let result = await makeRequest("GET", base_url + "/spells/");
+    return JSON.parse(result);
+}
+
+/**
  * This function obtains the status list
  *
  * @function getStatuses
@@ -168,4 +180,4 @@ function experienceUp(player)
     makeRequest("PUT", base_url + "/grantExperience/" + JSON.stringify(player) );
 }
 
-export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp};
+export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp, getSpells};

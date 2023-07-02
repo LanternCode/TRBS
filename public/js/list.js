@@ -2,9 +2,9 @@ import {Settings} from "./settings.js";
 
 /**
  * This function is called when an action is selected to define which elements should show up
- * as each action uses different elements, which are items, skills or debug actions.
+ * as each action uses different elements, which are items, skills, spells or debug actions.
  * Not all actions (reg attack, dodge) have elements. When an element is selected, this
- * function handles the target generation for that element, ex. healing potion can only
+ * function generates the targets list for that element, ex. healing potion can only
  * be used on a living participant of the same type. The filter param specifies which
  * list will be affected, actionElements for actionElementsList, targets for targetsList,
  * reset hides both lists and resets the current action.
@@ -14,7 +14,7 @@ import {Settings} from "./settings.js";
  * @return void
  */
 function adjustOptions(filter) {
-    //hook for each section
+    //Hook for each section
     let actionList = document.getElementById("actionList");
     let action = actionList.value;
     let actionElementsSection = document.getElementById("actionElementsSection");
@@ -22,7 +22,7 @@ function adjustOptions(filter) {
     let targetSection = document.getElementById("sectionTarget");
     let inputSection = document.getElementById("sectionInput");
 
-    //filter specifies which section needs to update once an action was picked
+    //Filter specifies which section needs to update once an action was picked
     if(filter === "actionElements") {
         switch(action)
         {
@@ -57,6 +57,14 @@ function adjustOptions(filter) {
                 showSection(actionElementsSection);
                 break;
             }
+            case "spell":
+            {
+                hideSection(targetSection);
+                hideSection(inputSection);
+                createActionElementsList("spellsList");
+                showSection(actionElementsSection);
+                break;
+            }
             case "debug":
             {
                 hideSection(targetSection);
@@ -67,14 +75,14 @@ function adjustOptions(filter) {
             }
             default:
             {
-                //only print errors to the console when debugging is enabled
+                //Only print errors to the console when debugging is enabled
                 if(Settings.getDebuggingEnabled)
                     console.log("An error has occured, the following value was passed as action: ", action);
             }
         }
     }
     else if (filter === "targets") {
-        //to update the targets list, fetch the selected element and obtain its type
+        //To update the targets list, fetch the selected element and obtain its type
         let actionElementType = actionElementsList.value.split("-")[0];
         actionElementType = (action === "debug") ? "debug" : actionElementType;
         switch(actionElementType)
@@ -87,7 +95,13 @@ function adjustOptions(filter) {
             }
             case "skill":
             {
-                createSkillTargetList();
+                initiateSkillTargetListCreation();
+                showSection(targetSection);
+                break;
+            }
+            case "spell":
+            {
+                initiateSpellTargetListCreation();
                 showSection(targetSection);
                 break;
             }
@@ -99,14 +113,14 @@ function adjustOptions(filter) {
             }
             default:
             {
-                //only print errors to the console when debugging is enabled
+                //Only print errors to the console when debugging is enabled
                 if(Settings.getDebuggingEnabled)
                     console.log("An error has occured, the following value was passed as actionElementType: ", actionElementType);
             }
         }
     }
     else if(filter === "reset") {
-        //reset simply hides all sections and resets the action choice
+        //Reset simply hides all sections and resets the action choice
         hideSection(actionElementsSection);
         hideSection(targetSection);
         hideSection(inputSection);
@@ -123,7 +137,7 @@ function adjustOptions(filter) {
  */
 function getAttackableTargets()
 {
-    //declare a list to store available targets
+    //Declare a list to store available targets
     let filteredList;
     //Apply filtering
     if(Settings.participants[Settings.localTurn].type === "player")
@@ -145,21 +159,21 @@ function getAttackableTargets()
  */
 function createItemTargetList()
 {
-    //get the items list
+    //Get the items list
     let itemsList = document.getElementById("actionElementsList");
-    //check if the selection was removed, if so, return an empty array
+    //Check if the selection was removed, if so, return an empty array
     if (itemsList.value === '') return [];
     //Get the item id from the list
     let itemId = parseInt(itemsList.value.split("-")[1]);
-    //find the item in the items array to get its properties
+    //Find the item in the items array to get its properties
     let item = Settings.items.find(i => i.uiid === itemId);
-    //declare a list to store available targets
+    //Declare a list to store available targets
     let filteredList = [];
-    //based on the subtype of the item, find available targets
+    //Based on the subtype of the item, find available targets
     let subtype = item.subtype;
     switch(subtype)
     {
-        //to restore hp the target must be alive - hp > 0
+        //To restore hp the target must be alive - hp > 0
         case "restore":
         {
             if(Settings.participants[Settings.localTurn].type === "player")
@@ -173,7 +187,7 @@ function createItemTargetList()
         }
         case "revive":
         {
-            //to revive, the target must be dead - hp = 0
+            //To revive, the target must be dead - hp = 0
             if(Settings.participants[Settings.localTurn].type === "player")
             {
                 filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health === 0);
@@ -185,7 +199,7 @@ function createItemTargetList()
         }
         case "sameType":
         {
-            //item can only be used on the participants of the same type as the acting participant
+            //Item can only be used on the participants of the same type as the acting participant
             let selfType = Settings.participants[Settings.localTurn].type;
             filteredList = Settings.participants.filter(p => p.type === selfType).filter(p => p.health > 0);
             break;
@@ -201,47 +215,76 @@ function createItemTargetList()
 }
 
 /**
- * This function makes a list of targets that can be targets of the skill selected by the participant
+ * This function initiates the process of creating a skill target list
+ *
+ * @function initiateSkillTargetListCreation
+ * @returns {void} The function calls the createSkillSpellTargetList function immediately
+ */
+function initiateSkillTargetListCreation()
+{
+    //Get the skills list
+    let skillsList = document.getElementById("actionElementsList");
+    //Check if a skill was selected, otherwise exit
+    if (skillsList.value === '') return;
+    //Get the skill id
+    let skillId = parseInt(skillsList.value.split("-")[1]);
+    //Find the skill in the skill list to get its properties
+    let skill = Settings.skills.find(s => s.usid === skillId);
+    createSkillSpellTargetList(skill);
+}
+
+/**
+ * This function initiates the process of creating a spell target list
+ *
+ * @function initiateSpellTargetListCreation
+ * @returns {void} The function calls the createSkillSpellTargetList function immediately
+ */
+function initiateSpellTargetListCreation()
+{
+    //Get the spells list
+    let spellsList = document.getElementById("actionElementsList");
+    //Check if a spell was selected, otherwise exit
+    if (spellsList.value === '') return;
+    //Get the spell id
+    let spellId = parseInt(spellsList.value.split("-")[1]);
+    //Find the spell in the spells list to get its properties
+    let spell = Settings.spells.find(s => s.uspid === spellId);
+    createSkillSpellTargetList(spell);
+}
+
+/**
+ * This function makes a list of targets that can be targets of the skill or spell selected by the participant
  * And calls the adequate function to implement that list
  *
  * @function createSkillTargetList
+ * @param {object} SkillSpell the selected skill or spell
  * @returns {void} The function calls the prepareTargetSection function immediately
  */
-function createSkillTargetList()
+function createSkillSpellTargetList(SkillSpell)
 {
-    //get the skills list
-    let skillsList = document.getElementById("actionElementsList");
-    //check if a skill was selected, otherwise exit
-    if (skillsList.value === '') return;
-    //declare a list to store available targets
-    let filteredList = [];
-    //get the skill id
-    let skillId = parseInt(skillsList.value.split("-")[1]);
-    //find the skill in the skill list to get its properties
-    let skill = Settings.skills.find(s => s.usid === skillId);
-    //based on the properties of the skill, find available targets
-    let subtype = skill.subtype;
-    let range = skill.range;
-    let target_group = skill.targetGroup;
-    //check if the spell targets literally everyone - if so, job done
+    //Based on the properties of the skill, find available targets
+    let subtype = SkillSpell.subtype;
+    let range = SkillSpell.range;
+    let targetGroup = SkillSpell.targetGroup;
+    //Check if the spell targets literally everyone - if so, job done
     if(range === "everyone") {
         prepareTargetSection([], "everyone");
         return;
     }
-    //first filtering to determine which side to target (player, enemy, reversed)
-    if(target_group === "reversed")
+    //First filtering to determine which side to target (player, enemy, reversed)
+    if(targetGroup === "reversed")
     {
         if(Settings.participants[Settings.localTurn].type === "player")
-            target_group = "enemy";
-        else target_group = "player";
+            targetGroup = "enemy";
+        else targetGroup = "player";
     }
     if(range === "all"){
-        //if we target everyone from that group - job done
-        prepareTargetSection([], target_group);
+        //If we target everyone from that group - job done
+        prepareTargetSection([], targetGroup);
         return;
     }
-    //individual filtering includes dead or alive participants based on the subtype of the skill
-    filteredList = Settings.participants.filter(p => p.type === target_group);
+    //Individual filtering includes dead or alive participants based on the subtype of the skill/spell
+    let filteredList = Settings.participants.filter(p => p.type === targetGroup);
     filteredList = filterBySubtype(filteredList, subtype);
 
     prepareTargetSection(filteredList);
@@ -256,14 +299,14 @@ function createSkillTargetList()
  */
 function createDebugTargetList()
 {
-    //get the debug actions list and targets section
+    //Get the debug actions list and targets section
     let debugList = document.getElementById("actionElementsList");
     let targetSection = document.getElementById("sectionTarget");
-    //check if an action was selected, otherwise exit
+    //Check if an action was selected, otherwise exit
     if (debugList.value === '') return;
-    //get the debug action
+    //Get the debug action
     let actionName = debugList.value;
-    //check if the action targets literally everyone - if so, job done
+    //Check if the action targets literally everyone - if so, job done
     if(["winBattle", "loseBattle"].includes(actionName)) {
         prepareTargetSection([], "everyone");
         showSection(targetSection);
@@ -274,8 +317,8 @@ function createDebugTargetList()
         hideSection(targetSection);
     }
     else {
-        //for now the only other testing action is to defeat any participant
-        //so proceed with the list of all participants
+        //For now the only other testing action is to defeat any participant
+        //So proceed with the list of all participants
         prepareTargetSection(Settings.participants);
         showSection(targetSection);
     }
@@ -326,7 +369,7 @@ function prepareTargetSection(targetList, specialCase = '')
     targetListSection.appendChild(opt);
     //Generate the list
     if(specialCase !== '') {
-        //construct the special option and insert it into the list
+        //Construct the special option and insert it into the list
         let text = specialCase === "everyone" ? "Wszyscy Uczestnicy" : (specialCase === "player" ? "Wszyscy Gracze" : "Wszyscy Przeciwnicy");
         let opt = document.createElement('option');
         opt.value = specialCase;
@@ -340,7 +383,7 @@ function prepareTargetSection(targetList, specialCase = '')
             {
                 if(Settings.participants[i] === targetList[j])
                 {
-                    //construct the option and insert it into the list
+                    //Construct the option and insert it into the list
                     let opt = document.createElement('option');
                     opt.value = i;
                     opt.innerText = targetList[j].name;
@@ -361,7 +404,7 @@ function prepareTargetSection(targetList, specialCase = '')
  */
 function createActionElementsList(listName)
 {
-    //remove all children
+    //Remove all children
     let list = document.getElementById("actionElementsList");
     list.innerHTML = '';
     //Insert the first entry that prompts to select an option
@@ -383,7 +426,7 @@ function createActionElementsList(listName)
             {
                 let itemId = parseInt(itanz[0]);
                 let itemCount = itanz[1];
-                //find the item in the item list to get its name
+                //Find the item in the item list to get its name
                 let item = Settings.items.find(i => i.uiid === itemId);
                 if(item !== undefined && itemCount > 0) {
                     let opt = document.createElement('option');
@@ -405,12 +448,33 @@ function createActionElementsList(listName)
             {
                 let skillId = parseInt(skillz[0]);
                 let skillCooldown = skillz[1];
-                //find the skill in the skill list to get its priority
+                //Find the skill in the skill list to get its priority
                 let skill = Settings.skills.find(s => s.usid === skillId);
-                //create the list object
+                //Create the list object
                 let opt = document.createElement('option');
                 opt.value = "skill-" + skillId;
                 opt.innerText = skill.name + " (" + skill.priority + ") [" + skillCooldown + "]";
+                list.appendChild(opt);
+            }
+            break;
+        }
+        case "spellsList":
+        {
+            document.getElementById("actionElementsLabel").innerText = "Wybierz zaklęcie:";
+            //Check that this participant has access to spells
+            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "spellsOwned")) return;
+            if(Object.keys(Settings.participants[Settings.localTurn].spellsOwned).length < 1) return;
+            //Insert all spells
+            for (let spellz of Object.entries(Settings.participants[Settings.localTurn].spellsOwned))
+            {
+                let spellId = parseInt(spellz[0]);
+                let spellCooldown = spellz[1];
+                //Find the spell in the spell list to get its priority
+                let spell = Settings.spells.find(s => s.uspid === spellId);
+                //Create the list object
+                let opt = document.createElement('option');
+                opt.value = "spell-" + spellId;
+                opt.innerText = spell.name + " (" + spell.priority + ") [" + spellCooldown + "]";
                 list.appendChild(opt);
             }
             break;

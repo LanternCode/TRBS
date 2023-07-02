@@ -42,7 +42,8 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {},
-                    skillsOwned: {"3": 0, "11": 0},
+                    skillsOwned: {"3": 0, "10": 0},
+                    spellsOwned: {"7": 0, "8": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -60,6 +61,7 @@ async function createPlayers(client) {
                     type: "player",
                     itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
                     skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
+                    spellsOwned: {"5": 0, "6": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -76,7 +78,8 @@ async function createPlayers(client) {
                     isDodging: 0,
                     type: "player",
                     itemsOwned: {},
-                    skillsOwned: {"5": 0, "2": 0, "11": 0},
+                    skillsOwned: {"5": 0, "2": 0, "1": 0},
+                    spellsOwned: {"3": 0, "4": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -94,6 +97,7 @@ async function createPlayers(client) {
                     type: "player",
                     itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
                     skillsOwned: {"6": 0, "7": 0, "8": 0},
+                    spellsOwned: {"0": 0, "1": 0, "2": 0},
                     level: 1,
                     armor: 0,
                     inUse: false,
@@ -131,7 +135,8 @@ async function createEnemies(client) {
                     "zone": 8,
                     "armor": 1,
                     "maxHealth": 54,
-                    "skillsOwned": {"7": 0, "16": 0},
+                    "skillsOwned": {"7": 0, "10": 0},
+                    "spellsOwned": {},
                     "itemsOwned": {
                         "1": 0,
                         "2": 1,
@@ -153,7 +158,8 @@ async function createEnemies(client) {
                     "zone": 5,
                     "armor": 8,
                     "maxHealth": 59,
-                    "skillsOwned": {"8": 0, "11": 0, "16": 0},
+                    "skillsOwned": {"8": 0, "2": 0, "6": 0},
+                    "spellsOwned": {},
                     "statusesApplied": []
                 },
                 {
@@ -168,7 +174,8 @@ async function createEnemies(client) {
                     "zone": 1,
                     "armor": 5,
                     "maxHealth": 55,
-                    "skillsOwned": {"9": 0, "11": 0},
+                    "skillsOwned": {"9": 0, "1": 0},
+                    "spellsOwned": {},
                     "statusesApplied": []
                 },
                 {
@@ -447,30 +454,6 @@ async function createSkills(client) {
         const skillDocuments = [
             {
                 usid: 0,
-                name: "Kumulacja",
-                range: "individual",
-                targetGroup: "player",
-                type: "healing",
-                subtype: "restore",
-                value: 50,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 2
-            },
-            {
-                usid: 1,
-                name: "Hellfire",
-                range: "everyone",
-                targetGroup: "",
-                type: "offensive",
-                subtype: "damage",
-                value: 30,
-                valueType: "flat",
-                cooldown: 1,
-                priority: 2
-            },
-            {
-                usid: 2,
                 name: "Przygrywka",
                 range: "all",
                 targetGroup: "player",
@@ -482,7 +465,7 @@ async function createSkills(client) {
                 priority: 2
             },
             {
-                usid: 3,
+                usid: 1,
                 name: "Próżnia",
                 range: "all",
                 targetGroup: "enemy",
@@ -494,43 +477,7 @@ async function createSkills(client) {
                 priority: 3
             },
             {
-                usid: 4,
-                name: "Energy Ball",
-                range: "individual",
-                targetGroup: "reversed",
-                type: "offensive",
-                subtype: "damage",
-                value: 70,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 2
-            },
-            {
-                usid: 5,
-                name: "Wskrzeszenie",
-                range: "individual",
-                targetGroup: "player",
-                type: "healing",
-                subtype: "revive",
-                value: 0.5,
-                valueType: "percentage",
-                cooldown: 4,
-                priority: 3
-            },
-            {
-                usid: 6,
-                name: "Wielki Wybuch",
-                range: "all",
-                targetGroup: "reversed",
-                type: "offensive",
-                subtype: "damage",
-                value: 300,
-                valueType: "flat",
-                cooldown: 1,
-                priority: 2
-            },
-            {
-                usid: 7,
+                usid: 2,
                 name: "Zatruta Igła",
                 range: "individual",
                 targetGroup: "reversed",
@@ -543,20 +490,7 @@ async function createSkills(client) {
                 statusesApplied: ["poison"]
             },
             {
-                usid: 8,
-                name: "Iskierka",
-                range: "individual",
-                targetGroup: "reversed",
-                type: "offensive",
-                subtype: "damage",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 2,
-                statusesApplied: ["ignite"]
-            },
-            {
-                usid: 9,
+                usid: 3,
                 name: "Szarpiące Uderzenie",
                 range: "individual",
                 targetGroup: "reversed",
@@ -569,20 +503,7 @@ async function createSkills(client) {
                 statusesApplied: ["bleed"]
             },
             {
-                usid: 10,
-                name: "Regenerujący Deszcz",
-                range: "all",
-                targetGroup: "player",
-                type: "healing",
-                subtype: "restore",
-                value: 0,
-                valueType: "flat",
-                cooldown: 4,
-                priority: 2,
-                statusesApplied: ["regeneration"]
-            },
-            {
-                usid: 11,
+                usid: 4,
                 name: "Się Kręci Kręci Kręci",
                 range: "individual",
                 targetGroup: "reversed",
@@ -595,59 +516,7 @@ async function createSkills(client) {
                 statusesApplied: ["confusion"]
             },
             {
-                usid: 12,
-                name: "Błogosławieństwo Impaktu",
-                range: "individual",
-                targetGroup: "player",
-                type: "support",
-                subtype: "status",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 3,
-                statusesApplied: ["impact"]
-            },
-            {
-                usid: 13,
-                name: "Błogo. Dodatkowego Ataku",
-                range: "individual",
-                targetGroup: "player",
-                type: "support",
-                subtype: "status",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 3,
-                statusesApplied: ["extraAttack"]
-            },
-            {
-                usid: 14,
-                name: "Błogo. Furii",
-                range: "individual",
-                targetGroup: "player",
-                type: "support",
-                subtype: "status",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 3,
-                statusesApplied: ["fury"]
-            },
-            {
-                usid: 15,
-                name: "Błogo. Perfekcji",
-                range: "individual",
-                targetGroup: "player",
-                type: "support",
-                subtype: "status",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 3,
-                statusesApplied: ["perfection"]
-            },
-            {
-                usid: 16,
+                usid: 5,
                 name: "Szarpanie Pazurami",
                 range: "individual",
                 targetGroup: "reversed",
@@ -660,7 +529,7 @@ async function createSkills(client) {
                 statusesApplied: ["shrapnel"]
             },
             {
-                usid: 17,
+                usid: 6,
                 name: "Paka Amira",
                 range: "individual",
                 targetGroup: "reversed",
@@ -673,7 +542,7 @@ async function createSkills(client) {
                 statusesApplied: ["bombDebuff"]
             },
             {
-                usid: 18,
+                usid: 7,
                 name: "Unieruchomienie",
                 range: "individual",
                 targetGroup: "reversed",
@@ -686,20 +555,7 @@ async function createSkills(client) {
                 statusesApplied: ["object"]
             },
             {
-                usid: 19,
-                name: "Wieczna Śmierć",
-                range: "individual",
-                targetGroup: "reversed",
-                type: "offensive",
-                subtype: "damage",
-                value: 0,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 2,
-                statusesApplied: ["permadeath"]
-            },
-            {
-                usid: 22,
+                usid: 8,
                 name: "Oślepiający Promień",
                 range: "individual",
                 targetGroup: "reversed",
@@ -712,7 +568,7 @@ async function createSkills(client) {
                 statusesApplied: ["blind"]
             },
             {
-                usid: 23,
+                usid: 9,
                 name: "Zaostrzony Strzał",
                 range: "individual",
                 targetGroup: "reversed",
@@ -725,21 +581,7 @@ async function createSkills(client) {
                 statusesApplied: ["deepWounds"]
             },
             {
-                usid: 24,
-                name: "Kwiat Iluzji",
-                range: "individual",
-                targetGroup: "reversed",
-                type: "offensive",
-                subtype: "damage",
-                value: 30,
-                valueType: "flat",
-                cooldown: 3,
-                priority: 2,
-                statusesApplied: ["illusion"],
-                statusTarget: "caster"
-            },
-            {
-                usid: 25,
+                usid: 10,
                 name: "Uderzenie w Głowę",
                 range: "individual",
                 targetGroup: "reversed",
@@ -756,6 +598,137 @@ async function createSkills(client) {
         console.log("Successfully migrated: skills");
     }
     catch { console.log("Failed migration: skills"); }
+}
+
+/**
+ * This function inserts the pre-defined spells into the database.
+ * @param client
+ * @returns {Promise<void>}
+ */
+async function createSpells(client) {
+    try {
+        const database = client.db("TRBS");
+        const collection = database.collection("spell");
+        // create a document to insert
+        const spellDocuments = [
+            {
+                uspid: 0,
+                name: "Kumulacja",
+                range: "individual",
+                targetGroup: "player",
+                type: "healing",
+                subtype: "restore",
+                value: 50,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2
+            },
+            {
+                uspid: 1,
+                name: "Hellfire",
+                range: "everyone",
+                targetGroup: "",
+                type: "offensive",
+                subtype: "damage",
+                value: 30,
+                valueType: "flat",
+                cooldown: 1,
+                priority: 2
+            },
+            {
+                uspid: 2,
+                name: "Energy Ball",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 70,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2
+            },
+            {
+                uspid: 3,
+                name: "Wskrzeszenie",
+                range: "individual",
+                targetGroup: "player",
+                type: "healing",
+                subtype: "revive",
+                value: 0.5,
+                valueType: "percentage",
+                cooldown: 4,
+                priority: 3
+            },
+            {
+                uspid: 4,
+                name: "Wielki Wybuch",
+                range: "all",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 300,
+                valueType: "flat",
+                cooldown: 1,
+                priority: 2
+            },
+            {
+                uspid: 5,
+                name: "Iskierka",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["ignite"]
+            },
+            {
+                uspid: 6,
+                name: "Regenerujący Deszcz",
+                range: "all",
+                targetGroup: "player",
+                type: "healing",
+                subtype: "restore",
+                value: 0,
+                valueType: "flat",
+                cooldown: 4,
+                priority: 2,
+                statusesApplied: ["regeneration"]
+            },
+            {
+                uspid: 7,
+                name: "Błogo. Perfekcji",
+                range: "individual",
+                targetGroup: "player",
+                type: "support",
+                subtype: "status",
+                value: 0,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 3,
+                statusesApplied: ["perfection"]
+            },
+            {
+                uspid: 8,
+                name: "Kwiat Iluzji",
+                range: "individual",
+                targetGroup: "reversed",
+                type: "offensive",
+                subtype: "damage",
+                value: 30,
+                valueType: "flat",
+                cooldown: 3,
+                priority: 2,
+                statusesApplied: ["illusion"],
+                statusTarget: "caster"
+            }
+        ];
+        await collection.insertMany(spellDocuments);
+        console.log("Successfully migrated: spells");
+    }
+    catch { console.log("Failed migration: spells"); }
 }
 
 /**
@@ -1360,11 +1333,13 @@ export async function migrateAll()
     let itemCollectionExists = collectionNames.includes("item");
     let skillCollectionExists = collectionNames.includes("skill");
     let statusCollectionExists = collectionNames.includes("status");
+    let spellCollectionExists = collectionNames.includes("spell");
     //if the collection does not exist, migrate it
     if(!playerCollectionExists) await createPlayers(mongoClient);
     if(!enemyCollectionExists) await createEnemies(mongoClient);
     if(!itemCollectionExists) await createItems(mongoClient);
     if(!skillCollectionExists) await createSkills(mongoClient);
     if(!statusCollectionExists) await createStatuses(mongoClient);
+    if(!spellCollectionExists) await createSpells(mongoClient);
     await mongoClient.close()
 }

@@ -77,6 +77,35 @@ function act()
                 else newSystemCall("Ta akcja wymaga priorytetu 3 który został już wykorzystany.");
                 break;
             }
+            case "spell":
+            {
+                if(actionElement !== '' && target !== '') {
+                    let spell = Settings.spells.find(s => s.uspid === actionElementId);
+                    let cooldownRemaining = Settings.participants[Settings.localTurn].spellsOwned[actionElementId];
+                    if (cooldownRemaining === 0) {
+                        let priority = spell.priority;
+                        let priorityClear = false;
+                        if (priority === 2 && Settings.priorityTwo) {
+                            priorityClear = true;
+                            Settings.priorityTwo = false;
+                        }
+                        else if (priority === 3 && Settings.priorityThree) {
+                            priorityClear = true;
+                            Settings.priorityThree = false;
+                        }
+                        else if (extraAttackAvailable) {
+                            priorityClear = true;
+                            extraAttackUsed = true;
+                        }
+                        if(priorityClear)
+                            handleUseSkillSpell(spell, target);
+                        else newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
+                    }
+                    else newSystemCall("To zaklęcie jeszcze się nie odnowiło!");
+                }
+                else newSystemCall("Nie wybrano celu bądź zaklęcia.");
+                break;
+            }
             case "skill":
             {
                 if(actionElement !== '' && target !== '') {
@@ -98,7 +127,7 @@ function act()
                             extraAttackUsed = true;
                         }
                         if(priorityClear)
-                            handleUseSkill(skill, target);
+                            handleUseSkillSpell(skill, target);
                         else newSystemCall("Ta akcja wymaga priorytetu " + priority + " który został już wykorzystany.");
                     }
                     else newSystemCall("Ta umiejętność jeszcze się nie odnowiła!");
@@ -333,33 +362,33 @@ function handleDodge(target = {})
 function handleUseItem(target, itemId)
 {
     let itemUsed = true;
-    //find the item in the item list
+    //Find the item in the item list
     let item = Settings.items.find(i => i.uiid === itemId);
-    //history system call
+    //History system call
     newSystemCall("Użycie " + item.displayName + " na " + target.name);
-    //see if the target is dead or alive
+    //See if the target is dead or alive
     let targetAlive = target.health > 0;
-    //use the healing item
+    //Use the healing item
     if(targetAlive && item.subtype === "restore") restoreHp(item, target);
     else if (!targetAlive && item.subtype === "revive") restoreHp(item, target);
     else if (targetAlive && item.type === "statusRemover") {
-        //remove all clearable statuses of the target
+        //Remove all clearable statuses of the target
         Status.voidParticipantStatuses(target);
     }
     else if(item.type === "special") {
-        //first multiply the attack by 3
+        //First multiply the attack by 3
         target.attack *= 3;
-        //randomise two targets - one must be of reverse type to us
+        //Randomise two targets - one must be of reverse type to us
         let reverseType = target.type === "player" ? "enemy" : "player";
         let firstTargetArray = Settings.participants.filter(p => p.type === reverseType);
         let firstTarget = firstTargetArray[randomSystemRoll(firstTargetArray.length)-1];
         let secondTarget = Settings.participants[randomSystemRoll(Settings.participants.length)-1];
-        //attack the two targets
+        //Attack the two targets
         handleRegAttack(firstTarget, target);
         handleRegAttack(secondTarget, target);
-        //stun the target of the potion
+        //Stun the target of the potion
         Status.applyStatus(target, Settings.statuses.filter(s => s.name === "stun")[0]);
-        //bring the attack back to the original number
+        //Bring the attack back to the original number
         target.attack /= 3;
     }
     else {
@@ -367,14 +396,14 @@ function handleUseItem(target, itemId)
         newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
-    //apply statuses of the item
+    //Apply statuses of the item
     if (targetAlive) {
         if(Object.keys(item.statusesApplied || {}).length > 0) {
             for(let s of item.statusesApplied) {
                 let status = s;
                 let statusReady = (typeof s) === "object";
                 if(!statusReady) {
-                    //fetch the full status based on the name
+                    //Fetch the full status based on the name
                     status = Settings.statuses.filter(st => st.name === s);
                 }
                 Status.applyStatus(target, structuredClone(status[0]));
@@ -382,77 +411,80 @@ function handleUseItem(target, itemId)
         }
     }
 
-    //reduce participant's item count
+    //Reduce participant's item count
     if(itemUsed) {
         Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
         Settings.priorityThree = false;
     }
 
-    //liquid silver can be used for free if it was also used one turn earlier
+    //Liquid silver can be used for free if it was also used one turn earlier
     let noFreeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilverFree"}) === false;
     if(!noFreeLiquidSilver)
         Settings.priorityThree = true;
 }
 
 /**
- * This function takes a skill and a target to use the skill on that target
+ * This function takes a skill or a spell and a target to use the skill or spell on that target
  *
- * @function handleUseSkill
- * @param {SkillSpell} skill The skill to use
+ * @function handleUseSkillSpell
+ * @param {Skill|Spell} ability The skill or spell to use
  * @param {string|int} target A group or an individual participant to target
  * @return void
  */
-function handleUseSkill(skill, target)
+function handleUseSkillSpell(ability, target)
 {
-    //fetch skill properties
+    //Fetch skill/spell properties
     let participantsAffected = [];
-    let type = skill.type;
-    let subtype = skill.subtype;
-    //check if a special target was selected
+    let type = ability.type;
+    let subtype = ability.subtype;
+    //Check if a special target was selected
     if (target === "everyone"){
         participantsAffected = Settings.participants;
-        newSystemCall("Użycie umiejętności " + skill.name + " na wszystkich");
+        newSystemCall("Użycie umiejętności " + ability.name + " na wszystkich");
     }
     else if (target === "player" || target === "enemy"){
         participantsAffected = Settings.participants.filter(p => p.type === target);
-        newSystemCall("Użycie umiejętności " + skill.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
+        newSystemCall("Użycie umiejętności " + ability.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
     }
     else {
         if (!isNaN(target)) {
-            //a single participant is the target of this skill
+            //A single participant is the target of this skill
             participantsAffected.push(Settings.participants[target]);
-            newSystemCall("Użycie umiejętności " + skill.name + " na " + Settings.participants[target].name);
+            newSystemCall("Użycie umiejętności " + ability.name + " na " + Settings.participants[target].name);
         }
     }
 
-    //only include dead or alive participants based on the subtype of the skill
+    //Only include dead or alive participants based on the subtype of the skill
     participantsAffected = filterBySubtype(participantsAffected, subtype);
 
-    //apply the effects of the skill (healing/damaging)
+    //Apply the effects of the skill or spell (healing/damaging)
     for (let p of participantsAffected) {
         if (type === "healing")
-            restoreHp(skill, p);
+            restoreHp(ability, p);
         else if (type === "offensive")
-            damageTarget(skill, p);
+            damageTarget(ability, p);
 
-        //apply statuses of the skill
-        if(Object.keys(skill.statusesApplied || {}).length > 0) {
-            for(let s of skill.statusesApplied) {
+        //Apply statuses of the skill or spell
+        if(Object.keys(ability.statusesApplied || {}).length > 0) {
+            for(let s of ability.statusesApplied) {
                 let status = s;
                 let statusReady = (typeof s) === "object";
                 if(!statusReady) {
-                    //fetch the full status based on the name
+                    //Fetch the full status based on the name
                     status = Settings.statuses.filter(st => st.name === s);
                 }
-                if(skill.statusTarget === "caster")
+                if(ability.statusTarget === "caster")
                     Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
                 else Status.applyStatus(p, structuredClone(status[0]));
             }
         }
     }
 
-    //set the skill on cooldown
-    Settings.participants[Settings.localTurn].skillsOwned[skill.usid] = skill.cooldown;
+    //Set the skill or spell on cooldown
+    if(Object.hasOwn(ability, "uspid"))
+        Settings.participants[Settings.localTurn].spellsOwned[ability.uspid] = ability.cooldown;
+    else
+        Settings.participants[Settings.localTurn].skillsOwned[ability.usid] = ability.cooldown;
 }
 
 /**

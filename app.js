@@ -48,6 +48,14 @@ app.get('/skills/', async (req, res, next) => {
 });
 
 /**
+ * API Call - Fetch all spells from the spell collection
+ */
+app.get('/spells/', async (req, res, next) => {
+    const spells = await mc.db("TRBS").collection("spell").find().toArray();
+    res.send(spells);
+});
+
+/**
  * API Call - Fetch all statuses from the status collection
  */
 app.get('/statuses/', async (req, res, next) => {
