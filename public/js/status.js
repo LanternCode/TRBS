@@ -222,7 +222,7 @@ class Status {
      * @returns {array} an array with the statuses found
      */
     static getParticipantsPersistentStatuses(participant, listener) {
-        let statusList = participant.statusesApplied;
+        let statusList = Object.hasOwn(participant, "statusesApplied") ? participant.statusesApplied : [];
         if (statusList.length === 0) return [];
         else return statusList.filter(s => s.effectiveAt === listener).map(s => s.name);
     }
