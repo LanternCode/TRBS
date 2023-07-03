@@ -15,6 +15,7 @@ import {Spell} from "./spell.js";
  */
 function act()
 {
+    //Hook the required HTML elements
     let action = document.getElementById("actionList").value;
     let actionElement = document.getElementById("actionElementsList").value;
     //let actionElementType = actionElement.split("-")[0];
@@ -23,28 +24,11 @@ function act()
     let priorityTwoActionFlag = document.getElementById("priorityTwoActionFlag");
     let priorityThreeActionFlag = document.getElementById("priorityThreeActionFlag");
 
-    //process the "confusion" status
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
-    if(activeOnActStatuses.includes("confusion")) {
-        //confusion status randomises the action target
-        let targetsAvailable = Settings.participants;
-        target = getRndInteger(0, targetsAvailable.length-1);
-        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
-    }
-    //process the "object" status
-    let isObject = false;
-    if(activeOnActStatuses.includes("object")) {
-        isObject = true;
-    }
-    //process the "extraAttack" status
-    let extraAttackAvailable = false;
+    //Process the Confusion, Object and Extra Attack statuses
+    target = applyConfusion(target);
+    let isObject = applyObject();
+    let extraAttackAvailable = applyExtraAttack();
     let extraAttackUsed = false;
-    if(activeOnActStatuses.includes("extraAttack")) {
-        if(Settings.priorityTwo === false) {
-            //extraAttack allows the participant to perform an extra priority 2 attack action
-            extraAttackAvailable = true;
-        }
-    }
 
     //The switches will handle action "security" and then pass the action to the appropriate handler
     if(action !== '') {
@@ -59,8 +43,10 @@ function act()
                         extraAttackUsed = true;
                     handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
                 }
-                else if(Settings.priorityTwo === false) newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
-                else newSystemCall("Nie wybrano żadnego celu.");
+                else if(Settings.priorityTwo === false)
+                    newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
+                else
+                    newSystemCall("Nie wybrano żadnego celu.");
                 break;
             }
             case "dodge":
@@ -119,7 +105,7 @@ function act()
             }
             case "escape":
             {
-                //the instant escape status ignores the usual escape check
+                //The instant escape status ignores the usual escape check
                 let activeOnEscapeStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onEscape");
                 let instantEscape = false;
                 if(activeOnEscapeStatuses.includes("instantEscape"))
@@ -134,14 +120,13 @@ function act()
             }
             default:
             {
-                //only print errors to the console when debugging is enabled
+                //Only print errors to the console when debugging is enabled
                 if(Settings.getDebuggingEnabled)
                     console.log("An error has occured, the following value was passed as action: ", action);
             }
         }
-        if(extraAttackUsed) {
+        if(extraAttackUsed)
             Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "extraAttack");
-        }
     }
     else {
         newSystemCall("Nie wybrano żadnej akcji.");
@@ -252,9 +237,14 @@ function handleRegAttack(target, attacker)
  */
 function handleDodge(target = {})
 {
-    if(target !== {})
+    if(target !== {}) {
         Settings.participants[Settings.localTurn].isDodging = true;
-    else target.isDodging = true;
+        newSystemCall(Settings.participants[Settings.localTurn].name + " unika nadchodzących ataków!");
+    }
+    else {
+        target.isDodging = true;
+        newSystemCall(target.name + " unika nadchodzących ataków!");
+    }
     Settings.priorityTwo = false;
 }
 
@@ -278,8 +268,11 @@ function handleUseItem(target, itemId)
     //See if the target is dead or alive
     let targetAlive = target.health > 0;
     //Use the healing item
-    if(targetAlive && item.subtype === "restore") restoreHp(item, target);
-    else if (!targetAlive && item.subtype === "revive") restoreHp(item, target);
+    let healthRestored = 0;
+    if(targetAlive && item.subtype === "restore")
+        healthRestored = restoreHp(item, target);
+    else if (!targetAlive && item.subtype === "revive")
+        healthRestored = restoreHp(item, target);
     else if (targetAlive && item.type === "statusRemover") {
         //Remove all clearable statuses of the target
         Status.voidParticipantStatuses(target);
@@ -305,18 +298,19 @@ function handleUseItem(target, itemId)
         newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
+    if(healthRestored > 0)
+        newSystemCall(target.name + " odzyskał " + healthRestored + " punktów zdrowia!");
+
     //Apply statuses of the item
-    if (targetAlive) {
-        if(Object.keys(item.statusesApplied || {}).length > 0) {
-            for(let s of item.statusesApplied) {
-                let status = s;
-                let statusReady = (typeof s) === "object";
-                if(!statusReady) {
-                    //Fetch the full status based on the name
-                    status = Settings.statuses.filter(st => st.name === s);
-                }
-                Status.applyStatus(target, structuredClone(status[0]));
+    if (targetAlive && Object.keys(item.statusesApplied || {}).length > 0) {
+        for(let s of item.statusesApplied) {
+            let status = s;
+            let statusReady = (typeof s) === "object";
+            if(!statusReady) {
+                //Fetch the full status based on the name
+                status = Settings.statuses.filter(st => st.name === s);
             }
+            Status.applyStatus(target, structuredClone(status[0]));
         }
     }
 
@@ -474,10 +468,14 @@ function handleUseSkillSpell(ability, target)
 
             //Finally, restore hp or deal damage (if non-zero)
             if(abilityPreModifiers.value > 0) {
-                if (type === "healing")
-                    restoreHp(abilityPreModifiers, p);
-                else if (type === "offensive")
-                    damageTarget(abilityPreModifiers, p);
+                if (type === "healing") {
+                    let hpRestored = restoreHp(abilityPreModifiers, p);
+                    newSystemCall(p.name + " odzyskał " + hpRestored + " punktów zdrowia!");
+                }
+                else if (type === "offensive") {
+                    let damageDealt = damageTarget(abilityPreModifiers, p);
+                    newSystemCall(p.name + " otrzymał " + damageDealt + " punktów obrażeń!");
+                }
             }
 
             //Process the "fury" status
@@ -843,6 +841,47 @@ function applyFury(attackTarget) {
 function applyPermadeath(healTarget) {
     let activeOnRestoreHpStatuses = Status.getParticipantsPersistentStatuses(healTarget, "onRestoreHp");
     return !!activeOnRestoreHpStatuses.includes("permadeath");
+}
+
+/**
+ * Applies the confusion status if one is activated which
+ * randomises the target of the next action
+ *
+ * @function applyConfusion
+ * @param {number} currentTarget the current target of the action
+ * @returns {number} the same or new, randomised target
+ */
+function applyConfusion(currentTarget) {
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    if(activeOnActStatuses.includes("confusion")) {
+        //Confusion status randomises the action target
+        let targetsAvailable = Settings.participants;
+        currentTarget = getRndInteger(0, targetsAvailable.length-1);
+        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
+    }
+    return currentTarget;
+}
+
+/**
+ * If the currently acting participant has the Object status, they cannot attack
+ *
+ * @function applyObject
+ * @returns {boolean} true if the Object status is present, false otherwise
+ */
+function applyObject() {
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    return activeOnActStatuses.includes("object")
+}
+
+/**
+ * A participant may do another priority 2 action
+ *
+ * @function applyExtraAttack
+ * @returns {boolean} true if Extra Attack is active, false otherwise
+ */
+function applyExtraAttack() {
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    return (activeOnActStatuses.includes("extraAttack") && Settings.priorityTwo === false);
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};
