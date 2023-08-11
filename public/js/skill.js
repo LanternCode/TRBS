@@ -12,12 +12,12 @@
  * @property {number} priority - Skill priority required
  * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the Skill
  * @property {string} statusTarget - If the skill applies a status, use it on the target of the skill ("target") or the "caster". Target by default.
- * @property {string} hitMark -
+ * @property {string} hitMark - a threshold at which the skill hits (using a d20 roll)
  */
 class Skill {
     //class constructor
-    constructor(ustid) {
-        this.ustid = ustid;
+    constructor(usid) {
+        this.usid = usid;
     }
 
     usid = 0;
@@ -31,7 +31,7 @@ class Skill {
     subtype = "";
     statusTarget = "";
     valueType = "";
-    hitMark = "default";
+    hitMark = "";
     statusesApplied = [];
 }
 

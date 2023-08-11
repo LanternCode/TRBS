@@ -12,12 +12,12 @@
  * @property {number} priority - spell priority
  * @property {array} statusesApplied - Status objects applied or Internal names of the statuses applied (to be found) by the Spell
  * @property {string} statusTarget - If the spell applies a status, use it on the target of the skill ("target") or the "caster". Target by default.
- * @property {string} hitMark -
+ * @property {string} hitMark - a threshold at which the spell hits (using a d20 roll)
  */
 class Spell {
     //class constructor
-    constructor(ustid) {
-        this.ustid = ustid;
+    constructor(uspid) {
+        this.uspid = uspid;
     }
 
     uspid = 0;
@@ -31,7 +31,7 @@ class Spell {
     subtype = "";
     statusTarget = "";
     valueType = "";
-    hitMark = "default";
+    hitMark = "";
     statusesApplied = [];
 
 }
