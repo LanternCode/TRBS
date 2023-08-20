@@ -1,10 +1,11 @@
 import {newSystemCall, randomSystemRoll} from "./utils.js";
 import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
-import {refreshCardsInBattle} from "./table.js";
+import {flipTable, refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {experienceUp} from "./db.js";
+import {experienceUp, updateParticipant} from "./db.js";
 import {Status} from "./status.js";
+import {createCardTemplate} from "./card.js";
 
 /**
  * This function starts or resets a battle
@@ -336,4 +337,51 @@ function continueToBattle() {
     refreshCardsInBattle(true);
 }
 
-export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn};
+/**
+ *
+ */
+async function loadDefaultTemplate() {
+
+    //Clear the table
+    flipTable();
+
+    //Fetch new definitions in case the list was not loaded before
+    await Settings.fetchPlayers();
+    await Settings.fetchEnemies();
+
+    //Load the participants into the definitions, toggle inUse flags for players
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[1]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[3]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
+    Settings.availablePlayers[1].inUse = true;
+    Settings.availablePlayers[3].inUse = true;
+
+    //Construct and append the cards
+    let defaultCardOne = createCardTemplate("player", Settings.participantsDefinition[0]);
+    let defaultCardTwo = createCardTemplate("player", Settings.participantsDefinition[1]);
+    let defaultCardThree = createCardTemplate("enemy", Settings.participantsDefinition[2]);
+    let defaultCardFour = createCardTemplate("enemy", Settings.participantsDefinition[3]);
+    let defaultCardFive = createCardTemplate("enemy", Settings.participantsDefinition[4]);
+    defaultCardOne.id = "participant-0";
+    defaultCardTwo.id = "participant-1";
+    defaultCardThree.id = "participant-2";
+    defaultCardFour.id = "participant-3";
+    defaultCardFive.id = "participant-4";
+    document.getElementById("playerSlots").appendChild(defaultCardOne);
+    document.getElementById("playerSlots").appendChild(defaultCardTwo);
+    document.getElementById("enemySlots").appendChild(defaultCardThree);
+    document.getElementById("enemySlots").appendChild(defaultCardFour);
+    document.getElementById("enemySlots").appendChild(defaultCardFive);
+
+    //Set the counters to the default template values
+    Settings.playerCount = 2;
+    Settings.enemyCount = 3;
+
+    //Update the inUse property in the database
+    updateParticipant(Settings.availablePlayers[1], "player");
+    updateParticipant(Settings.availablePlayers[3], "player");
+}
+
+export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn, loadDefaultTemplate};

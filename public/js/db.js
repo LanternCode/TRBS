@@ -154,7 +154,6 @@ function dropStatus(status)
  */
 function updateParticipant(participant, type)
 {
-    participant.inUse = false;
     makeRequest("PUT", base_url + "/updateParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 

@@ -2,6 +2,7 @@ import {insertCard} from "./cardPicker.js";
 import {Settings} from "./settings.js";
 import {expRequired} from "./level.js";
 import {newSystemCall} from "./utils.js";
+import {dropParticipant, updateParticipant} from "./db.js";
 /**
  * This function adds a player card from the list into the table if the limit has not been reached
  *
@@ -13,6 +14,7 @@ async function addPlayer(index)
 {
     //check if the player is available and if not, return
     if(Settings.availablePlayers[index].inUse) {
+        console.log("YOGOBELAL");
         newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
@@ -49,7 +51,6 @@ async function addEnemy(index)
         await insertCard("enemy", newEnemy);
     }
 }
-
 
 /**
  * This function refreshes cards on screen to reflect changes
@@ -109,4 +110,33 @@ function refreshCardsInBattle(refreshDefs = false)
     }
 }
 
-export { addPlayer, addEnemy, refreshCardsInBattle };
+/**
+ * (ノಠ益ಠ)ノ彡┻━┻
+ */
+function flipTable() {
+    //Get the participants to clear and their allocated slots on the table
+    let participantsToFlip = Settings.participantsDefinition;
+    let sectionPlayers = document.getElementById("playerSlots");
+    let sectionEnemies = document.getElementById("enemySlots");
+
+    //Remove the cards one by one, clear the inUse flag for players
+    let i = 0;
+    participantsToFlip.forEach((p) => {
+        let card = document.getElementById("participant-"+i);
+        if(p.type === "player") {
+            let flippedP = Settings.availablePlayers.filter(pa => pa._id === p._id)[0];
+            flippedP.inUse = false;
+            updateParticipant(flippedP, "player");
+            sectionPlayers.removeChild(card);
+        }
+        else sectionEnemies.removeChild(card);
+        i++;
+    });
+
+    //Empty the participants array and reset the counters
+    Settings.participantsDefinition = [];
+    Settings.playerCount = 0;
+    Settings.enemyCount = 0;
+}
+
+export { addPlayer, addEnemy, refreshCardsInBattle, flipTable };

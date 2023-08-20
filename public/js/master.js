@@ -1,5 +1,5 @@
 import {act} from "./action.js";
-import {startBattle, continueToBattle, startNextTurn} from "./battle.js";
+import {startBattle, continueToBattle, startNextTurn, loadDefaultTemplate} from "./battle.js";
 import {adjustOptions} from "./list.js";
 import {Settings} from "./settings.js";
 import {addCardInit} from "./cardPicker.js";
@@ -9,6 +9,7 @@ const actionElementsList = document.getElementById("actionElementsList");
 const addPlayerCardButton = document.getElementById("addPlayerCardButton");
 const addEnemyCardButton = document.getElementById("addEnemyCardButton");
 const actButton = document.getElementById("actButton");
+const loadTemplateButton = document.getElementById("loadDefaultTemplate");
 const startBattleButton = document.getElementById("startBattleButton");
 const continueToBattleButton = document.getElementById("continueToBattleButton");
 const nextTurnButton = document.getElementById("nextTurnButton");
@@ -19,6 +20,7 @@ addPlayerCardButton.addEventListener("click", () => { addCardInit("player") }, f
 addEnemyCardButton.addEventListener("click", () => { addCardInit("enemy") }, false);
 actButton.addEventListener("click", () => { act() }, false);
 startBattleButton.addEventListener("click", () => { startBattle() }, false);
+loadTemplateButton.addEventListener("click", () => { loadDefaultTemplate() }, false);
 continueToBattleButton.addEventListener("click", () => { continueToBattle() }, false);
 nextTurnButton.addEventListener("click", () => { startNextTurn() }, false);
 
