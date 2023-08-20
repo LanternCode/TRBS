@@ -338,7 +338,10 @@ function continueToBattle() {
 }
 
 /**
+ * The function is invoked when a button to load the default template is pressed
  *
+ * @function loadDefaultTemplate
+ * @return void
  */
 async function loadDefaultTemplate() {
 

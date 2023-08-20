@@ -14,7 +14,6 @@ async function addPlayer(index)
 {
     //check if the player is available and if not, return
     if(Settings.availablePlayers[index].inUse) {
-        console.log("YOGOBELAL");
         newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
