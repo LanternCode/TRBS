@@ -46,7 +46,8 @@ async function createPlayers(client) {
                     spellsOwned: {"7": 0, "8": 0},
                     level: 1,
                     armor: 0,
-                    statusesApplied: []
+                    statusesApplied: [],
+                    gold: 0
                 },
                 {
                     name: 'Antonio',
@@ -63,7 +64,8 @@ async function createPlayers(client) {
                     spellsOwned: {"5": 0, "6": 0},
                     level: 1,
                     armor: 0,
-                    statusesApplied: []
+                    statusesApplied: [],
+                    gold: 0
                 },
                 {
                     name: 'Dion',
@@ -80,7 +82,8 @@ async function createPlayers(client) {
                     spellsOwned: {"3": 0, "4": 0},
                     level: 1,
                     armor: 0,
-                    statusesApplied: []
+                    statusesApplied: [],
+                    gold: 0
                 },
                 {
                     name: 'Astrid',
@@ -97,7 +100,8 @@ async function createPlayers(client) {
                     spellsOwned: {"0": 0, "1": 0, "2": 0},
                     level: 1,
                     armor: 0,
-                    statusesApplied: []
+                    statusesApplied: [],
+                    gold: 0
                 }
             ];
 
