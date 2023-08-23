@@ -306,6 +306,12 @@ function isBattleOver()
     else return false;
 }
 
+/**
+ * Once a battle has finished, a summary is shown - this ends the summary and opens the out-of-battle overlay
+ *
+ * @function continueToBattle
+ * @return {void}
+ */
 function continueToBattle() {
     //enable the buttons that add new participants
     document.getElementById("enemyAddSection").classList.toggle("hidden");
@@ -352,14 +358,12 @@ async function loadDefaultTemplate() {
     await Settings.fetchPlayers();
     await Settings.fetchEnemies();
 
-    //Load the participants into the definitions, toggle inUse flags for players
+    //Load the participants into the definitions
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[1]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[3]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
-    Settings.availablePlayers[1].inUse = true;
-    Settings.availablePlayers[3].inUse = true;
 
     //Construct and append the cards
     let defaultCardOne = createCardTemplate("player", Settings.participantsDefinition[0]);
@@ -381,10 +385,6 @@ async function loadDefaultTemplate() {
     //Set the counters to the default template values
     Settings.playerCount = 2;
     Settings.enemyCount = 3;
-
-    //Update the inUse property in the database
-    updateParticipant(Settings.availablePlayers[1], "player");
-    updateParticipant(Settings.availablePlayers[3], "player");
 }
 
 export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn, loadDefaultTemplate};

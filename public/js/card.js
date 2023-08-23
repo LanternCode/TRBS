@@ -198,15 +198,11 @@ function createCardTemplate(type, newParticipant)
          dropParticipant(arrayOfChoice[pId], type);
          arrayOfChoice.splice(pId, 1);
      }
-     else if(type === "player")
-     {
+     else if(type === "player") {
          let pName = card.children[0].textContent.split('[')[0].trim();
-         let removedPlayer = arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
-         //if they're a player - also update their inUse property
-         if(location === "table") {
-             Settings.availablePlayers.filter(p => p._id === removedPlayer._id)[0].inUse = false;
+         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
+         if(location === "table")
              Settings.playerCount--;
-         }
      }
      else {
          let pName = card.children[0].textContent.split('[')[0].trim();

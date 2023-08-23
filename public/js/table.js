@@ -2,7 +2,7 @@ import {insertCard} from "./cardPicker.js";
 import {Settings} from "./settings.js";
 import {expRequired} from "./level.js";
 import {newSystemCall} from "./utils.js";
-import {dropParticipant, updateParticipant} from "./db.js";
+
 /**
  * This function adds a player card from the list into the table if the limit has not been reached
  *
@@ -12,8 +12,8 @@ import {dropParticipant, updateParticipant} from "./db.js";
  */
 async function addPlayer(index)
 {
-    //check if the player is available and if not, return
-    if(Settings.availablePlayers[index].inUse) {
+    //Check if the player is available and if not, return
+    if(playerInUse(Settings.availablePlayers[index])) {
         newSystemCall("Wybrany gracz jest już w grze.");
         return false;
     }
@@ -23,7 +23,6 @@ async function addPlayer(index)
     }
     else {
         Settings.playerCount++;
-        Settings.availablePlayers[index].inUse = true;
         await insertCard("player", structuredClone(Settings.availablePlayers[index]));
         return true;
     }
@@ -111,23 +110,20 @@ function refreshCardsInBattle(refreshDefs = false)
 
 /**
  * (ノಠ益ಠ)ノ彡┻━┻
+ *
+ * @function flipTable
+ * @return {void} empty table is returned but needs to be manually picked up ¯\_(ツ)_/¯
  */
 function flipTable() {
-    //Get the participants to clear and their allocated slots on the table
-    let participantsToFlip = Settings.participantsDefinition;
+    //Get the allocated participant slots on the table
     let sectionPlayers = document.getElementById("playerSlots");
     let sectionEnemies = document.getElementById("enemySlots");
 
-    //Remove the cards one by one, clear the inUse flag for players
+    //Remove the cards one by one
     let i = 0;
-    participantsToFlip.forEach((p) => {
+    Settings.participantsDefinition.forEach((p) => {
         let card = document.getElementById("participant-"+i);
-        if(p.type === "player") {
-            let flippedP = Settings.availablePlayers.filter(pa => pa._id === p._id)[0];
-            flippedP.inUse = false;
-            updateParticipant(flippedP, "player");
-            sectionPlayers.removeChild(card);
-        }
+        if(p.type === "player") sectionPlayers.removeChild(card);
         else sectionEnemies.removeChild(card);
         i++;
     });
@@ -136,6 +132,18 @@ function flipTable() {
     Settings.participantsDefinition = [];
     Settings.playerCount = 0;
     Settings.enemyCount = 0;
+}
+
+/**
+ * The function checks whether the given player is already in use
+ *
+ * @function playerInUse
+ * @param {Participant} playerDef a {@link Participant} object
+ * @return {boolean} true if the player is already in use, false otherwise
+ */
+function playerInUse(playerDef) {
+    let overlap = Settings.participantsDefinition.filter(p => p.name === playerDef.name);
+    return overlap.length !== 0;
 }
 
 export { addPlayer, addEnemy, refreshCardsInBattle, flipTable };

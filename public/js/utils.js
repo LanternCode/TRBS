@@ -106,7 +106,6 @@ function generateNewPlayer()
         skillsOwned: {"3": 0},
         level: 1,
         armor: 2,
-        inUse: false,
         statusesApplied: []
     };
 
