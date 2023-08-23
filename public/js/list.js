@@ -24,8 +24,7 @@ function adjustOptions(filter) {
 
     //Filter specifies which section needs to update once an action was picked
     if(filter === "actionElements") {
-        switch(action)
-        {
+        switch(action) {
             case "regAttack":
             {
                 hideSection(actionElementsSection);
@@ -137,16 +136,12 @@ function adjustOptions(filter) {
  */
 function getAttackableTargets()
 {
-    //Declare a list to store available targets
-    let filteredList;
-    //Apply filtering
+    let filteredList = [];
     if(Settings.participants[Settings.localTurn].type === "player")
-    {
         filteredList = Settings.participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
-    }
-    else {
+    else
         filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health > 0);
-    }
+
     return filteredList;
 }
 
@@ -377,12 +372,9 @@ function prepareTargetSection(targetList, specialCase = '')
         targetListSection.appendChild(opt);
     }
     else {
-        for(let i = 0; i < Settings.participants.length; ++i)
-        {
-            for(let j = 0; j < targetList.length; ++j)
-            {
-                if(Settings.participants[i] === targetList[j])
-                {
+        for(let i = 0; i < Settings.participants.length; ++i) {
+            for(let j = 0; j < targetList.length; ++j) {
+                if(Settings.participants[i] === targetList[j]) {
                     //Construct the option and insert it into the list
                     let opt = document.createElement('option');
                     opt.value = i;

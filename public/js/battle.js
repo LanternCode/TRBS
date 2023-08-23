@@ -3,7 +3,7 @@ import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {flipTable, refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {experienceUp, updateParticipant} from "./db.js";
+import {experienceUp} from "./db.js";
 import {Status} from "./status.js";
 import {createCardTemplate} from "./card.js";
 
@@ -23,29 +23,29 @@ function startBattle()
 
     if(participantsOK && cardsOK)
     {
-        //reset the turn counters
+        //Reset the turn counters
         Settings.localTurn = 0;
         Settings.globalTurn = 1;
 
-        //reset priority
+        //Reset priorities
         Settings.priorityTwo = true;
         document.getElementById("priorityTwoActionFlag").classList.remove("disabled");
         Settings.priorityThree = true;
         document.getElementById("priorityThreeActionFlag").classList.remove("disabled");
 
-        //disable the buttons that add or remove participants
+        //Disable the buttons that add or remove participants
         for (let elem of document.getElementsByClassName("createCardButton"))
             elem.classList.toggle("hidden");
             document.getElementById("enemyAddSection").classList.toggle("hidden");
             document.getElementById("playerAddSection").classList.toggle("hidden");
 
-        //show the controls in battle
+        //Show the controls in battle
         document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
-        //reset the current action
+        //Reset the current action
         document.getElementById("actionList").value = "none";
 
-        //hide out-of-battle labels when entering battle
+        //Hide out-of-battle labels when entering battle
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
             elem.classList.toggle("hidden");
 
@@ -362,8 +362,8 @@ async function loadDefaultTemplate() {
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[1]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[3]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[1]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[2]);
 
     //Construct and append the cards
     let defaultCardOne = createCardTemplate("player", Settings.participantsDefinition[0]);
