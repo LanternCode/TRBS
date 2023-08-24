@@ -67,16 +67,13 @@ function refreshCardsInBattle(refreshDefs = false)
     let arrOfChoice = refreshDefs ? Settings.participantsDefinition : Settings.participants;
 
     //Find the correct battle slot
-    for(let i = 0; i < arrOfChoice.length; ++i)
-    {
+    for(let i = 0; i < arrOfChoice.length; ++i) {
         let battleSlot = "";
-        if(arrOfChoice[i].type === "player")
-        {
+        if(arrOfChoice[i].type === "player") {
             battleSlot = document.getElementById("playerSlots").children[playersUpdated+1];
             playersUpdated++;
         }
-        else if(arrOfChoice[i].type === "enemy")
-        {
+        else if(arrOfChoice[i].type === "enemy") {
             battleSlot = document.getElementById("enemySlots").children[enemiesUpdated+1];
             enemiesUpdated++;
         }
@@ -100,10 +97,11 @@ function refreshCardsInBattle(refreshDefs = false)
         battleSlot.children[12].innerText = statusesLabel;
         battleSlot.children[12].title = statusesTooltip;
 
-        //Xp is updated in the definition only, hence refreshDefs must be true
-        if(arrOfChoice[i].type === "player" && refreshDefs){
+        //Xp and gold are updated in the definition only, hence refreshDefs must be true
+        if(arrOfChoice[i].type === "player" && refreshDefs) {
             battleSlot.children[15].innerText = arrOfChoice[i].level;
             battleSlot.children[18].innerText = arrOfChoice[i].experience + " / " + expRequired(arrOfChoice[i].level);
+            battleSlot.children[20].innerText = arrOfChoice[i].gold;
         }
     }
 }

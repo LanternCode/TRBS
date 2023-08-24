@@ -186,39 +186,39 @@ function createCardTemplate(type, newParticipant)
  * @param {Element} e - The button on-click event passes the button element here
  * @return {void}
  */
- function deleteCard(e)
- {
-     //Get the card element
-     let card = e.parentNode;
-     //Figure out the card type
-     let type = card.classList.contains("enemySection") ? "enemy" : "player";
-     //Figure out the card location
-     let location = card.classList.contains("clickOnMe") ? "list" : "table";
-     //Get the participant id
-     let pId = card.id.split('-')[1];
-     //Remove the participant card from the table
-     let sectionId = location === "table" ? (type + "Slots") : "listSection";
-     let section = document.getElementById(sectionId);
-     section.removeChild(card);
-     //Remove the participant from the participants array and reduce the counter if removing from the table
-     let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? Settings.availablePlayers : Settings.availableEnemies);
-     if(location === "list") {
-         dropParticipant(arrayOfChoice[pId], type);
-         arrayOfChoice.splice(pId, 1);
-     }
-     else if(type === "player") {
-         let pName = card.children[0].textContent.split('[')[0].trim();
-         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
-         if(location === "table")
-             Settings.playerCount--;
-     }
-     else {
-         let pName = card.children[0].textContent.split('[')[0].trim();
-         arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
-         if(location === "table")
-            Settings.enemyCount--;
-     }
- }
+function deleteCard(e)
+{
+    //Get the card element
+    let card = e.parentNode;
+    //Figure out the card type
+    let type = card.classList.contains("enemySection") ? "enemy" : "player";
+    //Figure out the card location
+    let location = card.classList.contains("clickOnMe") ? "list" : "table";
+    //Get the participant id
+    let pId = card.id.split('-')[1];
+    //Remove the participant card from the table
+    let sectionId = location === "table" ? (type + "Slots") : "listSection";
+    let section = document.getElementById(sectionId);
+    section.removeChild(card);
+    //Remove the participant from the participants array and reduce the counter if removing from the table
+    let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? Settings.availablePlayers : Settings.availableEnemies);
+    if(location === "list") {
+        dropParticipant(arrayOfChoice[pId], type);
+        arrayOfChoice.splice(pId, 1);
+    }
+    else if(type === "player") {
+     let pName = card.children[0].textContent.split('[')[0].trim();
+     arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
+     if(location === "table")
+         Settings.playerCount--;
+    }
+    else {
+     let pName = card.children[0].textContent.split('[')[0].trim();
+     arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
+     if(location === "table")
+         Settings.enemyCount--;
+    }
+}
 
  /**
   * This function edits an existing participant's card
@@ -233,8 +233,6 @@ function createCardTemplate(type, newParticipant)
      let card = e.parentNode;
      //Get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
-     //Get the location
-     let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //Construct editable elements
      let nameInput = document.createElement("input");
      nameInput.type = "text";
@@ -260,10 +258,6 @@ function createCardTemplate(type, newParticipant)
      armorInput.type = "text";
      armorInput.value = card.children[10].innerText;
      armorInput.dataset.originalValue = card.children[10].innerText;
-     let goldInput = document.createElement("input");
-     goldInput.type = "text";
-     goldInput.value = card.children[20].innerText;
-     goldInput.dataset.originalValue = card.children[20].innerText;
      //Replace the text elements with text forms to allow editing
      card.replaceChild(nameInput, card.children[0]);
      card.replaceChild(healthInput, card.children[2]);
@@ -271,9 +265,9 @@ function createCardTemplate(type, newParticipant)
      card.replaceChild(attackInput, card.children[6]);
      card.replaceChild(dodgeInput, card.children[8]);
      card.replaceChild(armorInput, card.children[10]);
-     card.replaceChild(goldInput, card.children[20]);
      //Players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
+         //Zone property
          let zoneInput = document.createElement("input");
          zoneInput.type = "text";
          zoneInput.value = card.children[14].innerText;
@@ -281,20 +275,18 @@ function createCardTemplate(type, newParticipant)
          card.replaceChild(zoneInput, card.children[14]);
      }
      else {
+         //Gold property
+         let goldInput = document.createElement("input");
+         goldInput.type = "text";
+         goldInput.value = card.children[20].innerText;
+         goldInput.dataset.originalValue = card.children[20].innerText;
+         card.replaceChild(goldInput, card.children[20]);
+         //Hide the level-up and level-down buttons
          card.children[14].classList.add("hidden");
          card.children[16].classList.add("hidden");
      }
-     //Players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 15 : 21;
-     //Hide the edit and pick buttons
-     card.children[buttonsStartHere].classList.add("hidden");
-     //Enable the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.remove("hidden");
-     card.children[buttonsStartHere+2].classList.remove("hidden");
-     card.children[buttonsStartHere+3].classList.remove("hidden");
-     if(cLoc === "list") {
-         card.children[buttonsStartHere+4].classList.add("hidden");
-     }
+     //Toggle the visibility of buttons
+     toggleButtonsVisibility(card);
  }
 
  /**
@@ -319,7 +311,6 @@ function createCardTemplate(type, newParticipant)
      let newAttack = card.children[6].value;
      let newDodge = card.children[8].value;
      let newArmor = card.children[10].value;
-     let newGold = card.children[20].value;
      let newNameWithDodge = newName + " [" + newDodge + "]";
      //Construct text elements
      let nameText = document.createElement("h3");
@@ -335,9 +326,6 @@ function createCardTemplate(type, newParticipant)
      dodgeText.classList.add("outOfBattleElem");
      let armorText = document.createElement("h4");
      armorText.innerText = newArmor;
-     let goldText = document.createElement("h4");
-     goldText.innerText = newGold;
-     goldText.classList.add("outOfBattleElem");
      //Replace the form elements with text
      card.replaceChild(nameText, card.children[0]);
      card.replaceChild(healthText, card.children[2]);
@@ -345,7 +333,6 @@ function createCardTemplate(type, newParticipant)
      card.replaceChild(attackText, card.children[6]);
      card.replaceChild(dodgeText, card.children[8]);
      card.replaceChild(armorText, card.children[10]);
-     card.replaceChild(goldText, card.children[20]);
      //Get the participant id
      let pId = card.id.split('-')[1];
      //Choose the array to update
@@ -358,9 +345,9 @@ function createCardTemplate(type, newParticipant)
      arrayOfChoice[pId].attack = parseInt(newAttack);
      arrayOfChoice[pId].dodge = parseInt(newDodge);
      arrayOfChoice[pId].armor = parseInt(newArmor);
-     arrayOfChoice[pId].gold = parseInt(newGold);
      //Players and enemies may have dedicated elements only they can access
-     if(cType === "enemy"){
+     if(cType === "enemy") {
+         //Zone property
          let newZone = card.children[14].value;
          let zoneText = document.createElement("h4");
          zoneText.innerText = newZone;
@@ -369,21 +356,22 @@ function createCardTemplate(type, newParticipant)
          arrayOfChoice[pId].zone = newZone;
      }
      else {
+         //Gold property
+         let newGold = card.children[20].value;
+         let goldText = document.createElement("h4");
+         goldText.innerText = newGold;
+         goldText.classList.add("outOfBattleElem");
+         card.replaceChild(goldText, card.children[20]);
+         arrayOfChoice[pId].gold = parseInt(newGold);
+         //Show the level-up and level-down buttons
          card.children[14].classList.remove("hidden");
          card.children[16].classList.remove("hidden");
      }
-     //Players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 15 : 21;
-     //Enable the edit and pick buttons
-     card.children[buttonsStartHere].classList.remove("hidden");
-     //Hide the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.add("hidden");
-     card.children[buttonsStartHere+2].classList.add("hidden");
-     card.children[buttonsStartHere+3].classList.add("hidden");
-     if(cLoc === "list") {
+     //Toggle the visibility of buttons
+     toggleButtonsVisibility(card);
+     //Save the updated participant into the db
+     if(cLoc === "list")
         updateParticipant(arrayOfChoice[pId], cType);
-        card.children[buttonsStartHere+4].classList.remove("hidden");
-     }
  }
 
  /**
@@ -415,9 +403,6 @@ function createCardTemplate(type, newParticipant)
      dodgeText.classList.add("outOfBattleElem");
      let armorText = document.createElement("h4");
      armorText.innerText = card.children[10].dataset.originalValue;
-     let goldText = document.createElement("h4");
-     goldText.innerText = card.children[20].dataset.originalValue;
-     goldText.classList.add("outOfBattleElem");
      //Replace the form elements with text
      card.replaceChild(nameText, card.children[0]);
      card.replaceChild(healthText, card.children[2]);
@@ -425,29 +410,51 @@ function createCardTemplate(type, newParticipant)
      card.replaceChild(attackText, card.children[6]);
      card.replaceChild(dodgeText, card.children[8]);
      card.replaceChild(armorText, card.children[10]);
-     card.replaceChild(goldText, card.children[20]);
      //Players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
+         //Zone property
          let zoneText = document.createElement("h4");
          zoneText.innerText = card.children[14].dataset.originalValue;
          zoneText.classList.add("outOfBattleElem");
          card.replaceChild(zoneText, card.children[14]);
      }
      else {
+         //Gold property
+         let goldText = document.createElement("h4");
+         goldText.innerText = card.children[20].dataset.originalValue;
+         goldText.classList.add("outOfBattleElem");
+         card.replaceChild(goldText, card.children[20]);
+         //Show the level-up and level-down buttons
          card.children[14].classList.remove("hidden");
          card.children[16].classList.remove("hidden");
      }
+     //Toggle the visibility of buttons
+     toggleButtonsVisibility(card);
+ }
+
+/**
+ * The function hides and shows various card buttons during the card editing process
+ *
+ * @function toggleButtonsVisibility
+ * @param {Element} card the participant card HTML element
+ * @return {void}
+ */
+ function toggleButtonsVisibility(card) {
+     //Identify card type (player/enemy) and location (list/table)
+     let cardType = card.classList.contains("enemySection") ? "enemy" : "player";
+     let cardLocation = card.classList.contains("clickOnMe") ? "list" : "table";
      //Players and enemies have different button placement
-     let buttonsStartHere = cType === "enemy" ? 15 : 21;
-     //Enable the edit and pick buttons
-     card.children[buttonsStartHere].classList.remove("hidden");
-     //Hide the save, cancel and drop buttons
-     card.children[buttonsStartHere+1].classList.add("hidden");
-     card.children[buttonsStartHere+2].classList.add("hidden");
-     card.children[buttonsStartHere+3].classList.add("hidden");
-     if(cLoc === "list") {
-         card.children[buttonsStartHere+4].classList.remove("hidden");
+     let buttonsStartHere = cardType === "enemy" ? 15 : 21;
+     //Toggle the edit and pick buttons
+     card.children[buttonsStartHere].classList.toggle("hidden");
+     //Toggle the save, cancel and drop buttons
+     card.children[buttonsStartHere+1].classList.toggle("hidden");
+     card.children[buttonsStartHere+2].classList.toggle("hidden");
+     card.children[buttonsStartHere+3].classList.toggle("hidden");
+     if(cardLocation === "list") {
+        card.children[buttonsStartHere+4].classList.toggle("hidden");
      }
+
  }
 
 export {editCard, saveCard, cancelEdit, createCardTemplate};

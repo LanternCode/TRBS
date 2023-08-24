@@ -179,4 +179,15 @@ function experienceUp(player)
     makeRequest("PUT", base_url + "/grantExperience/" + JSON.stringify(player) );
 }
 
-export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp, getSpells};
+/**
+ * This function updates the player's gold in the collection
+ *
+ * @function coin
+ * @param player The player to get paid
+ */
+function coin(player)
+{
+    makeRequest("PUT", base_url + "/payday/" + JSON.stringify(player) );
+}
+
+export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp, getSpells, coin};

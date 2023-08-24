@@ -3,7 +3,7 @@ import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {flipTable, refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {experienceUp} from "./db.js";
+import {coin, experienceUp} from "./db.js";
 import {Status} from "./status.js";
 import {createCardTemplate} from "./card.js";
 
@@ -117,7 +117,7 @@ function startBattle()
 function startNextTurn()
 {
     //check if the battle is over and end it if so, else continue
-    if(!isBattleOver()){
+    if(!isBattleOver()) {
         //Advance all statuses with effects at the end of local turn
         Status.advanceLocalStatuses("end");
 
@@ -128,8 +128,7 @@ function startNextTurn()
         battleOrder.textContent = '';
 
         //Check if this was the last local turn of the global turn
-        if(Settings.localTurn === Settings.participants.length)
-        {
+        if(Settings.localTurn === Settings.participants.length) {
             Settings.localTurn = 0;
             Settings.globalTurn++;
 
@@ -165,10 +164,10 @@ function startNextTurn()
         //This has to be disabled now in case a defeated member was revived
         Settings.participants[Settings.localTurn].isDodging = 0;
 
-        //process the "bomb debuff" status
+        //Process the "bomb debuff" status
         let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
         if(activeOnStartTurnStatuses.includes("bombDebuff")) {
-            //bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
+            //Bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
             let hitCheck = randomSystemRoll(20);
             if(hitCheck > 12) {
                 Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
@@ -184,7 +183,7 @@ function startNextTurn()
                 }
             }
         }
-        //process the "liquid silver" status
+        //Process the "liquid silver" status
         let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
         if(!freeLiquidSilver)
             Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
@@ -195,13 +194,13 @@ function startNextTurn()
             startNextTurn();
         }
 
-        //see if the player is stunned
+        //See if the player is stunned
         let playerStunned = !(Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"stun"}) === false);
 
         //Turn has changed - Advance all statuses with effects at the start of local turn
         Status.advanceLocalStatuses("start");
 
-        //if the player is stunned, skip to the next turn
+        //If the player is stunned, skip to the next turn
         if(playerStunned) {
             startNextTurn();
         }
@@ -242,30 +241,32 @@ function endBattle(winner)
     //Update the battle state description
     newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
 
-    //Hide the next turn button, show the continue to battle button
+    //Hide the next turn button and battle controls, show the continue to battle button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
-
-    //hide the battle controls
     document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
-    //give players xp after the battle
+    //Give players xp and gold after the battle
     let levelUpCall = "\n";
-    if(winner === "p"){
-        for (let player of  Settings.participants.filter(participant => participant.type === "player")) {
-            if(player.health > 0 && player.level !== 10){
-                //match the battle participant to their external definition
-                for(let playerDefinition of Settings.participantsDefinition.filter(p => p.type === "player")) {
+    if (winner === "p") {
+        for (let player of Settings.participants.filter(participant => participant.type === "player")) {
+            if (player.health > 0) {
+                //Match the battle participant to their external definition
+                for (let playerDefinition of Settings.participantsDefinition.filter(p => p.type === "player")) {
                     if(player.name === playerDefinition.name) {
-                        playerDefinition.experience++;
-                        if(playerDefinition.experience >= expRequired(playerDefinition.level))
-                        {
-                            levelUp(playerDefinition);
-                            levelUpCall += `Gracz ${player.name} przeszedł na ${playerDefinition.level} poziom doświadczenia!\n`;
+                        //Award experience if player is not at max level
+                        if(player.level !== 10) {
+                            playerDefinition.experience++;
+                            if(playerDefinition.experience >= expRequired(playerDefinition.level)) {
+                                levelUp(playerDefinition);
+                                levelUpCall += `Gracz ${player.name} przeszedł na ${playerDefinition.level} poziom doświadczenia!\n`;
+                            }
+                            else
+                                experienceUp(player);
                         }
-                        else {
-                            experienceUp(player);
-                        }
+                        //Award gold
+                        playerDefinition.gold++;
+                        coin(playerDefinition);
                     }
                 }
             }
@@ -274,7 +275,7 @@ function endBattle(winner)
 
     refreshCardsInBattle();
 
-    //announce the level-ups
+    //Announce the level-ups
     if(levelUpCall !== "\n")
         newSystemCall(levelUpCall);
 
@@ -291,7 +292,7 @@ function endBattle(winner)
  */
 function isBattleOver()
 {
-    //check if all enemies or all players are down
+    //Check if all enemies or all players are down
     let playersDown = Settings.participants.filter(participant => participant.type === "player").every(p => p.health === 0);
     let enemiesDown = Settings.participants.filter(participant => participant.type === "enemy").every(p => p.health === 0);
 
@@ -350,7 +351,6 @@ function continueToBattle() {
  * @return void
  */
 async function loadDefaultTemplate() {
-
     //Clear the table
     flipTable();
 
@@ -359,8 +359,8 @@ async function loadDefaultTemplate() {
     await Settings.fetchEnemies();
 
     //Load the participants into the definitions
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[1]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[3]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[0]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[2]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[1]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[2]);
