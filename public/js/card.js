@@ -387,8 +387,6 @@ function deleteCard(e)
      let card = e.parentNode;
      //Get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
-     //Get the location
-     let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
      //Construct text elements
      let nameText = document.createElement("h4");
      nameText.innerText = card.children[0].dataset.originalValue + " [" + card.children[8].dataset.originalValue + "]";

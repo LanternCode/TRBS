@@ -128,21 +128,17 @@ function act()
         if(extraAttackUsed)
             Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "extraAttack");
     }
-    else {
-        newSystemCall("Nie wybrano żadnej akcji.");
-    }
+    else newSystemCall("Nie wybrano żadnej akcji.");
 
-    //mark unavailable actions
-    if(Settings.priorityTwo === false)
-    {
+    //Mark unavailable actions
+    if(Settings.priorityTwo === false) {
         priorityTwoActionFlag.classList.add("disabled");
     }
-    if(Settings.priorityThree === false)
-    {
+    if(Settings.priorityThree === false) {
         priorityThreeActionFlag.classList.add("disabled");
     }
 
-    //check if the battle is over
+    //Check if the battle is over
     if(!isBattleOver()) refreshCardsInBattle();
 }
 
@@ -327,8 +323,8 @@ function handleUseItem(target, itemId)
 }
 
 /**
- * This function takes a skill or a spell and a target to use the skill or spell on that target
- * For the ease of development, a Skill or a Spell is names "ability" - its type is established later
+ * This function takes a skill or a spell and a target, and uses the skill or spell on that target
+ * For the ease of development, a Skill or a Spell is named an "ability" - its type is established later
  *
  * @function handleUseSkillSpell
  * @param {Skill|Spell} ability The skill or spell to use
@@ -346,10 +342,12 @@ function handleUseSkillSpell(ability, target)
     //Based on the target, generate the target(s) array
     let participantsAffected = [];
     if (target === "everyone") {
+        //Everyone is the target of this ability
         participantsAffected = Settings.participants;
         newSystemCall("Użycie " + (abilityType === "spell" ? "zaklęcia " : "umiejętności ") + ability.name + " na wszystkich");
     }
     else if (target === "player" || target === "enemy") {
+        //All enemies or all players are the target of this ability
         participantsAffected = Settings.participants.filter(p => p.type === target);
         newSystemCall("Użycie " + (abilityType === "spell" ? "zaklęcia " : "umiejętności ") + ability.name + " na wszyskich " + (target === "player" ? "graczy" : "przeciwników"));
     }
@@ -396,7 +394,6 @@ function handleUseSkillSpell(ability, target)
 
     //Apply the effects only if the ability hits
     if((abilityType === "spell" && spellHitSuccess) || hitMarkSuccess || perfectAttack || (abilityType === "skill" && hitsArray.length === participantsAffected.length)) {
-
         //Critical hits double or increase the power of the ability, check if they happened
         let criticalWeakPoint = casterType === "enemy" ? hitRoll === 100 : false;
         let criticalHit = casterType === "player" ? hitRoll === 20 : hitRoll >= 90;
@@ -431,13 +428,11 @@ function handleUseSkillSpell(ability, target)
                 applyStatuses = true;
                 newSystemCall("Rzut systemu: " + hitRoll + " (Sukces)");
             }
-            else if (abilityType === "skill" && type === "offensive" && hitsArray[i] > p.dodge)
-            {
+            else if (abilityType === "skill" && type === "offensive" && hitsArray[i] > p.dodge) {
                 applyStatuses = true;
                 newSystemCall("Rzut systemu: " + hitsArray[i] + " (Trafienie)");
             }
-            else if (abilityType === "skill" && type === "offensive" && hitsArray[i] === p.dodge)
-            {
+            else if (abilityType === "skill" && type === "offensive" && hitsArray[i] === p.dodge) {
                 applyStatuses = true;
                 abilityPreModifiers.value = Math.floor(abilityPreModifiers.value / 2);
                 newSystemCall("Rzut systemu: " + hitsArray[i] + " (Atak Połowiczny)");
@@ -492,7 +487,8 @@ function handleUseSkillSpell(ability, target)
                     }
                     if(ability.statusTarget === "caster")
                         Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
-                    else Status.applyStatus(p, structuredClone(status[0]));
+                    else
+                        Status.applyStatus(p, structuredClone(status[0]));
                 }
             }
 

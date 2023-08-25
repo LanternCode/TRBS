@@ -49,18 +49,18 @@ function startBattle()
         for (let elem of document.getElementsByClassName("outOfBattleElem"))
             elem.classList.toggle("hidden");
 
-        //show in-battle labels when entering battle
+        //Show in-battle labels when entering battle
         for (let elem of document.getElementsByClassName("inBattleElem"))
             elem.classList.toggle("hidden");
 
-        //hide the edit participant button
+        //Hide the edit participant button
         for (let elem of document.getElementsByClassName("editButton"))
             elem.classList.toggle("hidden");
 
-        //generate the local participants array to be used during the battle
+        //Generate the local participants array to be used during the battle
         Settings.participants = structuredClone(Settings.participantsDefinition);
 
-        //sort the array by speed to establish turn order
+        //Sort the array by speed to establish turn order
         Settings.participants.sort((a, b) => b.speed - a.speed);
 
         //Hide the start battle button and show the next turn button
@@ -87,14 +87,14 @@ function startBattle()
         {
             Settings.participants[i].health = Settings.participants[i].maxHealth;
 
-            //show participants order
+            //Show participants order
             let participantIndicator = document.createElement("li");
             participantIndicator.innerText = Settings.participants[i].name;
             if(i === 0) participantIndicator.classList.add("current");
             battleOrder.appendChild(participantIndicator);
         }
 
-        //hide all sections at the start
+        //Hide all sections at the start
         adjustOptions("reset");
         refreshCardsInBattle();
     }
@@ -359,8 +359,8 @@ async function loadDefaultTemplate() {
     await Settings.fetchEnemies();
 
     //Load the participants into the definitions
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[2]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[1]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers[3]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[1]);
     Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[2]);

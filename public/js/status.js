@@ -265,8 +265,8 @@ class Status {
      * @returns {object} the status, after update
      */
     static applyDefaultValues(status) {
-        //first check the length is specified
-        let lengthDefined = status.length > 0;
+        //First check the length is specified
+        let lengthDefined = status.length > 0 || status.lastUntilCleared;
         if(!lengthDefined) {
             let defaultLengthDef = status.defaultLength > 0;
             if(!defaultLengthDef) {
@@ -274,20 +274,20 @@ class Status {
             }
             else status.length = status.defaultLength;
         }
-        //then check if strength is defined
+        //Then check if strength is defined
         let strengthDefined = status.strength > 0;
         if(!strengthDefined) {
-            //if not, check if default strength source is to be used
+            //If not, check if default strength source is to be used
             let useDefaultStrengthSource = status.useDefaultStrengthSource;
             if(useDefaultStrengthSource) {
-                //use the default strength source
+                //Use the default strength source
                 let pType = Settings.participants[Settings.localTurn].type;
                 let defaultStrSrc = pType === "player" ? "level" : "zone";
                 status.strength = Settings.participants[Settings.localTurn][defaultStrSrc];
-            } //else use default strength
+            } //Else use default strength
             else status.strength = status.defaultStrength;
         }
-        //return the updated status
+        //Return the updated status
         return status;
     }
 
@@ -349,24 +349,24 @@ class Status {
      * @param {object} status the status to apply
      */
     static applyStatus(participant, status) {
-        //before you apply the status, validate it
+        //Before you apply the status, validate it
         let statusValid = Status.validate(status);
         if (!statusValid) return;
-        //check if the target is protected against statuses
+        //Check if the target is protected against statuses
         let activeOnApplyStatusStatuses = Status.getParticipantsPersistentStatuses(participant, "onApplyStatus");
         if(activeOnApplyStatusStatuses.includes("statusResistance")) return;
-        //apply defaultLength and defaultStrength where required
+        //Apply defaultLength and defaultStrength where required
         let statusUpdated = Status.applyDefaultValues(status);
-        //if the status is valid, check that the participant is not already affected by it
+        //If the status is valid, check that the participant is not already affected by it
         let participantAlreadyAffected = Status.isParticipantAffected(participant, statusUpdated);
         if(participantAlreadyAffected) {
-            //if the participant is already affected, fetch the participant's version of the status
+            //If the participant is already affected, fetch the participant's version of the status
             let participantAffectedBy = Status.getParticipantStatus(participant, statusUpdated);
-            //check which status is stronger by comparing their strengths and lengths
+            //Check which status is stronger by comparing their strengths and lengths
             let strongerStatus = Status.compareStatusPower(participantAffectedBy, statusUpdated);
-            //replace the previous status with the new status if it is stronger
+            //Replace the previous status with the new status if it is stronger
             if(statusUpdated === strongerStatus) {
-                //apply the status and any stat modifiers
+                //Apply the status and any stat modifiers
                 Status.replaceParticipantStatus(participant, statusUpdated, strongerStatus);
                 if(strongerStatus.applyStatsAffectedImmediately === true)
                     StatsAffected.applyStatusStatModifiers(participant, strongerStatus);
