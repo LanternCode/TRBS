@@ -693,9 +693,9 @@ function applyShrapnel(healingPower, healTarget) {
 function applyBlindness(attackRoll) {
     let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
     if(activeOnHitStatuses.includes("blind")) {
-        //Blindness reduces the participant's hit chance by D4+1
+        //Blindness reduces the participant's hit chance by D4+1, a roll result cannot be smaller than 1
         let reduction = randomSystemRoll(4)+1;
-        attackRoll = (attackRoll - reduction) < 0 ? 0 : (attackRoll - reduction);
+        attackRoll = (attackRoll - reduction) <= 0 ? 1 : (attackRoll - reduction);
     }
     return attackRoll;
 }
