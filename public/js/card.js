@@ -388,7 +388,7 @@ function deleteCard(e)
      //Get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //Construct text elements
-     let nameText = document.createElement("h4");
+     let nameText = document.createElement("h3");
      nameText.innerText = card.children[0].dataset.originalValue + " [" + card.children[8].dataset.originalValue + "]";
      let healthText = document.createElement("h4");
      healthText.innerText = card.children[2].dataset.originalValue;
