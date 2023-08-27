@@ -41,7 +41,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {},
+                    inventory: {},
                     skillsOwned: {"3": 0, "10": 0},
                     spellsOwned: {"7": 0, "8": 0},
                     level: 1,
@@ -59,7 +59,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    inventory: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
                     skillsOwned: {"4": 0, "0": 0, "1": 0, "6": 0},
                     spellsOwned: {"5": 0, "6": 0},
                     level: 1,
@@ -77,7 +77,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {},
+                    inventory: {},
                     skillsOwned: {"5": 0, "2": 0, "1": 0},
                     spellsOwned: {"3": 0, "4": 0},
                     level: 1,
@@ -95,7 +95,7 @@ async function createPlayers(client) {
                     experience: 0,
                     isDodging: 0,
                     type: "player",
-                    itemsOwned: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+                    inventory: {"1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
                     skillsOwned: {"6": 0, "7": 0, "8": 0},
                     spellsOwned: {"0": 0, "1": 0, "2": 0},
                     level: 1,
@@ -124,7 +124,7 @@ async function createEnemies(client) {
         const enemyDocuments =
             [
                 {
-                    "name": "Przeciwnik 1",
+                    "name": "Rekin Biznesu",
                     "isDodging": 0,
                     "type": "enemy",
                     "subtype": "human",
@@ -137,17 +137,23 @@ async function createEnemies(client) {
                     "maxHealth": 54,
                     "skillsOwned": {"7": 0, "10": 0},
                     "spellsOwned": {},
-                    "itemsOwned": {
+                    "inventory": {
                         "1": 0,
                         "2": 1,
                         "3": 1,
                         "4": 0,
                         "5": 1
                     },
-                    "statusesApplied": []
+                    "statusesApplied": [],
+                    "lootTable": {
+                        "16": 1,
+                        "17": 10,
+                        "18": 70,
+                        "19": 100
+                    }
                 },
                 {
-                    "name": "Przeciwnik 2",
+                    "name": "Nieumarły",
                     "isDodging": 0,
                     "type": "enemy",
                     "subtype": "monster",
@@ -160,10 +166,14 @@ async function createEnemies(client) {
                     "maxHealth": 59,
                     "skillsOwned": {"8": 0, "2": 0, "6": 0},
                     "spellsOwned": {},
-                    "statusesApplied": []
+                    "statusesApplied": [],
+                    "lootTable": {
+                        "20": 50,
+                        "21": 100
+                    }
                 },
                 {
-                    "name": "Przeciwnik 3",
+                    "name": "Zombie Podróżnik",
                     "isDodging": 0,
                     "type": "enemy",
                     "subtype": "monster",
@@ -176,10 +186,14 @@ async function createEnemies(client) {
                     "maxHealth": 55,
                     "skillsOwned": {"9": 0, "1": 0},
                     "spellsOwned": {},
-                    "statusesApplied": []
+                    "statusesApplied": [],
+                    "lootTable": {
+                        "23": 7,
+                        "22": 100
+                    }
                 },
                 {
-                    "name": "Przeciwnik 4",
+                    "name": "Ożywieniec",
                     "isDodging": 0,
                     "type": "enemy",
                     "subtype": "monster",
@@ -190,7 +204,11 @@ async function createEnemies(client) {
                     "zone": 1,
                     "armor": 0,
                     "maxHealth": 50,
-                    "statusesApplied": []
+                    "statusesApplied": [],
+                    "lootTable": {
+                        "4": 100,
+                        "24": 100
+                    }
                 },
                 {
                     "name": "Przeciwnik 5",
@@ -204,7 +222,7 @@ async function createEnemies(client) {
                     "zone": 6,
                     "armor": 0,
                     "maxHealth": 84,
-                    "itemsOwned": {
+                    "inventory": {
                         "1": 1,
                         "2": 0,
                         "3": 0,
@@ -225,7 +243,7 @@ async function createEnemies(client) {
                     "zone": 4,
                     "armor": 3,
                     "maxHealth": 53,
-                    "itemsOwned": {
+                    "inventory": {
                         "1": 0,
                         "2": 1,
                         "3": 0,
@@ -260,7 +278,7 @@ async function createEnemies(client) {
                     "zone": 10,
                     "armor": 1,
                     "maxHealth": 53,
-                    "itemsOwned": {
+                    "inventory": {
                         "1": 1,
                         "2": 0,
                         "3": 1,
@@ -433,7 +451,62 @@ async function createItems(client) {
                 valueType: "",
                 value: 0,
                 statusesApplied: []
-            }
+            },
+            {
+                uiid: 16,
+                displayName: "Piła Rekina (I)",
+                type: "trophy",
+                subtype: "tier_1"
+            },
+            {
+                uiid: 17,
+                displayName: "Płetwa Rekina (II)",
+                type: "trophy",
+                subtype: "tier_2"
+            },
+            {
+                uiid: 18,
+                displayName: "Ząb Rekina",
+                type: "common",
+                value: 50
+            },
+            {
+                uiid: 19,
+                displayName: "Mały Niebieski Kamień Magiczny",
+                type: "crafting",
+                subtype: "base"
+            },
+            {
+                uiid: 20,
+                displayName: "Ręka Nieboszczyka (II)",
+                type: "trophy",
+                subtype: "tier_2"
+            },
+            {
+                uiid: 21,
+                displayName: "Mały Zielony Kamień Magiczny",
+                type: "crafting",
+                subtype: "base"
+            },
+            {
+                uiid: 22,
+                displayName: "Mały Żółty Kamień Magiczny",
+                type: "crafting",
+                subtype: "base"
+            },
+            {
+                uiid: 23,
+                displayName: "Bandana Podróżnika",
+                type: "equipment",
+                subtype: "helmet",
+                value: 220
+            },
+            {
+                uiid: 24,
+                displayName: "Mały Czerwony Kamień Magiczny",
+                type: "crafting",
+                subtype: "base"
+            },
         ];
         await collection.insertMany(itemDocuments);
         console.log("Successfully migrated: items");

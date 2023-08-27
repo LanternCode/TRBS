@@ -144,3 +144,16 @@ app.put('/payday/:player', async (req, res, next) => {
     );
     res.sendStatus("200");
 });
+
+/**
+ * API Call - Increase player gold by 1 (called after battle ends with player victory)
+ */
+app.put('/updateInventory/:player', async (req, res, next) => {
+    let participant = JSON.parse(req.params.player);
+    participant._id = new ObjectId(participant._id);
+    await mc.db("TRBS").collection("player").updateOne(
+        { "_id" : participant._id },
+        { $set: {"inventory": (participant.inventory)} }
+    );
+    res.sendStatus("200");
+});

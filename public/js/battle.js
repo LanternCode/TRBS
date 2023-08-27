@@ -3,7 +3,7 @@ import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {flipTable, refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {coin, experienceUp} from "./db.js";
+import {coin, experienceUp, paydayII} from "./db.js";
 import {Status} from "./status.js";
 import {createCardTemplate} from "./card.js";
 
@@ -241,14 +241,15 @@ function endBattle(winner)
     //Update the battle state description
     newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
 
-    //Hide the next turn button and battle controls, show the continue to battle button
+    //Hide the next turn button and battle controls, show the "continue to battle" button
     document.getElementById("nextTurnButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
     document.getElementById("sideSection--battleControls").classList.toggle("hidden");
 
-    //Give players xp and gold after the battle
+    //Give players xp, gold and items after the battle
     let levelUpCall = "\n";
     if (winner === "p") {
+        //Award gold and xp to each alive player individually
         for (let player of Settings.participants.filter(participant => participant.type === "player")) {
             if (player.health > 0) {
                 //Match the battle participant to their external definition
@@ -269,6 +270,44 @@ function endBattle(winner)
                         coin(playerDefinition);
                     }
                 }
+            }
+        }
+        //Award items to a random living players - first randomise a winner
+        let alivePlayers = Settings.participants.filter(p => p.type === "player" && p.health > 0);
+        let itemsWinner = alivePlayers.length > 1 ? alivePlayers[randomSystemRoll(alivePlayers.length)-1] : alivePlayers[0];
+        let itemsWinnerDefinitionArray = Settings.participantsDefinition.filter(p => p.type === "player" && p.name === itemsWinner.name);
+        let itemsWinnerDef = itemsWinnerDefinitionArray.length > 0 ? itemsWinnerDefinitionArray[0] : "none";
+        if(itemsWinnerDef !== "none") {
+            //Fetch the loot tables of each opponent
+            let lootTables = Settings.participants.filter(p => p.type === "enemy" && p.hasOwnProperty("lootTable")).map(p => p.lootTable);
+            //Not all enemies have a loot table, see if any were collected
+            if(lootTables.length > 0) {
+                //Make a roll between 1-100 to compare with each loot table's loot value
+                let itemsRoll = 1;//randomSystemRoll(100);
+                //Announce the items roll result
+                newSystemCall(itemsWinnerDef.name + " przeszukuje pokonanych przeciwników: " + itemsRoll);
+                //A loot table is made of entries, check them one by one
+                lootTables.forEach(lootTable => {
+                    Object.entries(lootTable).forEach(([key, val]) => {
+                        //Compare the roll with the loot requirements
+                        if(itemsRoll <= val) {
+                            //Define the item if it does not exist, then give 1 to the player
+                            if (!itemsWinnerDef.inventory.hasOwnProperty(key)) {
+                                itemsWinnerDef.inventory[key] = 0;
+                            }
+                            itemsWinnerDef.inventory[key]++;
+                            //Fetch the item's name from the definition to list it in the history call
+                            let itemNameArray = Settings.items.filter(i => i.uiid === parseInt(key));
+                            if(itemNameArray.length > 0) {
+                                let itemName = itemNameArray[0].displayName;
+                                newSystemCall("Znaleziono przedmiot: " + itemName + "!");
+                            }
+                            else newSystemCall("Znaleziono nieznany przedmiot o kluczu " + key);
+                        }
+                    });
+                });
+                //Save the new items in the database
+                paydayII(itemsWinnerDef);
             }
         }
     }

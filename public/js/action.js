@@ -312,7 +312,7 @@ function handleUseItem(target, itemId)
 
     //Reduce participant's item count
     if(itemUsed) {
-        Settings.participants[Settings.localTurn].itemsOwned[itemId] -= 1;
+        Settings.participants[Settings.localTurn].inventory[itemId] -= 1;
         Settings.priorityThree = false;
     }
 

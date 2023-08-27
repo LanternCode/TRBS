@@ -77,7 +77,7 @@ function generateNewEnemy()
     }
     enemy.maxHealth = enemy.health;
 
-    if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
+    if(enemy.subtype === "human") enemy.inventory = generateRandomItems();
 
     return enemy;
 }
@@ -102,7 +102,7 @@ function generateNewPlayer()
         attack: 32,
         dodge: 45,
         experience: 0,
-        itemsOwned: generateRandomItems(),
+        inventory: generateRandomItems(),
         skillsOwned: {"3": 0},
         level: 1,
         armor: 2,

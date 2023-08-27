@@ -38,7 +38,7 @@ nextTurnButton.addEventListener("click", () => { startNextTurn() }, false);
  * @property {string} type - Participant type (enemy/player)
  * @property {string} [subtype] - Enemy type (human/monster)
  * @property {number} [experience] - Participant's xp count, only for players
- * @property {Object} [itemsOwned] - Participant's items, only for players and human enemies
+ * @property {Object} [inventory] - Participant's items, only for players and human enemies
  * @property {Object} skillsOwned - Participant's skills/spells
  * @property {number} [level] - Participant's level, only for players
  * @property {number} armor - Participant's armor rating

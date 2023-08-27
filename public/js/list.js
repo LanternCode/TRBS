@@ -411,10 +411,10 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz przedmiot:";
             //Check that this participant has access to items
-            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "itemsOwned")) return;
-            if(Object.keys(Settings.participants[Settings.localTurn].itemsOwned).length < 1) return;
+            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "inventory")) return;
+            if(Object.keys(Settings.participants[Settings.localTurn].inventory).length < 1) return;
             //Then insert all list items
-            for (let itanz of Object.entries(Settings.participants[Settings.localTurn].itemsOwned))
+            for (let itanz of Object.entries(Settings.participants[Settings.localTurn].inventory))
             {
                 let itemId = parseInt(itanz[0]);
                 let itemCount = itanz[1];

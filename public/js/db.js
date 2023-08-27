@@ -190,4 +190,9 @@ function coin(player)
     makeRequest("PUT", base_url + "/payday/" + JSON.stringify(player) );
 }
 
-export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp, getSpells, coin};
+function paydayII(player)
+{
+    makeRequest("PUT", base_url + "/updateInventory/" + JSON.stringify(player) );
+}
+
+export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, getStatuses, insertParticipant, dropParticipant, updateParticipant, experienceUp, getSpells, coin, paydayII};
