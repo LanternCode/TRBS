@@ -15,7 +15,6 @@
  * @property {string} hitMark - a threshold at which the skill hits (using a d20 roll)
  */
 class Skill {
-    //class constructor
     constructor(usid) {
         this.usid = usid;
     }

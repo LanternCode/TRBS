@@ -15,9 +15,10 @@ import {createCardTemplate} from "./card.js";
  */
 async function addCardInit(type)
 {
-    let success = await initCardPicker(type);
-    if(success) displayCardPicker(type);
-    // .then((result) => { if (result) displayCardPicker(type) } );
+    let success = false;
+    success = await initCardPicker(type);
+    if (success)
+        displayCardPicker(type);
 }
 
 /**
@@ -26,7 +27,7 @@ async function addCardInit(type)
  * @generator
  * @function initCardPicker
  * @param {string} type participant's type
- * @return {void}
+ * @return {boolean}
  */
 async function initCardPicker(type)
 {
@@ -94,7 +95,7 @@ async function displayCardPicker(type)
 function closePickingOverlay(event) {
     event.stopPropagation();
     event.currentTarget.classList.add("hidden");
-    event.currentTarget.removeChild( event.currentTarget.children[0]);
+    event.currentTarget.removeChild(event.currentTarget.children[0]);
     event.currentTarget.removeEventListener("click", closePickingOverlay);
 }
 
@@ -124,7 +125,7 @@ async function insertCard(type, newParticipant, location = "table")
     let card = createCardTemplate(type, newParticipant);
     card.id = "participant-" + (Settings.participantsDefinition.length-1);
 
-    //append the card to the list or the correct side of the board
+    //Append the card to the list or the correct side of the board
     if(location === "list") {
         document.getElementById("listSection").appendChild(card);
     }
@@ -146,7 +147,7 @@ async function insertCard(type, newParticipant, location = "table")
  */
 async function refreshCardList(cardType, firstUse = true)
 {
-    //fetch or create the card picker selection list
+    //Fetch or create the card picker selection list
     let cardList = (cardType === "player" ? Settings.availablePlayers : Settings.availableEnemies);
     let selectSection;
     if(firstUse)
@@ -156,11 +157,11 @@ async function refreshCardList(cardType, firstUse = true)
         selectSection.innerHTML = "";
     }
 
-    //create the settings card and append it at the end
+    //Create the settings card and append it at the end
     let settings = await createSettingsCard(cardType);
     selectSection.appendChild(settings);
 
-    //insert each available participant into the list
+    //Insert each available participant into the list
     for (let i = 0; i < cardList.length; i++) {
         let index = i;
         let option = createCardTemplate(cardType, cardList[i]);

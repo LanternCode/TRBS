@@ -3,7 +3,7 @@ import {expRequired, levelUp} from "./level.js";
 import {adjustOptions} from "./list.js";
 import {flipTable, refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
-import {coin, experienceUp, paydayII} from "./db.js";
+import {payday, experienceUp, paydayII} from "./db.js";
 import {Status} from "./status.js";
 import {createCardTemplate} from "./card.js";
 
@@ -114,16 +114,14 @@ function startBattle()
  * @function startNextTurn
  * @return {void}
  */
-function startNextTurn()
-{
-    //check if the battle is over and end it if so, else continue
+function startNextTurn() {
+    //Check if the battle is over and end it if so, else continue
     if(!isBattleOver()) {
         //Advance all statuses with effects at the end of local turn
         Status.advanceLocalStatuses("end");
 
-        //Update the local turn counter
+        //Update the local turn counter and the battle order indicator
         Settings.localTurn++;
-
         let battleOrder = document.getElementById("battleOrder");
         battleOrder.textContent = '';
 
@@ -152,11 +150,12 @@ function startNextTurn()
             Status.advanceGlobalStatuses();
         }
 
+        //Update the battle order indicator
         for (let i = 0; i < Settings.participants.length; ++i) {
-            //Update the battle order indicator
             let participantIndicator = document.createElement("li");
             participantIndicator.innerText = Settings.participants[i].name;
-            if(i === Settings.localTurn) participantIndicator.classList.add("current");
+            if(i === Settings.localTurn)
+                participantIndicator.classList.add("current");
             battleOrder.appendChild(participantIndicator);
         }
 
@@ -165,30 +164,12 @@ function startNextTurn()
         Settings.participants[Settings.localTurn].isDodging = 0;
 
         //Process the "bomb debuff" status
-        let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
-        if(activeOnStartTurnStatuses.includes("bombDebuff")) {
-            //Bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
-            let hitCheck = randomSystemRoll(20);
-            if(hitCheck > 12) {
-                Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
-                newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");
-            }
-            else {
-                let bombStatusLength = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
-                Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "bombDebuff");
-                if(bombStatusLength <= 1) {
-                    //the length will have dropped to 0 - kill the player
-                    Settings.participants[Settings.localTurn].health = 0;
-                    newSystemCall(Settings.participants[Settings.localTurn].name + " WYBUCHŁ! KABOOM!");
-                }
-            }
-        }
-        //Process the "liquid silver" status
-        let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
-        if(!freeLiquidSilver)
-            Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
+        applyBombDebuff();
 
-        //Check if the participant is alive, if not, void all their non-special statuses and start next turn
+        //Process the "liquid silver" status
+        applyLiquidSilver();
+
+        //Check if the participant is alive, if not, void all their voidable statuses and start next turn
         if(Settings.participants[Settings.localTurn].health === 0) {
             Status.voidParticipantStatuses(Settings.participants[Settings.localTurn]);
             startNextTurn();
@@ -222,6 +203,7 @@ function startNextTurn()
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
 
+        //Refresh cards on the table to reflect possible status changes
         refreshCardsInBattle();
     }
 }
@@ -267,7 +249,7 @@ function endBattle(winner)
                         }
                         //Award gold
                         playerDefinition.gold++;
-                        coin(playerDefinition);
+                        payday(playerDefinition);
                     }
                 }
             }
@@ -283,7 +265,7 @@ function endBattle(winner)
             //Not all enemies have a loot table, see if any were collected
             if(lootTables.length > 0) {
                 //Make a roll between 1-100 to compare with each loot table's loot value
-                let itemsRoll = 1;//randomSystemRoll(100);
+                let itemsRoll = randomSystemRoll(100);
                 //Announce the items roll result
                 newSystemCall(itemsWinnerDef.name + " przeszukuje pokonanych przeciwników: " + itemsRoll);
                 //A loot table is made of entries, check them one by one
@@ -312,12 +294,14 @@ function endBattle(winner)
         }
     }
 
+    //Refresh the cards to show the final state of the battle as the summary
     refreshCardsInBattle();
 
     //Announce the level-ups
     if(levelUpCall !== "\n")
         newSystemCall(levelUpCall);
 
+    //Display participant properties that appear outside of battle
     for (let elem of document.getElementsByClassName("displayAfterBattle")) {
         elem.classList.remove("hidden");
     }
@@ -353,33 +337,33 @@ function isBattleOver()
  * @return {void}
  */
 function continueToBattle() {
-    //enable the buttons that add new participants
+    //Enable the buttons that add new participants
     document.getElementById("enemyAddSection").classList.toggle("hidden");
     document.getElementById("playerAddSection").classList.toggle("hidden");
     for (let elem of document.getElementsByClassName("createCardButton"))
         elem.classList.toggle("hidden");
 
-    //show the edit participant button
+    //Show the edit participant button
     for (let elem of document.getElementsByClassName("editButton"))
         elem.classList.toggle("hidden");
 
-    //show out-of-battle labels when exiting battle
+    //Show out-of-battle labels when exiting battle
     for (let elem of document.getElementsByClassName("outOfBattleElem"))
         elem.classList.remove("hidden");
 
-    //hide in-battle labels when exiting battle
+    //Hide in-battle labels when exiting battle
     for (let elem of document.getElementsByClassName("inBattleElem"))
         elem.classList.toggle("hidden");
 
-    //hide the "continue to battle" button, show the start battle button
+    //Hide the "continue to battle" button, show the start battle button
     document.getElementById("startBattleButton").classList.toggle("hidden");
     document.getElementById("continueToBattleButton").classList.toggle("hidden");
 
-    //clear the battle history
+    //Clear the battle history
     document.getElementById("systemCall").textContent = '';
     document.getElementById("battleOrder").textContent = '';
 
-    //refresh cards to definitions
+    //Refresh cards to definitions
     refreshCardsInBattle(true);
 }
 
@@ -424,6 +408,46 @@ async function loadDefaultTemplate() {
     //Set the counters to the default template values
     Settings.playerCount = 2;
     Settings.enemyCount = 3;
+}
+
+/**
+ * The bomb debuff status needs to be checked at the start of the player's turn
+ * If the player fails a d20 roll 3 times, they explode!
+ *
+ * @function applyBombDebuff
+ * @return {void}
+ */
+function applyBombDebuff() {
+    let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
+    if(activeOnStartTurnStatuses.includes("bombDebuff")) {
+        //Bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
+        let hitCheck = randomSystemRoll(20);
+        if(hitCheck > 12) {
+            Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
+            newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");
+        }
+        else {
+            let bombStatusLength = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
+            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "bombDebuff");
+            if(bombStatusLength <= 1) {
+                //the length will have dropped to 0 - kill the player
+                Settings.participants[Settings.localTurn].health = 0;
+                newSystemCall(Settings.participants[Settings.localTurn].name + " WYBUCHŁ! KABOOM!");
+            }
+        }
+    }
+}
+
+/**
+ * Liquid Silver can be used for free if it was used last turn
+ *
+ * @function applyLiquidSilver
+ * @return {void}
+ */
+function applyLiquidSilver() {
+    let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
+    if(!freeLiquidSilver)
+        Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
 }
 
 export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn, loadDefaultTemplate};

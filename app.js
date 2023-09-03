@@ -146,7 +146,7 @@ app.put('/payday/:player', async (req, res, next) => {
 });
 
 /**
- * API Call - Increase player gold by 1 (called after battle ends with player victory)
+ * API Call - Updates a participant's (player) inventory
  */
 app.put('/updateInventory/:player', async (req, res, next) => {
     let participant = JSON.parse(req.params.player);

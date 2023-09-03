@@ -15,7 +15,6 @@
  * @property {string} hitMark - a threshold at which the spell hits (using a d20 roll)
  */
 class Spell {
-    //class constructor
     constructor(uspid) {
         this.uspid = uspid;
     }
