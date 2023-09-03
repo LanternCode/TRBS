@@ -382,11 +382,11 @@ async function loadDefaultTemplate() {
     await Settings.fetchEnemies();
 
     //Load the participants into the definitions
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers.filter(p => p.name === "Astrid")[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availablePlayers.filter(p => p.name === "Antonio")[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[0]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[1]);
-    Settings.participantsDefinition = Settings.participantsDefinition.concat(Settings.availableEnemies[2]);
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(structuredClone(Settings.availablePlayers.filter(p => p.name === "Astrid")[0]));
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(structuredClone(Settings.availablePlayers.filter(p => p.name === "Antonio")[0]));
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(structuredClone(Settings.availableEnemies[0]));
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(structuredClone(Settings.availableEnemies[1]));
+    Settings.participantsDefinition = Settings.participantsDefinition.concat(structuredClone(Settings.availableEnemies[2]));
 
     //Construct and append the cards
     let defaultCardOne = createCardTemplate("player", Settings.participantsDefinition[0]);

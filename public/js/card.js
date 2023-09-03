@@ -188,35 +188,36 @@ function createCardTemplate(type, newParticipant)
  */
 function deleteCard(e)
 {
+    //Stop editing the card - it's values will be reverted to textual form
+    cancelEdit(e);
     //Get the card element
     let card = e.parentNode;
     //Figure out the card type
     let type = card.classList.contains("enemySection") ? "enemy" : "player";
     //Figure out the card location
     let location = card.classList.contains("clickOnMe") ? "list" : "table";
-    //Get the participant id
-    let pId = card.id.split('-')[1];
     //Remove the participant card from the table
     let sectionId = location === "table" ? (type + "Slots") : "listSection";
     let section = document.getElementById(sectionId);
     section.removeChild(card);
     //Remove the participant from the participants array and reduce the counter if removing from the table
     let arrayOfChoice = location === "table" ? Settings.participantsDefinition : (type === "player" ? Settings.availablePlayers : Settings.availableEnemies);
+    //Find the participant in the array
+    let pName = card.children[0].textContent.split('[')[0].trim();
+    let pId = arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.name === pName)[0]);
     if(location === "list") {
         dropParticipant(arrayOfChoice[pId], type);
         arrayOfChoice.splice(pId, 1);
     }
     else if(type === "player") {
-     let pName = card.children[0].textContent.split('[')[0].trim();
-     arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1)[0];
-     if(location === "table")
-         Settings.playerCount--;
+        arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "player" && p.name === pName).pop()), 1);
+        if(location === "table")
+            Settings.playerCount--;
     }
     else {
-     let pName = card.children[0].textContent.split('[')[0].trim();
-     arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
-     if(location === "table")
-         Settings.enemyCount--;
+        arrayOfChoice.splice(arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.type === "enemy" && p.name === pName).pop()), 1);
+        if(location === "table")
+            Settings.enemyCount--;
     }
 }
 
@@ -304,47 +305,29 @@ function deleteCard(e)
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
      //Get the location
      let cLoc = card.classList.contains("clickOnMe") ? "list" : "table";
-     //Get the new values
-     let newName = card.children[0].value;
-     let newHealth = card.children[2].value;
-     let newSpeed = card.children[4].value;
-     let newAttack = card.children[6].value;
-     let newDodge = card.children[8].value;
-     let newArmor = card.children[10].value;
-     let newNameWithDodge = newName + " [" + newDodge + "]";
-     //Construct text elements
-     let nameText = document.createElement("h3");
-     nameText.innerText = newNameWithDodge;
-     let healthText = document.createElement("h4");
-     healthText.innerText = newHealth;
-     let speedText = document.createElement("h4");
-     speedText.innerText = newSpeed;
-     let attackText = document.createElement("h4");
-     attackText.innerText = newAttack;
-     let dodgeText = document.createElement("h4");
-     dodgeText.innerText = newDodge;
-     dodgeText.classList.add("outOfBattleElem");
-     let armorText = document.createElement("h4");
-     armorText.innerText = newArmor;
-     //Replace the form elements with text
-     card.replaceChild(nameText, card.children[0]);
-     card.replaceChild(healthText, card.children[2]);
-     card.replaceChild(speedText, card.children[4]);
-     card.replaceChild(attackText, card.children[6]);
-     card.replaceChild(dodgeText, card.children[8]);
-     card.replaceChild(armorText, card.children[10]);
-     //Get the participant id
-     let pId = card.id.split('-')[1];
+     //Get the new values and re-construct common card elements
+     let cardValues = [];
+     let nameText = card.children[0].value;
+     cardValues['nameText'] = nameText + " [" + card.children[8].value + "]";
+     cardValues['healthText'] = card.children[2].value;
+     cardValues['speedText'] = card.children[4].value;
+     cardValues['attackText'] = card.children[6].value;
+     cardValues['dodgeText'] = card.children[8].value;
+     cardValues['armorText'] = card.children[10].value;
+     ReconstructCommonCardElements(card, cardValues);
      //Choose the array to update
      let arrayOfChoice = cLoc === "list" ? (cType === "player" ? Settings.availablePlayers : Settings.availableEnemies) : Settings.participantsDefinition;
+     //Find the participant in the array
+     let pName = card.children[0].textContent.split('[')[0].trim();
+     let pId = arrayOfChoice.indexOf(arrayOfChoice.filter(p => p.name === pName)[0]);
      //Update the details in the participants array
-     arrayOfChoice[pId].name = newName;
-     arrayOfChoice[pId].maxHealth = parseInt(newHealth);
-     arrayOfChoice[pId].health = parseInt(newHealth);
-     arrayOfChoice[pId].speed = parseInt(newSpeed);
-     arrayOfChoice[pId].attack = parseInt(newAttack);
-     arrayOfChoice[pId].dodge = parseInt(newDodge);
-     arrayOfChoice[pId].armor = parseInt(newArmor);
+     arrayOfChoice[pId].name = nameText;
+     arrayOfChoice[pId].maxHealth = parseInt(cardValues['healthText']);
+     arrayOfChoice[pId].health = parseInt(cardValues['healthText']);
+     arrayOfChoice[pId].speed = parseInt(cardValues['speedText']);
+     arrayOfChoice[pId].attack = parseInt(cardValues['attackText']);
+     arrayOfChoice[pId].dodge = parseInt(cardValues['dodgeText']);
+     arrayOfChoice[pId].armor = parseInt(cardValues['armorText']);
      //Players and enemies may have dedicated elements only they can access
      if(cType === "enemy") {
          //Zone property
@@ -387,27 +370,15 @@ function deleteCard(e)
      let card = e.parentNode;
      //Get the card type
      let cType = card.classList.contains("enemySection") ? "enemy" : "player";
-     //Construct text elements
-     let nameText = document.createElement("h3");
-     nameText.innerText = card.children[0].dataset.originalValue + " [" + card.children[8].dataset.originalValue + "]";
-     let healthText = document.createElement("h4");
-     healthText.innerText = card.children[2].dataset.originalValue;
-     let speedText = document.createElement("h4");
-     speedText.innerText = card.children[4].dataset.originalValue;
-     let attackText = document.createElement("h4");
-     attackText.innerText = card.children[6].dataset.originalValue;
-     let dodgeText = document.createElement("h4");
-     dodgeText.innerText = card.children[8].dataset.originalValue;
-     dodgeText.classList.add("outOfBattleElem");
-     let armorText = document.createElement("h4");
-     armorText.innerText = card.children[10].dataset.originalValue;
-     //Replace the form elements with text
-     card.replaceChild(nameText, card.children[0]);
-     card.replaceChild(healthText, card.children[2]);
-     card.replaceChild(speedText, card.children[4]);
-     card.replaceChild(attackText, card.children[6]);
-     card.replaceChild(dodgeText, card.children[8]);
-     card.replaceChild(armorText, card.children[10]);
+     //Re-construct common card elements
+     let cardValues = [];
+     cardValues['nameText'] = card.children[0].dataset.originalValue + " [" + card.children[8].dataset.originalValue + "]";
+     cardValues['healthText'] = card.children[2].dataset.originalValue;
+     cardValues['speedText'] = card.children[4].dataset.originalValue;
+     cardValues['attackText'] = card.children[6].dataset.originalValue;
+     cardValues['dodgeText'] = card.children[8].dataset.originalValue;
+     cardValues['armorText'] = card.children[10].dataset.originalValue;
+     ReconstructCommonCardElements(card, cardValues);
      //Players and enemies may have dedicated elements only they can access
      if(cType === "enemy"){
          //Zone property
@@ -453,6 +424,36 @@ function deleteCard(e)
         card.children[buttonsStartHere+4].classList.toggle("hidden");
      }
 
+ }
+
+/**
+ *
+ * @function ReconstructCommonCardElements
+ * @param card
+ * @param cardValues
+ */
+ function ReconstructCommonCardElements(card, cardValues) {
+     //Construct text elements
+     let nameText = document.createElement("h3");
+     nameText.innerText = cardValues['nameText'];
+     let healthText = document.createElement("h4");
+     healthText.innerText = cardValues['healthText'];
+     let speedText = document.createElement("h4");
+     speedText.innerText = cardValues['speedText'];
+     let attackText = document.createElement("h4");
+     attackText.innerText = cardValues['attackText'];
+     let dodgeText = document.createElement("h4");
+     dodgeText.innerText = cardValues['dodgeText'];
+     dodgeText.classList.add("outOfBattleElem");
+     let armorText = document.createElement("h4");
+     armorText.innerText = cardValues['armorText'];
+     //Replace the form elements with text
+     card.replaceChild(nameText, card.children[0]);
+     card.replaceChild(healthText, card.children[2]);
+     card.replaceChild(speedText, card.children[4]);
+     card.replaceChild(attackText, card.children[6]);
+     card.replaceChild(dodgeText, card.children[8]);
+     card.replaceChild(armorText, card.children[10]);
  }
 
 export {editCard, saveCard, cancelEdit, createCardTemplate};
