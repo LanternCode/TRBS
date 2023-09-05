@@ -1,4 +1,4 @@
-import {endBattle, isBattleOver} from "./battle.js";
+import {endBattle, isBattleOver, startNextTurn} from "./battle.js";
 import {filterBySubtype} from "./list.js";
 import {refreshCardsInBattle} from "./table.js";
 import {Settings} from "./settings.js";
@@ -105,11 +105,47 @@ function act()
             }
             case "escape":
             {
+                //Both priorities need to be clear to initiate escape
+                if(!Settings.priorityTwo || !Settings.priorityThree) {
+                    newSystemCall( "Ucieczka z walki wymaga poświęcenia całej tury!");
+                    break;
+                }
+
                 //The instant escape status ignores the usual escape check
                 let activeOnEscapeStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onEscape");
                 let instantEscape = false;
                 if(activeOnEscapeStatuses.includes("instantEscape"))
                     instantEscape = true;
+
+                //Only players and human-type enemies can escape, monsters need a special ability to do this (will usually grant them instantEscape status)
+                let initiator = Settings.participants[Settings.localTurn];
+                let initiatorType = initiator.type;
+                if(initiatorType === "enemy" && initiator.subtype !== "human" && !instantEscape) {
+                    newSystemCall( "Potwory nie uciekają z walk!");
+                    break;
+                }
+
+                //Fetch the speed of the escape action initiator and the fastest opponent
+                let initiatorSpeed = initiator.speed;
+                let reverseType = initiatorType === "player" ? "enemy" : "player";
+                let highestOpponentSpeed = Math.max.apply(null, Settings.participants.filter(p => p.type === reverseType).map(function (p) {return p.speed; }));
+
+                //Make escape rolls and add the speed
+                let escapeRoll = handleSystemRoll('d100') + initiatorSpeed;
+                let preventEscapeRoll = handleSystemRoll('d100') + highestOpponentSpeed;
+
+                if(escapeRoll > preventEscapeRoll || instantEscape) {
+                    if(instantEscape)
+                        newSystemCall(initiator.name + " ucieka z walki aż się za nim kurzy! Ucieczka zakończona sukcesem!");
+                    else newSystemCall(initiator.name + " ucieka z walki z wynikiem " + escapeRoll + ". Wynik drugiej strony to " + preventEscapeRoll + ". Ucieczka zakończona sukcesem!");
+
+                    //End the battle
+                    endBattle(initiatorType === "player" ? "playersEscaped" : "enemiesEscaped");
+                }
+                else {
+                    newSystemCall(initiator.name + " ucieka z walki z wynikiem " + escapeRoll + ". Wynik drugiej strony to " + preventEscapeRoll + ". Ucieczka się nie powiodła.");
+                    startNextTurn();
+                }
 
                 break;
             }

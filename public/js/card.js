@@ -427,10 +427,12 @@ function deleteCard(e)
  }
 
 /**
+ * The function reconstructs the card with the given values
  *
  * @function ReconstructCommonCardElements
- * @param card
- * @param cardValues
+ * @param {Element} card the HTML card section
+ * @param {array} cardValues an array with the new values
+ * @return {void}
  */
  function ReconstructCommonCardElements(card, cardValues) {
      //Construct text elements

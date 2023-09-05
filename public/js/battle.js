@@ -212,7 +212,7 @@ function startNextTurn() {
  * This function ends the battle
  *
  * @function endBattle
- * @param {string} winner - a char "p" or "e" that identifies which side won the battle
+ * @param {string} winner - a char "p" or "e" that identifies which side won the battle, "playersEscaped" or "enemiesEscaped" handles escape from battle
  * @return {void}
  */
 function endBattle(winner)
@@ -221,7 +221,20 @@ function endBattle(winner)
     document.getElementById("nowActsDesc").innerText = "-";
 
     //Update the battle state description
-    newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
+    switch(winner) {
+        case "p":
+        case "e":
+        {
+            newSystemCall("Walka zakończona zwycięstwem " + (winner === "e" ? "Przeciwników!" : "Graczy!"));
+            break;
+        }
+        case "playersEscaped":
+        case "enemiesEscaped":
+        {
+            newSystemCall("Walka zakończona ucieczkom " + (winner === "playersEscaped" ? "bohaterów" : "przeciwników") + " z walki!");
+            break;
+        }
+    }
 
     //Hide the next turn button and battle controls, show the "continue to battle" button
     document.getElementById("nextTurnButton").classList.toggle("hidden");

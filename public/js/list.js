@@ -33,6 +33,7 @@ function adjustOptions(filter) {
                 showSection(targetSection);
                 break;
             }
+            case "escape":
             case "dodge":
             {
                 hideSection(actionElementsSection);
@@ -119,7 +120,7 @@ function adjustOptions(filter) {
         }
     }
     else if(filter === "reset") {
-        //Reset simply hides all sections and resets the action choice
+        //Reset hides all sections and resets the action choice
         hideSection(actionElementsSection);
         hideSection(targetSection);
         hideSection(inputSection);
