@@ -136,7 +136,7 @@ function act()
 
                 if(escapeRoll > preventEscapeRoll || instantEscape) {
                     if(instantEscape)
-                        newSystemCall(initiator.name + " ucieka z walki aż się za nim kurzy! Ucieczka zakończona sukcesem!");
+                        newSystemCall(initiator.name + " ucieka z walki aż się za nimi kurzy! Ucieczka zakończona sukcesem!");
                     else newSystemCall(initiator.name + " ucieka z walki z wynikiem " + escapeRoll + ". Wynik drugiej strony to " + preventEscapeRoll + ". Ucieczka zakończona sukcesem!");
 
                     //End the battle
@@ -292,24 +292,29 @@ function handleDodge(target = {})
  */
 function handleUseItem(target, itemId)
 {
+    //Set a flag to make sure the item was used correctly
     let itemUsed = true;
     //Find the item in the item list
     let item = Settings.items.find(i => i.uiid === itemId);
-    //History system call
+    //Log item use in the history
     newSystemCall("Użycie " + item.displayName + " na " + target.name);
     //See if the target is dead or alive
     let targetAlive = target.health > 0;
-    //Use the healing item
+    //Use the item
     let healthRestored = 0;
-    if(targetAlive && item.subtype === "restore")
+    if (targetAlive && item.subtype === "restore") {
+        //Healing item
         healthRestored = restoreHp(item, target);
-    else if (!targetAlive && item.subtype === "revive")
+    }
+    else if (!targetAlive && item.subtype === "revive") {
+        //Reviving item
         healthRestored = restoreHp(item, target);
+    }
     else if (targetAlive && item.type === "statusRemover") {
         //Remove all clearable statuses of the target
         Status.voidParticipantStatuses(target);
     }
-    else if(item.type === "special") {
+    else if (item.type === "special") {
         //First multiply the attack by 3
         target.attack *= 3;
         //Randomise two targets - one must be of reverse type to us
@@ -325,11 +330,12 @@ function handleUseItem(target, itemId)
         //Bring the attack back to the original number
         target.attack /= 3;
     }
-    else {
+    else if (item.type !== "status") {
         itemUsed = false;
         newSystemCall("Nie udało się użyć tego przedmiotu na wskazanym celu.");
     }
 
+    //If the item restored any health to anyone, show this in the battle history
     if(healthRestored > 0)
         newSystemCall(target.name + " odzyskał " + healthRestored + " punktów zdrowia!");
 

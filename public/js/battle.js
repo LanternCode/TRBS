@@ -231,7 +231,7 @@ function endBattle(winner)
         case "playersEscaped":
         case "enemiesEscaped":
         {
-            newSystemCall("Walka zakończona ucieczkom " + (winner === "playersEscaped" ? "bohaterów" : "przeciwników") + " z walki!");
+            newSystemCall("Walka zakończona ucieczką " + (winner === "playersEscaped" ? "bohaterów" : "przeciwników") + " z walki!");
             break;
         }
     }
