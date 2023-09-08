@@ -6,6 +6,7 @@ import {getRndInteger, handleSystemRoll, newSystemCall, randomSystemRoll} from "
 import {StatsAffected, Status} from "./status.js";
 import {Skill} from "./skill.js";
 import {Spell} from "./spell.js";
+import {Participant} from "./participant.js";
 
 /**
  * This function handles user actions
@@ -41,7 +42,7 @@ function act()
                 else if((Settings.priorityTwo || extraAttackAvailable) && target !== '') {
                     if (!Settings.priorityTwo)
                         extraAttackUsed = true;
-                    handleRegAttack(Settings.participants[target], Settings.participants[Settings.localTurn]);
+                    handleRegAttack(Settings.participants[target], Participant.getCurrentlyActingParticipant());
                 }
                 else if(Settings.priorityTwo === false)
                     newSystemCall("Ta akcja wymaga priorytetu 2 który został już wykorzystany.");
@@ -73,11 +74,11 @@ function act()
                     let cooldownRemaining = 0;
                     if(action === "spell") {
                         ability = Settings.spells.find(s => s.uspid === actionElementId);
-                        cooldownRemaining = Settings.participants[Settings.localTurn].spellsOwned[actionElementId];
+                        cooldownRemaining = Participant.getCurrentlyActingParticipant().spellsOwned[actionElementId];
                     }
                     else {
                         ability = Settings.skills.find(s => s.usid === actionElementId);
-                        cooldownRemaining = Settings.participants[Settings.localTurn].skillsOwned[actionElementId];
+                        cooldownRemaining = Participant.getCurrentlyActingParticipant().skillsOwned[actionElementId];
                     }
                     if (cooldownRemaining === 0) {
                         let priority = ability.priority;
@@ -112,13 +113,13 @@ function act()
                 }
 
                 //The instant escape status ignores the usual escape check
-                let activeOnEscapeStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onEscape");
+                let activeOnEscapeStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onEscape");
                 let instantEscape = false;
                 if(activeOnEscapeStatuses.includes("instantEscape"))
                     instantEscape = true;
 
                 //Only players and human-type enemies can escape, monsters need a special ability to do this (will usually grant them instantEscape status)
-                let initiator = Settings.participants[Settings.localTurn];
+                let initiator = Participant.getCurrentlyActingParticipant();
                 let initiatorType = initiator.type;
                 if(initiatorType === "enemy" && initiator.subtype !== "human" && !instantEscape) {
                     newSystemCall( "Potwory nie uciekają z walk!");
@@ -162,7 +163,7 @@ function act()
             }
         }
         if(extraAttackUsed)
-            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "extraAttack");
+            Status.advancePersistentStatus(Participant.getCurrentlyActingParticipant(), "extraAttack");
     }
     else newSystemCall("Nie wybrano żadnej akcji.");
 
@@ -270,8 +271,8 @@ function handleRegAttack(target, attacker)
 function handleDodge(target = {})
 {
     if(target !== {}) {
-        Settings.participants[Settings.localTurn].isDodging = true;
-        newSystemCall(Settings.participants[Settings.localTurn].name + " unika nadchodzących ataków!");
+        Participant.getCurrentlyActingParticipant().isDodging = true;
+        newSystemCall(Participant.getCurrentlyActingParticipant().name + " unika nadchodzących ataków!");
     }
     else {
         target.isDodging = true;
@@ -354,12 +355,12 @@ function handleUseItem(target, itemId)
 
     //Reduce participant's item count
     if(itemUsed) {
-        Settings.participants[Settings.localTurn].inventory[itemId] -= 1;
+        Participant.getCurrentlyActingParticipant().inventory[itemId] -= 1;
         Settings.priorityThree = false;
     }
 
     //Liquid silver can be used for free if it was also used one turn earlier
-    let noFreeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilverFree"}) === false;
+    let noFreeLiquidSilver = Status.getParticipantStatus(Participant.getCurrentlyActingParticipant(), {"name":"liquidSilverFree"}) === false;
     if(!noFreeLiquidSilver)
         Settings.priorityThree = true;
 }
@@ -379,7 +380,7 @@ function handleUseSkillSpell(ability, target)
     let type = ability.type;
     let subtype = ability.subtype;
     let abilityType = Object.hasOwn(ability, "uspid") ? "spell" : "skill";
-    let casterType = Settings.participants[Settings.localTurn].type;
+    let casterType = Participant.getCurrentlyActingParticipant().type;
 
     //Based on the target, generate the target(s) array
     let participantsAffected = [];
@@ -462,7 +463,7 @@ function handleUseSkillSpell(ability, target)
                 newSystemCall("Rzut systemu: " + hitRoll + " (Krytyczny Słaby Punkt)");
             }
             else if (criticalHit) {
-                abilityPreModifiers.value += casterType === "player" ? Settings.participants[Settings.localTurn].level : Settings.participants[Settings.localTurn].zone;
+                abilityPreModifiers.value += casterType === "player" ? Participant.getCurrentlyActingParticipant().level : Participant.getCurrentlyActingParticipant().zone;
                 applyStatuses = true;
                 newSystemCall("Rzut systemu: " + hitRoll + " (Krytyczny Sukces)");
             }
@@ -528,7 +529,7 @@ function handleUseSkillSpell(ability, target)
                         status = Settings.statuses.filter(st => st.name === s);
                     }
                     if(ability.statusTarget === "caster")
-                        Status.applyStatus(Settings.participants[Settings.localTurn], structuredClone(status[0]));
+                        Status.applyStatus(Participant.getCurrentlyActingParticipant(), structuredClone(status[0]));
                     else
                         Status.applyStatus(p, structuredClone(status[0]));
                 }
@@ -543,9 +544,9 @@ function handleUseSkillSpell(ability, target)
 
     //Set the ability on cooldown
     if(Object.hasOwn(ability, "uspid"))
-        Settings.participants[Settings.localTurn].spellsOwned[ability.uspid] = ability.cooldown;
+        Participant.getCurrentlyActingParticipant().spellsOwned[ability.uspid] = ability.cooldown;
     else
-        Settings.participants[Settings.localTurn].skillsOwned[ability.usid] = ability.cooldown;
+        Participant.getCurrentlyActingParticipant().skillsOwned[ability.usid] = ability.cooldown;
 }
 
 /**
@@ -688,11 +689,11 @@ function damageTarget(attackSource, attackTarget)
  */
 function applyImpact(attackTarget, abilityPower) {
     let damageTotal = abilityPower;
-    let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onDamage");
+    let activeOnDamageStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onDamage");
     if(activeOnDamageStatuses.includes("impact")) {
         //Impact status may double or quadruple damage
         let impactMultiplier = 1;
-        if (Settings.participants[Settings.localTurn].health <= Settings.participants[Settings.localTurn].maxHealth * 0.5) {
+        if (Participant.getCurrentlyActingParticipant().health <= Participant.getCurrentlyActingParticipant().maxHealth * 0.5) {
             impactMultiplier *= 2;
         }
         if (attackTarget.health <= attackTarget.maxHealth * 0.5) {
@@ -700,7 +701,7 @@ function applyImpact(attackTarget, abilityPower) {
         }
         if(impactMultiplier > 1) {
             damageTotal *= impactMultiplier;
-            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "impact");
+            Status.advancePersistentStatus(Participant.getCurrentlyActingParticipant(), "impact");
         }
     }
     return damageTotal;
@@ -733,7 +734,7 @@ function applyShrapnel(healingPower, healTarget) {
  * @returns {number} The roll after the application of the status
  */
 function applyBlindness(attackRoll) {
-    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onHit");
     if(activeOnHitStatuses.includes("blind")) {
         //Blindness reduces the participant's hit chance by D4+1, a roll result cannot be smaller than 1
         let reduction = randomSystemRoll(4)+1;
@@ -750,7 +751,7 @@ function applyBlindness(attackRoll) {
  * @returns {number} The roll after the application of the status
  */
 function applyFocus(attackRoll) {
-    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onHit");
     if(activeOnHitStatuses.includes("focus")) {
         //Focus increases the participant's hit chance by 5
         attackRoll = attackRoll + 5 > 20 ? 20 : (attackRoll + 5);
@@ -765,12 +766,12 @@ function applyFocus(attackRoll) {
  * @returns {boolean} true if applied, false otherwise
  */
 function applyPerfection() {
-    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onHit");
     let perfectAttack = false;
     if(activeOnHitStatuses.includes("perfection")) {
         //Perfection status makes an attack always hit
         perfectAttack = true;
-        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "perfection");
+        Status.advancePersistentStatus(Participant.getCurrentlyActingParticipant(), "perfection");
     }
     return perfectAttack;
 }
@@ -788,7 +789,7 @@ function applyPerfection() {
 function applyIllusion(attackTarget, abilityPower) {
     //First check if the target has the Illusion status and whether they attacked us before
     let activeTargetStatuses = Status.getParticipantsPersistentStatuses(attackTarget, "onHit");
-    if(activeTargetStatuses.includes("illusion") && Settings.participants[Settings.localTurn].type !== attackTarget.type) {
+    if(activeTargetStatuses.includes("illusion") && Participant.getCurrentlyActingParticipant().type !== attackTarget.type) {
         //Fetch the status
         let illusionStatus = attackTarget.statusesApplied.filter(s => s.name === "illusion")[0];
         //Illusion requires the target to have attacked the attacked first
@@ -800,10 +801,10 @@ function applyIllusion(attackTarget, abilityPower) {
         }
     }
     //If we have the status and attack someone, that someone must be added to the list
-    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onHit");
-    if(activeOnHitStatuses.includes("illusion") && abilityPower > 0 && Settings.participants[Settings.localTurn] !== attackTarget.type) {
+    let activeOnHitStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onHit");
+    if(activeOnHitStatuses.includes("illusion") && abilityPower > 0 && Participant.getCurrentlyActingParticipant() !== attackTarget.type) {
         //Fetch the status
-        let illusionStatus = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "illusion")[0];
+        let illusionStatus = Participant.getCurrentlyActingParticipant().statusesApplied.filter(s => s.name === "illusion")[0];
         let targetParticipantNo = Settings.participants.indexOf(Settings.participants.filter(part => part.name === attackTarget.name)[0]);
         if(illusionStatus.hasOwnProperty("linkedTargetsList")) {
             if(illusionStatus.linkedTargetsList.indexOf(targetParticipantNo) === -1) {
@@ -890,12 +891,12 @@ function applyPermadeath(healTarget) {
  * @returns {number} the same or new, randomised target
  */
 function applyConfusion(currentTarget) {
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onAct");
     if(activeOnActStatuses.includes("confusion")) {
         //Confusion status randomises the action target
         let targetsAvailable = Settings.participants;
         currentTarget = getRndInteger(0, targetsAvailable.length-1);
-        Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "confusion");
+        Status.advancePersistentStatus(Participant.getCurrentlyActingParticipant(), "confusion");
     }
     return currentTarget;
 }
@@ -907,7 +908,7 @@ function applyConfusion(currentTarget) {
  * @returns {boolean} true if the Object status is present, false otherwise
  */
 function applyObject() {
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onAct");
     return activeOnActStatuses.includes("object")
 }
 
@@ -918,7 +919,7 @@ function applyObject() {
  * @returns {boolean} true if Extra Attack is active, false otherwise
  */
 function applyExtraAttack() {
-    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onAct");
+    let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onAct");
     return (activeOnActStatuses.includes("extraAttack") && Settings.priorityTwo === false);
 }
 

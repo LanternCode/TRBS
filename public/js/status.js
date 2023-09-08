@@ -1,6 +1,7 @@
 import {newSystemCall, randomSystemRoll} from "./utils.js";
 import {Settings} from "./settings.js";
 import {damageTarget, restoreHp} from "./action.js";
+import {Participant} from "./participant.js";
 
 /**
  * @typedef {Object} Status
@@ -281,9 +282,9 @@ class Status {
             let useDefaultStrengthSource = status.useDefaultStrengthSource;
             if(useDefaultStrengthSource) {
                 //Use the default strength source
-                let pType = Settings.participants[Settings.localTurn].type;
+                let pType = Participant.getCurrentlyActingParticipant().type;
                 let defaultStrSrc = pType === "player" ? "level" : "zone";
-                status.strength = Settings.participants[Settings.localTurn][defaultStrSrc];
+                status.strength = Participant.getCurrentlyActingParticipant()[defaultStrSrc];
             } //Else use default strength
             else status.strength = status.defaultStrength;
         }
@@ -444,7 +445,7 @@ class Status {
      */
     static advanceLocalStatuses(effectiveAt) {
         //Search through current participant's statuses
-        let participant = Settings.participants[Settings.localTurn];
+        let participant = Participant.getCurrentlyActingParticipant();
         let participantStatuses = participant.statusesApplied;
         for (let i = 0; i < participantStatuses.length; ++i) {
             //Find only the local statuses effective at the start or end of turn

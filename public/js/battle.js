@@ -6,6 +6,7 @@ import {Settings} from "./settings.js";
 import {payday, experienceUp, paydayII} from "./db.js";
 import {Status} from "./status.js";
 import {createCardTemplate} from "./card.js";
+import {Participant} from "./participant.js";
 
 /**
  * This function starts or resets a battle
@@ -67,11 +68,14 @@ function startBattle()
         document.getElementById("startBattleButton").classList.toggle("hidden");
         document.getElementById("nextTurnButton").classList.toggle("hidden");
 
+        //Set the first acting participant
+        Participant.setCurrentlyActingParticipant();
+
         //Announce history
         document.getElementById("systemCall").textContent = '';
         newSystemCall("Początek walki");
         newSystemCall("Nowa tura globalna: " + Settings.globalTurn);
-        newSystemCall(`Teraz tura: ${Settings.participants[Settings.localTurn].name}`);
+        newSystemCall(`Teraz tura: ${Participant.getCurrentlyActingParticipant().name}`);
 
         //Update the "acts now" label
         document.getElementById("nowActsDesc").innerText = Settings.participants[0].name;
@@ -159,9 +163,12 @@ function startNextTurn() {
             battleOrder.appendChild(participantIndicator);
         }
 
+        //Set the currently acting participant
+        Participant.setCurrentlyActingParticipant();
+
         //If the member was dodging, disable their dodge once their turn starts again
         //This has to be disabled now in case a defeated member was revived
-        Settings.participants[Settings.localTurn].isDodging = 0;
+        Participant.getCurrentlyActingParticipant().isDodging = 0;
 
         //Process the "bomb debuff" status
         applyBombDebuff();
@@ -170,13 +177,13 @@ function startNextTurn() {
         applyLiquidSilver();
 
         //Check if the participant is alive, if not, void all their voidable statuses and start next turn
-        if(Settings.participants[Settings.localTurn].health === 0) {
-            Status.voidParticipantStatuses(Settings.participants[Settings.localTurn]);
+        if(Participant.getCurrentlyActingParticipant().health === 0) {
+            Status.voidParticipantStatuses(Participant.getCurrentlyActingParticipant());
             startNextTurn();
         }
 
         //See if the player is stunned
-        let playerStunned = !(Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"stun"}) === false);
+        let playerStunned = !(Status.getParticipantStatus(Participant.getCurrentlyActingParticipant(), {"name":"stun"}) === false);
 
         //Turn has changed - Advance all statuses with effects at the start of local turn
         Status.advanceLocalStatuses("start");
@@ -198,10 +205,10 @@ function startNextTurn() {
         Settings.priorityThree = true;
 
         //Announce the new turn in the history
-        newSystemCall("Teraz tura: " +  Settings.participants[Settings.localTurn].name);
+        newSystemCall("Teraz tura: " +  Participant.getCurrentlyActingParticipant().name);
 
         //Update the "acts now" label
-        document.getElementById("nowActsDesc").innerText = Settings.participants[Settings.localTurn].name;
+        document.getElementById("nowActsDesc").innerText = Participant.getCurrentlyActingParticipant().name;
 
         //Refresh cards on the table to reflect possible status changes
         refreshCardsInBattle();
@@ -431,21 +438,21 @@ async function loadDefaultTemplate() {
  * @return {void}
  */
 function applyBombDebuff() {
-    let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Settings.participants[Settings.localTurn], "onStartTurn");
+    let activeOnStartTurnStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onStartTurn");
     if(activeOnStartTurnStatuses.includes("bombDebuff")) {
         //Bomb debuff kills the player if they fail a d20 > 12 roll 3 turns in a row
         let hitCheck = randomSystemRoll(20);
         if(hitCheck > 12) {
-            Status.voidStatus(Settings.participants[Settings.localTurn], {"name":"bombDebuff"});
-            newSystemCall("Uczestnik " + Settings.participants[Settings.localTurn].name + " nie jest już celem statusu bomba");
+            Status.voidStatus(Participant.getCurrentlyActingParticipant(), {"name":"bombDebuff"});
+            newSystemCall("Uczestnik " + Participant.getCurrentlyActingParticipant().name + " nie jest już celem statusu bomba");
         }
         else {
-            let bombStatusLength = Settings.participants[Settings.localTurn].statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
-            Status.advancePersistentStatus(Settings.participants[Settings.localTurn], "bombDebuff");
+            let bombStatusLength = Participant.getCurrentlyActingParticipant().statusesApplied.filter(s => s.name === "bombDebuff")[0].length;
+            Status.advancePersistentStatus(Participant.getCurrentlyActingParticipant(), "bombDebuff");
             if(bombStatusLength <= 1) {
                 //the length will have dropped to 0 - kill the player
-                Settings.participants[Settings.localTurn].health = 0;
-                newSystemCall(Settings.participants[Settings.localTurn].name + " WYBUCHŁ! KABOOM!");
+                Participant.getCurrentlyActingParticipant().health = 0;
+                newSystemCall(Participant.getCurrentlyActingParticipant().name + " WYBUCHŁ! KABOOM!");
             }
         }
     }
@@ -458,9 +465,9 @@ function applyBombDebuff() {
  * @return {void}
  */
 function applyLiquidSilver() {
-    let freeLiquidSilver = Status.getParticipantStatus(Settings.participants[Settings.localTurn], {"name":"liquidSilver"}) === false;
+    let freeLiquidSilver = Status.getParticipantStatus(Participant.getCurrentlyActingParticipant(), {"name":"liquidSilver"}) === false;
     if(!freeLiquidSilver)
-        Status.applyStatus(Settings.participants[Settings.localTurn], Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
+        Status.applyStatus(Participant.getCurrentlyActingParticipant(), Settings.statuses.filter(s => s.name === "liquidSilverFree")[0]);
 }
 
 export {startBattle, endBattle, isBattleOver, continueToBattle, startNextTurn, loadDefaultTemplate};

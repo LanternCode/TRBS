@@ -1,4 +1,5 @@
 import {Settings} from "./settings.js";
+import {Participant} from "./participant.js";
 
 /**
  * This function is called when an action is selected to define which elements should show up
@@ -138,7 +139,7 @@ function adjustOptions(filter) {
 function getAttackableTargets()
 {
     let filteredList = [];
-    if(Settings.participants[Settings.localTurn].type === "player")
+    if(Participant.getCurrentlyActingParticipant().type === "player")
         filteredList = Settings.participants.filter(p => p.type === "enemy").filter(p => p.health > 0);
     else
         filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health > 0);
@@ -172,7 +173,7 @@ function createItemTargetList()
         //To restore hp the target must be alive - hp > 0
         case "restore":
         {
-            if(Settings.participants[Settings.localTurn].type === "player")
+            if(Participant.getCurrentlyActingParticipant().type === "player")
             {
                 filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health > 0);
             }
@@ -184,7 +185,7 @@ function createItemTargetList()
         case "revive":
         {
             //To revive, the target must be dead - hp = 0
-            if(Settings.participants[Settings.localTurn].type === "player")
+            if(Participant.getCurrentlyActingParticipant().type === "player")
             {
                 filteredList = Settings.participants.filter(p => p.type === "player").filter(p => p.health === 0);
             }
@@ -196,13 +197,13 @@ function createItemTargetList()
         case "sameType":
         {
             //Item can only be used on the participants of the same type as the acting participant
-            let selfType = Settings.participants[Settings.localTurn].type;
+            let selfType = Participant.getCurrentlyActingParticipant().type;
             filteredList = Settings.participants.filter(p => p.type === selfType).filter(p => p.health > 0);
             break;
         }
         case "reverse":
         {
-            let reverseType = Settings.participants[Settings.localTurn].type === "player" ? "enemy" : "player";
+            let reverseType = Participant.getCurrentlyActingParticipant().type === "player" ? "enemy" : "player";
             filteredList = Settings.participants.filter(p => p.type === reverseType).filter(p => p.health > 0);
             break;
         }
@@ -270,7 +271,7 @@ function createSkillSpellTargetList(SkillSpell)
     //First filtering to determine which side to target (player, enemy, reversed)
     if(targetGroup === "reversed")
     {
-        if(Settings.participants[Settings.localTurn].type === "player")
+        if(Participant.getCurrentlyActingParticipant().type === "player")
             targetGroup = "enemy";
         else targetGroup = "player";
     }
@@ -412,10 +413,10 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz przedmiot:";
             //Check that this participant has access to items
-            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "inventory")) return;
-            if(Object.keys(Settings.participants[Settings.localTurn].inventory).length < 1) return;
+            if(!Object.hasOwn(Participant.getCurrentlyActingParticipant(), "inventory")) return;
+            if(Object.keys(Participant.getCurrentlyActingParticipant().inventory).length < 1) return;
             //Then insert all list items
-            for (let itanz of Object.entries(Settings.participants[Settings.localTurn].inventory))
+            for (let itanz of Object.entries(Participant.getCurrentlyActingParticipant().inventory))
             {
                 let itemId = parseInt(itanz[0]);
                 let itemCount = itanz[1];
@@ -434,10 +435,10 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz umiejętność:";
             //Check that this participant has access to skills
-            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "skillsOwned")) return;
-            if(Object.keys(Settings.participants[Settings.localTurn].skillsOwned).length < 1) return;
+            if(!Object.hasOwn(Participant.getCurrentlyActingParticipant(), "skillsOwned")) return;
+            if(Object.keys(Participant.getCurrentlyActingParticipant().skillsOwned).length < 1) return;
             //Insert all skills
-            for (let skillz of Object.entries(Settings.participants[Settings.localTurn].skillsOwned))
+            for (let skillz of Object.entries(Participant.getCurrentlyActingParticipant().skillsOwned))
             {
                 let skillId = parseInt(skillz[0]);
                 let skillCooldown = skillz[1];
@@ -455,10 +456,10 @@ function createActionElementsList(listName)
         {
             document.getElementById("actionElementsLabel").innerText = "Wybierz zaklęcie:";
             //Check that this participant has access to spells
-            if(!Object.hasOwn(Settings.participants[Settings.localTurn], "spellsOwned")) return;
-            if(Object.keys(Settings.participants[Settings.localTurn].spellsOwned).length < 1) return;
+            if(!Object.hasOwn(Participant.getCurrentlyActingParticipant(), "spellsOwned")) return;
+            if(Object.keys(Participant.getCurrentlyActingParticipant().spellsOwned).length < 1) return;
             //Insert all spells
-            for (let spellz of Object.entries(Settings.participants[Settings.localTurn].spellsOwned))
+            for (let spellz of Object.entries(Participant.getCurrentlyActingParticipant().spellsOwned))
             {
                 let spellId = parseInt(spellz[0]);
                 let spellCooldown = spellz[1];
