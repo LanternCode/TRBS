@@ -317,7 +317,7 @@ class Status {
         let inArrayStatusToVoid = participantStatuses.filter(ps => ps.name === statusToVoid.name);
         let statusPosition = participantStatuses.indexOf(inArrayStatusToVoid[0]);
         if(statusPosition >= 0) {
-            //if the status had any stat modifiers, these must be cancelled first
+            //If the status had any stat modifiers, these must be cancelled first
             StatsAffected.cancelStatModifiers(participant, participantStatuses[statusPosition]);
             participantStatuses.splice(statusPosition, 1);
         }
@@ -374,7 +374,7 @@ class Status {
             }
         }
         else {
-            //apply the status and any stat modifiers
+            //Apply the status and any stat modifiers
             participant.statusesApplied.push(statusUpdated);
             if(statusUpdated.applyStatsAffectedImmediately === true)
                 StatsAffected.applyStatusStatModifiers(participant, statusUpdated);
@@ -467,6 +467,7 @@ class Status {
      * This function reduced the length of a persistent status
      * and voids the status if the length dropped to 0.
      *
+     * @function advancePersistentStatus
      * @param {object} participant the participant targeted by the status
      * @param {string} statusName the name of the status to advance
      */
@@ -477,6 +478,20 @@ class Status {
             newSystemCall("Uczestnik " + participant.name + " nie jest już celem statusu " + statusToAdvance.displayName);
             this.voidStatus(participant, statusToAdvance);
         }
+    }
+
+    /**
+     * This function looks for a full status based on its name and returns it
+     *
+     * @function fetchStatusDefinitionByName
+     * @param {string} statusName the name of the status to fetch
+     * @returns {*[]|*} the status is found, empty array otherwise
+     */
+    static fetchStatusDefinitionByName(statusName) {
+        let availableDefs = Settings.statuses.filter(s => s.name === statusName);
+        if(availableDefs.length > 0)
+            return availableDefs[0];
+        else return [];
     }
 }
 

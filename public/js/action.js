@@ -197,6 +197,10 @@ function handleRegAttack(target, attacker)
     let maxRoll = participantType === "enemy" ? "d100" : "d20";
     let hitCheck = handleSystemRoll(maxRoll);
 
+    //If the roll result is 1, the participant is stunned and their turn ends immediately
+    let criticalFailure = applyCriticalFailureRoll(hitCheck);
+    if(criticalFailure) return;
+
     //Process the Blind, Focus and Perfection statuses
     hitCheck = applyBlindness(hitCheck);
     hitCheck = applyFocus(hitCheck);
@@ -406,6 +410,10 @@ function handleUseSkillSpell(ability, target)
     //Make a roll for the ability
     let maxRollValue = casterType === "player" ? 'd20' : (type === "offensive" ? 'd100' : 'd20');
     let hitRoll = handleSystemRoll(maxRollValue);
+
+    //If the roll result is 1, the participant is stunned and their turn ends immediately
+    let criticalFailure = applyCriticalFailureRoll(hitRoll);
+    if(criticalFailure) return;
 
     //Process the Blind, Focus and Perfection statuses
     hitRoll = applyBlindness(hitRoll);
@@ -921,6 +929,23 @@ function applyObject() {
 function applyExtraAttack() {
     let activeOnActStatuses = Status.getParticipantsPersistentStatuses(Participant.getCurrentlyActingParticipant(), "onAct");
     return (activeOnActStatuses.includes("extraAttack") && Settings.priorityTwo === false);
+}
+
+/**
+ * A roll of 1 is considered critical failure, the participant will lose their turn
+ *
+ * @param hitCheck the rolled value
+ * @returns {boolean} true if critical failure, false otherwise
+ */
+function applyCriticalFailureRoll(hitCheck) {
+    if(hitCheck === 1) {
+        newSystemCall("Rzut systemu: " + hitCheck + " (Krytyczne Niepowodzenie!)");
+        let stunStatus = Status.fetchStatusDefinitionByName("stun");
+        Status.applyStatus(Participant.getCurrentlyActingParticipant(), stunStatus);
+        startNextTurn();
+        return true;
+    }
+    else return false;
 }
 
 export {act, filterBySubtype, restoreHp, damageTarget};
