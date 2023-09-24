@@ -1,4 +1,4 @@
-const base_url = "http://localhost:3000";
+import { Settings } from "./settings.js";
 
 function makeRequest(method, url, body = null) {
     return new Promise(function (resolve, reject) {
@@ -32,7 +32,8 @@ function makeRequest(method, url, body = null) {
  */
  async function getAvailablePlayers()
  {
-    let result = await makeRequest("GET", base_url + "/players/");
+    let result = await makeRequest("GET", Settings.getBaseURL + "players/");
+    console.log(result);
     return JSON.parse(result);
  }
 
@@ -44,7 +45,7 @@ function makeRequest(method, url, body = null) {
  */
 async function getAvailableEnemies()
 {
-    let result = await makeRequest("GET", base_url + "/enemies/");
+    let result = await makeRequest("GET", Settings.getBaseURL + "enemies/");
     return JSON.parse(result);
 }
 
@@ -56,7 +57,7 @@ async function getAvailableEnemies()
  */
 async function getItems()
 {
-    let result = await makeRequest("GET", base_url + "/items/");
+    let result = await makeRequest("GET", Settings.getBaseURL + "items/");
     return JSON.parse(result);
 }
 
@@ -68,7 +69,7 @@ async function getItems()
  */
 async function getSkills()
 {
-    let result = await makeRequest("GET", base_url + "/skills/");
+    let result = await makeRequest("GET", Settings.getBaseURL + "skills/");
     return JSON.parse(result);
 }
 
@@ -81,7 +82,7 @@ async function getSkills()
  */
 async function insertParticipant(participant, type)
 {
-    let insertedParticipantId = await makeRequest("PUT", base_url + "/participants/" + JSON.stringify(participant) + "/" + type );
+    let insertedParticipantId = await makeRequest("PUT", Settings.getBaseURL + "participants/" + JSON.stringify(participant) + "/" + type );
     return insertedParticipantId;
 }
 
@@ -94,7 +95,7 @@ async function insertParticipant(participant, type)
  */
 function dropParticipant(participant, type)
 {
-    makeRequest("DELETE", base_url + "/dropParticipant/" + JSON.stringify(participant) + "/" + type );
+    makeRequest("DELETE", Settings.getBaseURL + "dropParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -107,7 +108,7 @@ function dropParticipant(participant, type)
 function updateParticipant(participant, type)
 {
     participant.inUse = false;
-    makeRequest("PUT", base_url + "/updateParticipant/" + JSON.stringify(participant) + "/" + type );
+    makeRequest("PUT", Settings.getBaseURL + "updateParticipant/" + JSON.stringify(participant) + "/" + type );
 }
 
 /**
@@ -118,7 +119,7 @@ function updateParticipant(participant, type)
  */
 function experienceUp(player)
 {
-    makeRequest("PUT", base_url + "/grantExperience/" + JSON.stringify(player) );
+    makeRequest("PUT", Settings.getBaseURL + "grantExperience/" + JSON.stringify(player) );
 }
 
 export {getAvailablePlayers, getAvailableEnemies, getItems, getSkills, insertParticipant, dropParticipant, updateParticipant, experienceUp};

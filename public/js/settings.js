@@ -6,6 +6,7 @@ import {getAvailableEnemies, getAvailablePlayers, getItems, getSkills} from "./d
 class Settings {
     constructor() {
     }
+
     /**
      * Whether debugging is enabled or not
      * @type {boolean}
@@ -144,6 +145,17 @@ class Settings {
     }
     static set setNextRollValue(value) {
         this.nextRollValue = value;
+    }
+    
+    /**
+     * This const stores the location of the backend API
+     * The getter for the property is located below.
+     *
+     * @property baseURL
+     * @type {string}
+     */
+    static get getBaseURL() {
+        return "http://localhost:3000/";
     }
 }
 

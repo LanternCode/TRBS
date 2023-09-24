@@ -15,6 +15,30 @@ let mc = await connectToCluster();
 app.use(express.static("public"));
 app.listen(3000);
 
+
+// View engine setup
+app.set('view engine', 'ejs');
+
+
+/**
+ * API Call - Fetch character sheet of a player _id
+ */
+app.get('/character-sheet/:participantId', async (req, res, next) => {
+    let participantId = new ObjectId(req.params.participantId); 
+    const character = await mc.db("TRBS").collection("player").find({"_id" : participantId}).toArray();
+    const skills = await mc.db("TRBS").collection("skill").find().toArray();
+    const items = await mc.db("TRBS").collection("item").find().toArray();
+
+    res.locals.character = character[0];
+    res.locals.skills = skills;
+    res.locals.items = items;
+    res.locals.specialClasses = [];
+
+    if(res.locals.character === undefined) res.sendStatus("404");
+
+    res.render("character-sheet");
+});
+
 /**
  * API Call - Fetch all players from the player collection
  */
