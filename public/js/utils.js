@@ -77,7 +77,7 @@ function generateNewEnemy()
     }
     enemy.maxHealth = enemy.health;
 
-    if(enemy.subtype === "human") enemy.itemsOwned = generateRandomItems();
+    if(enemy.subtype === "human") enemy.inventory = generateRandomItems();
 
     return enemy;
 }
@@ -99,15 +99,15 @@ function generateNewPlayer()
         type: "player",
         health: 100,
         speed: 70,
-        atk: 32,
+        attack: 32,
         dodge: 45,
         experience: 0,
-        itemsOwned: generateRandomItems(),
+        inventory: generateRandomItems(),
         skillsOwned: {"3": 0},
         level: 1,
         armor: 2,
-        inUse: false,
-        statusesApplied: []
+        statusesApplied: [],
+        gold: 0
     };
 
     return player;
@@ -143,6 +143,19 @@ function handleSystemRoll(diceType)
 }
 
 /**
+ * This function rolls a number from 1 to the maxRoll passed
+ *
+ * @generator
+ * @function randomSystemRoll
+ * @param {number} maxRoll the max value of the roll
+ * @returns {number} a roll in range 1-maxRoll
+ */
+function randomSystemRoll(maxRoll)
+{
+    return Math.floor(Math.random() * maxRoll) + 1;
+}
+
+/**
  * This function creates a battle history item with the message sent to the user after a system call
  *
  * @function newSystemCall
@@ -157,4 +170,4 @@ function newSystemCall(call)
     document.getElementById("systemCall").appendChild(historyItem);
 }
 
-export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall };
+export { generateNewEnemy, generateNewPlayer, handleSystemRoll, newSystemCall, getRndInteger, randomSystemRoll };

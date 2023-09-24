@@ -1,4 +1,4 @@
-import {getAvailableEnemies, getAvailablePlayers, getItems, getSkills} from "./db.js";
+import {getAvailableEnemies, getAvailablePlayers, getItems, getSkills, getSpells, getStatuses} from "./db.js";
 
 /**
  * A special class that stores most parameters of the system
@@ -8,10 +8,16 @@ class Settings {
     }
 
     /**
-     * Whether debugging is enabled or not
+     * @property debuggingEnabled
      * @type {boolean}
      */
-    static debugging = true;
+    static debuggingEnabled = true;
+    static get getDebuggingEnabled() {
+        return this.debuggingEnabled;
+    }
+    static set setDebuggingEnabled(value) {
+        this.debuggingEnabled = value;
+    }
     /**
      * Pre-defined priority 2 flag
      * @type {boolean}
@@ -49,7 +55,7 @@ class Settings {
     static addedEnemiesCount = 0;
     /**
      * pre-defined item definition array
-     * @type {[{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number},{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number}]}
+     * @type [{subtype: string, displayName: string, valueType: string, uiid: number, type: string, value: number, statusesApplied: array}]
      */
      static items;
     /**
@@ -69,17 +75,17 @@ class Settings {
     static participants = [];
     /**
      * Fetch available players from the database
-     * @type {[{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number},{dodge: number, level: number, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, inUse: boolean, atk: number, maxHealth: number}]}
+     * @type {[{dodge: number, level: number, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Próżnia: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, attack: number, maxHealth: number},{dodge: number, level: number, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number, "Wielki Wybuch": number}, speed: number, UID: number, isDodging: number, armor: number, name: string, attack: number, maxHealth: number},{dodge: number, level: number, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {Przygrywka: number, Wskrzeszenie: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, attack: number, maxHealth: number},{dodge: number, level: number, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, experience: number, type: string, skillsOwned: {"Energy Ball": number, Kumulacja: number, Hellfire: number}, speed: number, UID: number, isDodging: number, armor: number, name: string, attack: number, maxHealth: number}]}
      */
     static availablePlayers;
     /**
      * Fetch available enemies from the database
-     * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, itemsOwned: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, atk: number, maxHealth: number, experience: number, type: string, speed: number}]}
+     * @type {[{isDodging: number, dodge: number, armor: number, level: number, name: string, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, attack: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, attack: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, attack: number, maxHealth: number, experience: number, type: string, speed: number},{isDodging: number, dodge: number, armor: number, level: number, name: string, inventory: {life_potion: number, life_flask: number, small_life_potion: number, large_life_potion: number, regeneration_flask: number}, health: number, attack: number, maxHealth: number, experience: number, type: string, speed: number}]}
      */
     static availableEnemies;
     /**
      * An object of objects with min and max values for participant generation
-     * @type {{dodge: {min: number, max: number}, armor: {min: number, max: number}, zone: {min: number, max: number}, health: {min: number, max: number}, atk: {min: number, max: number}, speed: {min: number, max: number}}}
+     * @type {{dodge: {min: number, max: number}, armor: {min: number, max: number}, zone: {min: number, max: number}, health: {min: number, max: number}, attack: {min: number, max: number}, speed: {min: number, max: number}}}
      */
     static enemyStatLimits = {
         health: {
@@ -90,7 +96,7 @@ class Settings {
             min: 1,
             max: 100
         },
-        atk: {
+        attack: {
             min: 9,
             max: 22
         },
@@ -108,10 +114,6 @@ class Settings {
         }
     };
 
-    static debuggingEnabled() {
-        return this.debugging;
-    }
-
     static createSettingsInstance() {
         //return new Settings();
     }
@@ -124,12 +126,20 @@ class Settings {
         this.skills = await getSkills();
     }
 
+    static async fetchSpells() {
+        this.spells = await getSpells();
+    }
+
     static async fetchPlayers() {
         this.availablePlayers = await getAvailablePlayers();
     }
 
     static async fetchEnemies() {
         this.availableEnemies = await getAvailableEnemies();
+    }
+
+    static async fetchStatuses() {
+        this.statuses = await getStatuses();
     }
 
     /**
@@ -154,9 +164,8 @@ class Settings {
      * @property baseURL
      * @type {string}
      */
-    static get getBaseURL() {
-        return "http://localhost:3000/";
-    }
+    static baseURL = "http://localhost:3000/";
+    
 }
 
 export {Settings};

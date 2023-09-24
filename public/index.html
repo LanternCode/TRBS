@@ -33,9 +33,11 @@
                     <option value="regAttack">Zwykły Atak</option>
                     <option value="dodge">Unikanie</option>
                     <option value="item">Użycie Przedmiotu</option>
-                    <option value="skill">Umiejętność/Zaklęcie</option>
+                    <option value="skill">Umiejętność</option>
+                    <option value="spell">Zaklęcie</option>
+                    <option value="escape">Ucieczka Z Walki</option>
                     <option value="debug">Debugowanie</option>
-                </select>
+                </select><br>
                 <section id="actionElementsSection">
                     <h3 id="actionElementsLabel">Wybierz umiejętność:</h3>
                     <select id="actionElementsList">
@@ -48,10 +50,11 @@
                 </section>
                 <section id="sectionInput">
                     <h3>Wpisz wynik rzutu:</h3>
-                    <input id="manualInput" type="number" min="1" max="100">
+                    <input id="manualInput" type="number" min="1" max="100" value="15">
                 </section><br>
                 <button id="actButton" class="battleButton">Wykonaj</button><br>
             </section>
+            <button id="loadDefaultTemplate" class="battleButton outOfBattleElem">Załaduj Szablon</button><br><br>
             <button id="startBattleButton" class="battleButton">Rozpocznij walkę</button>
             <button id="continueToBattleButton" class="battleButton hidden">Przejdź dalej</button>
             <button id="nextTurnButton" class="battleButton hidden">Następna tura</button>
