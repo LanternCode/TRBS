@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title><%- character.name === undefined ? '' : character.name + ' - ' %> karta postaci</title>
+        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/character-sheet.css">
+    </head>
+    <body class="character-sheet-background">
+        <header class="print-hidden">
+            <h1>Przeglądasz kartę postaci <%- character.name === undefined ? '' : '<em>' + character.name + '</em>' %></h1>
+            <section class="button-section">
+                <button>edytuj</button>
+                <button>zapisz zmiany</button>
+            </section>
+        </header>
+        <article class="character-sheet">
+            <form action="">
+                <section class="general">
+                    <input name="name" type="text" value="<%- character.name === undefined ? '' : character.name %>"placeholder="Imię i Nazwisko Postaci" disabled >
+                    <input name="titleAffiliation" type="text" value="<%- character.titleAffiliation === undefined ? '' : character.titleAffiliation %>" placeholder="Tytuł, przynależność" disabled>
+                </section>
+                <section class="stats">
+                    <article class="e-stat">
+                        <label for="">
+                            <input name="strength" type="text" value="<%- character.strength === undefined ? '' : character.strength %>" disabled>
+                            siła
+                        </label>
+                        <label class="e-checkbox" for=""><input type="checkbox" name="strengthE" >E.</label>
+                    </article>
+                    <article class="e-stat">
+                        <label for="">
+                            <input name="dexterity" type="text" value="<%- character.dexterity === undefined ? '' : character.dexterity %>" disabled>
+                            zwinność
+                        </label>
+                            <label class="e-checkbox" for=""><input type="checkbox" name="dexterityE" >E.</label>
+                    </article>
+                    <article class="e-stat">
+                        <label for="">
+                            <input name="cleverness" type="text" value="<%- character.cleverness === undefined ? '' : character.cleverness %>" disabled>
+                            wnikliwość
+                        </label>
+                            <label class="e-checkbox" for=""><input type="checkbox" name="clevernessE" >E.</label>
+                    </article>
+                    <article class="e-stat">
+                        <label for="">
+                            <input name="appearence" type="text" value="<%- character.appearence === undefined ? '' : character.appearence %>" disabled>
+                            wygląd
+                        </label>
+                            <label class="e-checkbox" for=""><input type="checkbox" name="appearenceE" >E.</label>
+                    </article>
+                    <article class="e-stat">
+                        <label for="">
+                            <input name="speed" type="text" value="<%- character.speed === undefined ? '' : character.speed %>" disabled>
+                            szybkość
+                        </label>
+                            <label class="e-checkbox" for=""><input type="checkbox" name="speedE" >E.</label>
+                    </article>
+                    <article>
+                        <label for="">
+                            <input name="strife" type="text" value="<%- character.strife === undefined ? '' : character.strife %>" disabled>
+                            wprawa
+                        </label>
+                    </article>
+                    <article>
+                        <label for="">
+                            <input name="dodge" type="text" value="<%- character.dodge === undefined ? '' : character.dodge %>" disabled>
+                            unik
+                        </label>
+                    </article>
+                    <article class="input-with-side">
+                        <input id="attack" name="attack" type="text" value="<%- character.attack === undefined ? '' : character.attack %>" disabled>
+                        <section class="side-input-line">
+                            <label for="attack">
+                                atak
+                            </label>
+                            <input name="baseAttack" type="text" value="<%- character.baseAttack === undefined ? '' : character.baseAttack %>" placeholder="bazowy" disabled class="side-input">
+                        </section>
+                    </article>
+                    <article>
+                        <label for="">
+                            <input name="health" type="text" value="<%- character.health === undefined ? '' : character.health %>" disabled>
+                            zdrowie
+                        </label>
+                    </article>
+                    <article>
+                        <label for="">
+                            <input name="maxHealth" type="text" value="<%- character.maxHealth === undefined ? '' : character.maxHealth %>" disabled>
+                            wytrzymałość
+                        </label>
+                    </article>
+                </section>
+                <section class="talents-skills-spells">
+                    <fieldset class="talents" disabled>
+                        <legend>Talenty</legend>
+                        <ul>
+                            <li><input name="talents" type="text" value="Walka bezpośrednia 0"></li>
+                            <li><input name="talents" type="text" value="Walka br. krótką 0"></li>
+                            <li><input name="talents" type="text"value="Czarnoksięstwo 0"> </li>
+                        </ul>
+                    </fieldset>
+                    <fieldset class="skills-and-spells" disabled>
+                        <legend>Zdolności i Czary</legend>
+                        <ul>
+                            <% for (const [key, value] of Object.entries(character.skillsOwned)) { %>
+                                <li><input name="skillsOwned" type="text" value="<%= skills[key].name + ': ' + value %>"></li>
+                            <% } %>
+                        </ul>
+                    </fieldset>
+                </section>
+                <fieldset class="tips">
+                    <legend>wskazówki</legend>
+                    <article class="content">
+                        <section>
+                            <h4>Akcje dostępne w trakcie walki:</h4>
+                            <ul>
+                                <li>Zwykły Atak (2)</li>
+                                <li>Blok/Unik (2)</li>
+                                <li>Ucieczka z walki (4)</li>
+                                <li>Użycie umiejętności/zaklęcia (dowolny priorytet)</li>
+                                <li>Użycie przedmiotu (3)</li>
+                            </ul>
+                        </section>
+                        <section>
+                            <h4>W trakcie tury każdy może użyć:</h4>
+                            <ul>
+                                <li>1 akcję priorytetu 1, 4 lub 5, ALBO</li>
+                                <li>1 akcję priorytetu 2 oraz jedną akcję priorytetu 3</li> 
+                            </ul>
+                            <p>Dodatkowo akcje priorytetu 0 można wykorzystać raz na turę każdego przeciwnika.</p>
+                        </section>
+                    </article>
+                </fieldset>
+                <% if(character.itemsEquipped === undefined){ %>
+                    <h4>w tej wersji systemu nie ma jeszcze Ekwipunku :P</h4>
+                <% } else { %>
+                    <fieldset name="itemsEquipped" disabled>
+                        <legend>Ekwipunek</legend>
+                        <% for (const [itemEquippedId, itemEquipped] of Object.entries(character.itemsEquipped)) { %>
+                            <section class="item-equipped">
+                                <% for (const [attributeName, attributeEntry ] of Object.entries(character.itemEquipped)) { %>
+                                    <% if(attributeName === "category"){ %>
+                                        <h5><%= attributeEntry.displayName %></h5>
+                                    <% } else { %>
+                                        <label for="">
+                                            <%= attributeEntry.displayName %> 
+                                            <% if(attributeEntry.isMultiline){ %>
+                                                <textarea name="<%= attributeName %>"><%- attributeEntry.value === 'none' ? 'brak' : attributeEntry.value %></textarea>
+                                            <% } else { %>
+                                                <input name="<%= attributeName %>" type="text" value="<%- attributeEntry.value === 'none' ? 'brak' : attributeEntry.value %>">
+                                            <% } %>
+                                        </label>
+                                    <% } %>
+                                <% } %>
+                            </section>
+                        <% } %>
+                        <output name="armorOutput" type="text" value="Łączny pancerz: <%- character.totalArmor === undefined ? '' : character.totalArmor %>" ></output>
+                        <label for="">
+                            Amulet <input name="amulet" type="text" value=" <%- character.amulet === undefined ? '' : character.amulet %>" disabled>
+                        </label>
+                    </fieldset>
+                <% } %>
+                <section class="wealth">
+                    <label for="">
+                        Portfel: <input name="sausageAndMash" type="text" value=" <%- character.sausageAndMash === undefined ? '' : character.sausageAndMash %>" disabled> g
+                    </label>
+                    <label for="">
+                        Własności: <input name="possession" type="text" value=" <%- character.possession === undefined ? '' : character.possession %>" disabled> g
+                    </label>
+                </section>
+                <fieldset disabled class="inventory">
+                    <legend>Inwentarz</legend>
+                    <% for (const [itemId, item] of Object.entries(character.inventory)) { %>
+                        <input name="items" type="text" value="<%= Object.values(items).filter(i => i.uiid === parseInt(itemId))[0].displayName %>: <%= item %>">
+                    <% } %>
+                </fieldset>
+                <fieldset disabled class="class-section">
+                    <legend>
+                        <output name="nameOutput" type="text" value="<%- character.name === undefined ? 'Imię i Nazwisko Postaci' : character.name %>" ><%- character.name === undefined ? 'Imię i Nazwisko Postaci' : character.name %> </output>
+                    </legend>
+                    <header>
+                        <section >
+                            <label for="">
+                                Klasa Startowa:
+                                <input name="firtClass" type="text" value="<%- character.firtClass === undefined ? '' : character.firtClass %>">
+                            </label>
+                            <label for="">
+                                Obecna Klasa:
+                                <input name="currentClass" type="text" value="<%- character.currentClass === undefined ? '' : character.currentClass %>">
+                            </label>
+                            <label for="">
+                                Poziom Doświadczenia:
+                                <input name="level" type="text" value="<%- character.level === undefined ? '' : character.level %>">
+                            </label>
+                            <label for="">
+                                Doświadczenie:
+                                <input name="experience" type="text" value="<%- character.experience === undefined ? '' : character.experience %>">
+                            </label>
+                        </section>
+                        <img src="<%- character.imageSrc === undefined ? '' : character.imageSrc %>" alt="character image">
+                    </header>
+
+                    <section>
+                        <article>
+                            <h5>Klasy Podstawowe</h5>
+                            <ul>
+                                <li>
+                                    <label>
+                                        Barista
+                                        <input name="class1" type="text" value="<%- character.class1 === undefined ? '' : character.class1 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Elementalista
+                                        <input name="class2" type="text" value="<%- character.class2 === undefined ? '' : character.class2 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Ezoteryk
+                                        <input name="class3" type="text" value="<%- character.class3 === undefined ? '' : character.class3 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Uczeń
+                                        <input name="class4" type="text" value="<%- character.class4 === undefined ? '' : character.class4 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Szermierz
+                                        <input name="class5" type="text" value="<%- character.class5 === undefined ? '' : character.class5 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Tancerz
+                                        <input name="class6" type="text" value="<%- character.class6 === undefined ? '' : character.class6 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Wierzący Wojownik
+                                        <input name="class7" type="text" value="<%- character.class7 === undefined ? '' : character.class7 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Złodziej
+                                        <input name="class8" type="text" value="<%- character.class8 === undefined ? '' : character.class8 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Zaklinacz Przyrody
+                                        <input name="class9" type="text" value="<%- character.class9 === undefined ? '' : character.class9 %>">
+                                    </label>
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <h5>Klasy Łączone</h5>
+                            <ul>
+                                <li>
+                                    <label>
+                                        Alchemik
+                                        <input name="class10" type="text" value="<%- character.class10 === undefined ? '' : character.class10 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Armamentalista
+                                        <input name="class11" type="text" value="<%- character.class11 === undefined ? '' : character.class11 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Dyplomata
+                                        <input name="class12" type="text" value="<%- character.class12 === undefined ? '' : character.class12 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Mag Dom. Rozszerzonej
+                                        <input name="class13" type="text" value="<%- character.class13 === undefined ? '' : character.class13 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Pirat
+                                        <input name="class14" type="text" value="<%- character.class14 === undefined ? '' : character.class14 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Rytualista
+                                        <input name="class15" type="text" value="<%- character.class15 === undefined ? '' : character.class15 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Samuraj
+                                        <input name="class16" type="text" value="<%- character.class16 === undefined ? '' : character.class16 %>">
+                                    </label>
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <h5>Klasy Zaawansowane</h5>
+                            <ul>
+                                <li>
+                                    <label>
+                                        Duch Lasu
+                                        <input name="class17" type="text" value="<%- character.class17 === undefined ? '' : character.class17 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Kapłan
+                                        <input name="class18" type="text" value="<%- character.class18 === undefined ? '' : character.class18 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Mafioz
+                                        <input name="class19" type="text" value="<%- character.class19 === undefined ? '' : character.class19 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Mag Dom. Zasadniczej
+                                        <input name="class20" type="text" value="<%- character.class20 === undefined ? '' : character.class20 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Rycerz
+                                        <input name="class21" type="text" value="<%- character.class21 === undefined ? '' : character.class21 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Zabójca
+                                        <input name="class22" type="text" value="<%- character.class22 === undefined ? '' : character.class22 %>">
+                                    </label>
+                                </li>
+                            </ul>
+                        </article>
+                        <article>
+                            <h5>Klasy Eksperckie</h5>
+                            <ul>
+                                <li>
+                                    <label>
+                                        Asceta
+                                        <input name="class23" type="text" value="<%- character.class23 === undefined ? '' : character.class23 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Bohater
+                                        <input name="class24" type="text" value="<%- character.class24 === undefined ? '' : character.class24 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Kultywator
+                                        <input name="class25" type="text" value="<%- character.class25 === undefined ? '' : character.class25 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Paladyn
+                                        <input name="class26" type="text" value="<%- character.class26 === undefined ? '' : character.class26 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Upiór
+                                        <input name="class27" type="text" value="<%- character.class27 === undefined ? '' : character.class27 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Uwolniony
+                                        <input name="class28" type="text" value="<%- character.class28 === undefined ? '' : character.class28 %>">
+                                    </label>
+                                </li>
+                                <li>
+                                    <label>
+                                        Władca Mórz
+                                        <input name="class29" type="text" value="<%- character.class29 === undefined ? '' : character.class29 %>">
+                                    </label>
+                                </li>
+                            </ul>
+                        </article>
+                    </section>
+                    
+                    <section class="wholewide-section">
+                        <h5>Klasy Specjalne</h5>
+                        <ul>
+                            <% for (const className of specialClasses) { %>
+                                <li>
+                                    <input name="className" type="text" value="<%= className %>">
+                                    <%= className %>
+                                    <input name="<%= className %>" type="text" value="<%- character[className] === undefined ? '' : character[className] %>">
+                                </li>
+                            <% } %>
+                        
+                            <li>
+                                <input name="className1" type="text" value="">
+                                <input name="classNameValue1" type="text" value="">
+                            </li>
+                            <li>
+                                <input name="className2" type="text" value="">
+                                <input name="classNameValue2" type="text" value="">
+                            </li>
+                        </ul>
+                    </section>
+
+                    <label for="" class="finishing-class">
+                        <span>Klasa Zwieńczająca Podróż: </span>
+                        <input name="finalClass" type="text" value=" <%- character.finalClass === undefined ? '' : character.finalClass %>">
+                    </label>
+                </fieldset>
+            </form>
+        </article>    
+    </body>
+    <script>
+        
+    </script>
+</html>

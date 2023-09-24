@@ -1,0 +1,501 @@
+@font-face {
+    font-family: "Algerian";
+    src: url(fonts/ALGER.TTF);
+  }
+
+@font-face {
+    font-family: "Allura";
+    src: url(fonts/Allura-Regular.ttf);
+}
+
+@font-face {
+    font-family: "Book Antiqua";
+    src: url(fonts/BKANT.TTF);
+  }
+
+@font-face {
+    font-family: "Berlin Sans FB";
+    src: url(fonts/BRLNSR.TTF);
+}
+
+@font-face {
+    font-family: "Calibri";
+    src: url(fonts/CALIBRI.TTF);
+  }
+
+@font-face {
+    font-family: "MS San Serif";
+    src: url(fonts/MICROSS.TTF);
+}
+
+@media print {
+    .print-hidden{
+        display: none;
+    }
+    /* styles here */
+}
+
+.character-sheet-background {
+    background-color: darkslategray;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.character-sheet-background > header {
+    padding: 1em 0;
+    display: flex;
+    font-family: "Book Antiqua";
+    justify-content: space-between;
+    align-items: center;
+    width: 45em;
+}
+
+.character-sheet-background header .button-section button {
+    padding: 0.5em;
+}
+
+.character-sheet {
+    background-color: white;
+    color: black;
+    width: 52em;
+    padding: 1.5rem 3rem;
+    box-shadow: black 0.5rem .5rem 2rem 0rem;
+    margin-bottom: 2rem;
+}
+
+.character-sheet input {
+    display: block;
+    width: 100%;
+}
+
+.character-sheet .general {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; 
+    margin-bottom: 1.5em;
+}
+
+.character-sheet .general input {
+    text-align: center;
+    font-family: Helvetica, sans-serif;
+}
+.character-sheet .general input:first-of-type {
+    width: 8.31cm;
+    height: 1.38cm;
+    font-size: 28pt;
+}
+.character-sheet .general input:last-of-type {
+    width: 12.15cm;
+    height: 0.82cm;
+}
+
+.character-sheet .stats input {
+    text-align: center;
+}
+
+.character-sheet .stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.character-sheet .stats input[type="text"] {
+    display: block;
+    width: 2em;
+    height: 2em;
+    border: thin solid black;
+    outline: 2pt solid black;
+    outline-offset: 2px;
+    font-family: Helvetica, sans-serif;
+    font-size: 40pt;
+}
+
+.character-sheet .stats article {
+    place-self: center;
+    margin-block: 0.25em;
+}
+
+.character-sheet .stats article label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4em;
+    font-family: "Allura";
+    font-size: 13pt;
+    text-transform: uppercase;
+}
+
+.character-sheet .side-input  {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 1em;
+}
+
+.character-sheet .stats .input-with-side {
+    gap: 0.25em;
+    display: flex;
+    flex-direction: column;
+}
+
+.character-sheet .stats .input-with-side label {
+    height: 1.25em;
+}
+
+.character-sheet .stats input[type="text"].side-input {
+    height: auto;
+    outline: none;
+    width: 4em;
+    font-family: Helvetica;
+    font-size: 8pt;
+    padding: 0.25em 0;
+}
+
+.side-input-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.character-sheet :is(.e-stat, .input-with-side) {
+    position: relative;
+}
+
+.character-sheet .e-checkbox input {
+    border-radius: 0;
+    border: thin solid black;
+}
+
+.character-sheet .stats .e-checkbox {
+    position: absolute;
+    right: -1.2rem;
+    top: -0.295rem;
+    align-items: start;
+    font-size: 8pt;
+    font-family: "Berlin Sans FB";
+    gap: 0.2em;
+}
+
+.character-sheet .stats article:last-child {
+    position: relative;
+}
+
+.character-sheet .stats article:last-child::before {
+    content: "";
+    width: 0px;
+    height: 5rem;
+    border-left: 3px solid black;
+    position: absolute;
+    transform: skewX(-8deg);
+    top: .75rem;
+    left: -0.5rem;
+}
+
+.character-sheet fieldset {
+    border: 2pt black solid;
+    padding: 1rem;
+    margin-block: 0.5rem;
+}
+
+.character-sheet .talents-skills-spells {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    gap: 1rem;
+}
+
+.character-sheet .talents-skills-spells fieldset {
+    padding-top: 0;
+}
+
+.character-sheet fieldset legend {
+    padding-inline: 0.5em;
+}
+
+.character-sheet .talents-skills-spells legend {
+    font-family: "Allura";
+    font-size: 26pt;
+    margin-left: 1rem;
+}
+
+.character-sheet .talents ul {
+    list-style: none;
+}
+
+.character-sheet .skills-and-spells ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    list-style-position: inside;
+}
+
+.character-sheet .talents-skills-spells input {
+    border-radius: 0;
+    border: black thin solid;
+    display: inline-block;
+    width: 100%;
+    font-family: Helvetica;
+    font-size: 12pt;
+    width: 4.18cm;
+    height: 0.926cm;
+}
+
+.character-sheet .skills-and-spells li {
+    display: flex;
+    height: 0.926cm;
+    gap: 0.25rem;
+}
+
+.character-sheet .skills-and-spells li::before {
+    content: '\02022';
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24pt;
+    line-height: 100%;
+}
+
+.character-sheet .skills-and-spells input {
+    border: none; 
+    flex: 1;
+}
+
+.character-sheet .tips legend {
+    margin-inline: auto;
+    padding-inline: 0.25rem;
+    font-family: "Algerian";
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.character-sheet .tips .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.character-sheet .tips ul {
+    list-style: "- " inside;
+}
+
+.character-sheet .tips .content :is(h4, p, li) {
+    font-weight: normal;
+    font-size: 12pt;
+    font-family: "Calibri";
+}
+
+.character-sheet .wealth {
+    display: flex;
+    padding: 1rem;
+    gap: 4rem;
+}
+
+.character-sheet .wealth label {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.character-sheet .wealth, .inventory > legend {
+    font-family: 'Allura';
+    font-size: 30pt;
+}
+
+.character-sheet .inventory {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.character-sheet :is(.wealth, .inventory) input {
+    border: none;
+    font-family: Helvetica;
+}
+
+.character-sheet .wealth input {
+    font-size: 24pt;
+}
+
+.character-sheet .inventory input {
+    font-size: 11pt;
+}
+
+.character-sheet .class-section legend {
+    font-family: Helvetica;
+    font-size: 14pt;
+    margin-left: 2.5rem;
+}
+
+.character-sheet .class-section header {
+    display: flex;
+    gap: 1rem;
+}
+
+.character-sheet .class-section input {
+    border: none;
+}
+
+.character-sheet .class-section header section {
+    padding-block: 2rem;
+}
+
+.character-sheet .class-section header label {
+    font-family: Allura;
+    font-size: 20pt;
+    text-align: right;
+    justify-content: end
+}
+
+.character-sheet .class-section header input {
+    font-family: helvetica;
+    font-size: 14pt;
+    height: 1.5rem;
+    width: 20rem;
+}
+
+.character-sheet .class-section header img {
+    display: block;
+    width: 8rem;
+    height: 12rem;
+    border: 2px lightgrey solid;
+}
+
+.character-sheet .class-section header img::before {
+    font-family: Helvetica;
+    font-family: 12pt;
+    font-weight: bold;
+}
+
+.character-sheet .class-section label {
+    display: flex;
+    gap: 1rem;
+}
+
+.character-sheet .class-section ul {
+    list-style: none;
+}
+
+.character-sheet .class-section > section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.character-sheet .class-section > section > article {
+    padding: 1rem;
+}
+
+.character-sheet .class-section > section h5 {
+    text-align: center;
+    font-family: Arial;
+    font-size: 16pt;
+    font-weight: normal;
+    margin-bottom: 1rem;
+}
+
+.character-sheet .class-section > section label {
+    font-family: "Book Antiqua";
+    font-size: 14pt;
+    justify-content: space-between;
+}
+
+.character-sheet .class-section > section input {
+    font-family: Helvetica;
+    font-size: 142t;
+    width: 3rem;
+}
+
+.character-sheet .class-section > .wholewide-section {
+    display: block;
+}
+
+.character-sheet .class-section > .wholewide-section h5 {
+    text-align: left;
+    margin-left: 3rem;
+}
+
+.character-sheet .class-section > .wholewide-section ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.character-sheet .class-section > .wholewide-section li {
+    display: flex;
+    gap: 1rem;
+    padding-inline: 1rem;
+}
+
+.character-sheet .class-section > .wholewide-section li > input:first-child {
+    flex: 100%;
+    font-size: 18pt;
+}
+
+.character-sheet .class-section > .wholewide-section li > input:last-child {
+    flex: 3rem;
+}
+
+.character-sheet .class-section > .finishing-class {
+    margin-top: 2rem;
+    padding-inline: 2rem;
+    gap: 0;
+}
+
+.character-sheet .class-section > .finishing-class span {
+    font-family: Allura;
+    font-size: 20pt;
+    flex: 45%;
+}
+
+.character-sheet .class-section > .finishing-class input {
+    font-family: Helvetica;
+    font-size: 14pt;
+    text-align: center;
+    flex: 55%;
+}
+
+/* 
+imię i nazwisko - helvetica
+tytuł - same
+ramki środek - helvetica 40 pkt.?
+imię, tytuł, statystyki (siła) - alignment center
+podpisy Allura 13
+"bazowy" - helvetica 8
+E. - Berlin Sans FB 8
+
+Talenty, Zdolności i Czary - Allura 26, alignment left
+Talenty i umiejki - Helvetica auto
+
+Kropki Zdolności i Czary - Arial 24 (może być zwykła kropka od listy)
+
+"Wskazówki" - Algerian 10 bold
+tekst wskazówek - Calibri 12
+
+Ekwipunek - Arial 24 / Allura rozmiar siura
+
+Hełm itd., Amulet - Allura 18
+Łączny pancerz - Allura 14, left (input: helvetica 12)
+Nazwa, Pancerz, Walor - MS Sans Serif 10
+
+Małe wypełnialne pola (Nazwa, Pancerz) - Calibri 10, alignment left
+Większe wypełniane pola (Amulet, broń efekty) - Calibri 9 - text area, alignment center
+
+Portfel, własnościi, inwnentarz, g - Allura 30
+wypełnialne portfel + własności - helvetica 24, left
+wypełnialne inwentarz - helvetica 11, left
+
+Imię i Nazwisko - helvetca 14 center
+Klasa Startowa, doświadczenie - Allura 20
+wypełnialne - center helvetica 14
+
+Obrazek - helvetica bold 12 center
+
+Klasa podstawowa - nagłówki - arial 16
+inputy - helvetica 12 left
+labele inputów klas - book antiqua 14
+
+klasy specjalne - inputy duże - helvetica 18 left
+małe do wypełniania levela - helvetica 12 left
+
+klasa zwieńczająca podróż - allura 20
+input - helvetica 14 center
+
+*/
